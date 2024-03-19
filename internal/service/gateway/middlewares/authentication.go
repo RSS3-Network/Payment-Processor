@@ -5,11 +5,11 @@ import (
 	"regexp"
 
 	"github.com/labstack/echo/v4"
-	"github.com/naturalselectionlabs/rss3-global-indexer/common/apisix"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/constants"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/jwt"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/model"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/utils"
+	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/constants"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/jwt"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/utils"
 	"gorm.io/gorm"
 )
 

@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/database"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/database/dialer/cockroachdb/table"
-	"github.com/naturalselectionlabs/rss3-global-indexer/schema"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
+	"github.com/naturalselectionlabs/rss3-gateway/schema"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 	"gorm.io/gorm"

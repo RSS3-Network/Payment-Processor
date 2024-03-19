@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"github.com/naturalselectionlabs/rss3-global-indexer/common/apisix"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/gen/oapi"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/jwt"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/siwe"
+	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/gen/oapi"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/jwt"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/siwe"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )

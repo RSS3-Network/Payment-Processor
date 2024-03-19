@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/database/dialer/cockroachdb/table"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/accesslog"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/model"
-	rules "github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/ru_rules"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/accesslog"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
+	rules "github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/ru_rules"
 )
 
 func (app *App) ProcessAccessLog(accessLog accesslog.AccessLog) {

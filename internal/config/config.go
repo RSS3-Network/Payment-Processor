@@ -6,7 +6,7 @@ import (
 
 	"github.com/creasty/defaults"
 	"github.com/go-playground/validator/v10"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/database"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
 	"gopkg.in/yaml.v3"
 )
 
@@ -22,8 +22,6 @@ type File struct {
 	Redis       *Redis       `yaml:"redis"`
 	RSS3Chain   *RSS3Chain   `yaml:"rss3_chain"`
 	Epoch       *Epoch       `yaml:"epoch"`
-	GeoIP       *GeoIP       `yaml:"geo_ip"`
-	RPC         *RPC         `yaml:"rpc"`
 	Gateway     *Gateway     `yaml:"gateway"`
 	APISixAdmin *APISixAdmin `yaml:"apisix_admin" validate:"required"`
 	Billing     *Billing     `yaml:"billing"`
@@ -39,37 +37,13 @@ type Redis struct {
 }
 
 type RSS3Chain struct {
-	EndpointL1     string `yaml:"endpoint_l1" validate:"required"`
-	EndpointL2     string `yaml:"endpoint_l2" validate:"required"`
-	BlockThreadsL1 uint64 `yaml:"block_threads_l1" default:"1"`
+	EndpointL2 string `yaml:"endpoint_l2" validate:"required"`
 }
 
 type Epoch struct {
 	WalletAddress  string `yaml:"wallet_address" validate:"required"`
 	SignerEndpoint string `yaml:"signer_endpoint" validate:"required"`
 	GasLimit       uint64 `yaml:"gas_limit" default:"2500000"`
-}
-
-type GeoIP struct {
-	Account    int    `yaml:"account" validate:"required"`
-	LicenseKey string `yaml:"license_key" validate:"required"`
-	File       string `yaml:"file" validate:"required" default:"./common/geolite2/mmdb/GeoLite2-City.mmdb"`
-}
-
-type RPC struct {
-	RPCNetwork *RPCNetwork `yaml:"network"`
-}
-
-type RPCNetwork struct {
-	Ethereum  *RPCEndpoint `yaml:"ethereum"`
-	Crossbell *RPCEndpoint `yaml:"crossbell"`
-	Polygon   *RPCEndpoint `yaml:"polygon"`
-	Farcaster *RPCEndpoint `yaml:"farcaster"`
-}
-
-type RPCEndpoint struct {
-	Endpoint string `yaml:"endpoint" validate:"required"`
-	APIkey   string `yaml:"api_key"`
 }
 
 type Gateway struct {

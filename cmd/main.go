@@ -6,18 +6,13 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/naturalselectionlabs/rss3-global-indexer/common/apisix"
-	"github.com/naturalselectionlabs/rss3-global-indexer/common/geolite2"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/config"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/config/flag"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/database/dialer"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/hub"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/nameresolver"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/epoch"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/indexer"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/scheduler"
+	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/config"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/config/flag"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/epoch"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/indexer"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
@@ -26,60 +21,6 @@ import (
 )
 
 var flags *pflag.FlagSet
-
-var command = cobra.Command{
-	SilenceUsage:  true,
-	SilenceErrors: true,
-	RunE: func(cmd *cobra.Command, _ []string) error {
-		flags = cmd.PersistentFlags()
-
-		config, err := config.Setup(lo.Must(flags.GetString(flag.KeyConfig)))
-		if err != nil {
-			return fmt.Errorf("setup config file: %w", err)
-		}
-
-		// Dial and migrate database.
-		databaseClient, err := dialer.Dial(cmd.Context(), config.Database)
-		if err != nil {
-			return fmt.Errorf("dial database: %w", err)
-		}
-
-		if err := databaseClient.Migrate(cmd.Context()); err != nil {
-			return fmt.Errorf("migrate database: %w", err)
-		}
-
-		// Dial rss3 ethereum client.
-		ethereumClient, err := ethclient.DialContext(cmd.Context(), config.RSS3Chain.EndpointL2)
-		if err != nil {
-			return fmt.Errorf("dial rss3 ethereum client: %w", err)
-		}
-
-		// Dial redis.
-		options, err := redis.ParseURL(config.Redis.URI)
-		if err != nil {
-			return fmt.Errorf("parse redis uri: %w", err)
-		}
-
-		redisClient := redis.NewClient(options)
-
-		geoLite2, err := geolite2.NewClient(config.GeoIP)
-		if err != nil {
-			return fmt.Errorf("new geo lite2 client: %w", err)
-		}
-
-		nameService, err := nameresolver.NewNameResolver(cmd.Context(), config.RPC.RPCNetwork)
-		if err != nil {
-			return fmt.Errorf("init name resolver: %w", err)
-		}
-
-		hub, err := hub.NewServer(cmd.Context(), databaseClient, ethereumClient, redisClient, geoLite2, nameService)
-		if err != nil {
-			return fmt.Errorf("new hub server: %w", err)
-		}
-
-		return hub.Run(cmd.Context())
-	},
-}
 
 var indexCommand = &cobra.Command{
 	Use: "index",
@@ -110,47 +51,6 @@ var indexCommand = &cobra.Command{
 		}
 
 		instance, err := indexer.New(databaseClient, apisixClient, config.Billing.RuPerToken, *config.RSS3Chain)
-		if err != nil {
-			return err
-		}
-
-		return instance.Run(cmd.Context())
-	},
-}
-
-var schedulerCommand = &cobra.Command{
-	Use: "scheduler",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		flags = cmd.PersistentFlags()
-
-		config, err := config.Setup(lo.Must(flags.GetString(flag.KeyConfig)))
-		if err != nil {
-			return fmt.Errorf("setup config file: %w", err)
-		}
-
-		databaseClient, err := dialer.Dial(cmd.Context(), config.Database)
-		if err != nil {
-			return err
-		}
-
-		if err := databaseClient.Migrate(cmd.Context()); err != nil {
-			return fmt.Errorf("migrate database: %w", err)
-		}
-
-		options, err := redis.ParseURL(config.Redis.URI)
-		if err != nil {
-			return fmt.Errorf("parse redis uri: %w", err)
-		}
-
-		redisClient := redis.NewClient(options)
-
-		// Dial rss3 ethereum client.
-		ethereumClient, err := ethclient.DialContext(cmd.Context(), config.RSS3Chain.EndpointL2)
-		if err != nil {
-			return fmt.Errorf("dial rss3 ethereum client: %w", err)
-		}
-
-		instance, err := scheduler.New(lo.Must(flags.GetString(flag.KeyServer)), databaseClient, redisClient, ethereumClient)
 		if err != nil {
 			return err
 		}
@@ -194,8 +94,9 @@ var epochCommand = &cobra.Command{
 	},
 }
 
-var gatewayCommand = &cobra.Command{
-	Use: "gateway",
+var command = &cobra.Command{
+	SilenceUsage:  true,
+	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		flags = cmd.PersistentFlags()
 
@@ -250,16 +151,11 @@ func init() {
 	initializeLogger()
 
 	command.AddCommand(indexCommand)
-	command.AddCommand(schedulerCommand)
 	command.AddCommand(epochCommand)
-	command.AddCommand(gatewayCommand)
 
 	command.PersistentFlags().String(flag.KeyConfig, "./deploy/config.yaml", "config file path")
 	indexCommand.PersistentFlags().String(flag.KeyConfig, "./deploy/config.yaml", "config file path")
-	schedulerCommand.PersistentFlags().String(flag.KeyConfig, "./deploy/config.yaml", "config file path")
-	schedulerCommand.PersistentFlags().String(flag.KeyServer, "detector", "server name")
 	epochCommand.PersistentFlags().String(flag.KeyConfig, "./deploy/config.yaml", "config file path")
-	gatewayCommand.PersistentFlags().String(flag.KeyConfig, "./deploy/config.yaml", "config file path")
 }
 
 func main() {

@@ -15,11 +15,11 @@ test:
 build:
 	mkdir -p ./build
 	go build \
-		-o ./build/rss3-global-indexer ./cmd
+		-o ./build/rss3-gateway ./cmd
 
 image:
 	docker build \
-    		--tag naturalselectionlabs/rss3-global-indexer:$(VERSION) \
+    		--tag naturalselectionlabs/rss3-gateway:$(VERSION) \
     		.
 
 run:

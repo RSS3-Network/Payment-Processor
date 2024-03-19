@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/database/dialer/cockroachdb/table"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/gen/oapi"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/model"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/utils"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/gen/oapi"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/utils"
 	"github.com/samber/lo"
 )
 

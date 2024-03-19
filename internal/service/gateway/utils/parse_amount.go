@@ -3,7 +3,7 @@ package utils
 import (
 	"math/big"
 
-	"github.com/naturalselectionlabs/rss3-global-indexer/common/ethereum"
+	"github.com/naturalselectionlabs/rss3-gateway/common/ethereum"
 )
 
 func ParseAmount(rawAmount *big.Int) *big.Float {

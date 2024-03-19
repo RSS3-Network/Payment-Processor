@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/constants"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/utils"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/constants"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/utils"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/spruceid/siwe-go"

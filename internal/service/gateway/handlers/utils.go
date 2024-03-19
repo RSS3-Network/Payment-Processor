@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/constants"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/gen/oapi"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/jwt"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/middlewares"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/gateway/model"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/constants"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/gen/oapi"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/jwt"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/middlewares"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
 )
 
 func (app *App) getCtx(ctx echo.Context) (context.Context, *jwt.User) {

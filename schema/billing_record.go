@@ -14,7 +14,9 @@ type BillingRecordBase struct {
 
 	TxHash         common.Hash
 	Index          uint
+	ChainID        uint64
 	BlockTimestamp time.Time
+	BlockNumber    *big.Int
 
 	User   common.Address
 	Amount *big.Int
@@ -34,11 +36,13 @@ type BillingRecordCollected struct {
 	BillingRecordBase
 }
 
-func BillingRecordParseBase(header *types.Header, transaction *types.Transaction, receipt *types.Receipt, user common.Address, amount *big.Int) BillingRecordBase {
+func BillingRecordParseBase(chainID uint64, header *types.Header, transaction *types.Transaction, receipt *types.Receipt, user common.Address, amount *big.Int) BillingRecordBase {
 	return BillingRecordBase{
 		TxHash:         transaction.Hash(),
 		Index:          receipt.TransactionIndex,
+		ChainID:        chainID,
 		BlockTimestamp: time.Unix(int64(header.Time), 0),
+		BlockNumber:    header.Number,
 
 		User:   user,
 		Amount: amount,

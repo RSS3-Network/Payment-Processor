@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/config"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/database"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/config"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
 	"github.com/redis/go-redis/v9"
 	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/zap"
@@ -31,6 +31,10 @@ type Server struct {
 	rpcClient      *rpc.Client
 	ethereumClient *ethclient.Client
 	databaseClient database.Client
+
+	slackNotificationChannel        string
+	slackNotificationBotToken       string
+	slackNotificationBlockchainScan string
 }
 
 func (s *Server) Run(ctx context.Context) error {

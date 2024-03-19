@@ -84,7 +84,9 @@ CREATE TABLE gateway.br_deposited
     tx_hash         bytea not null
         primary key,
     "index" bigint,
+    "chain_id"     bigint      NOT NULL,
     block_timestamp timestamp with time zone,
+    "block_number" bigint      NOT NULL,
     "user"          bytea,
     amount          text
 );
@@ -99,7 +101,9 @@ CREATE TABLE gateway.br_withdrawn
     tx_hash         bytea not null
         primary key,
     "index" bigint,
+    "chain_id"     bigint      NOT NULL,
     block_timestamp timestamp with time zone,
+    "block_number" bigint      NOT NULL,
     "user"          bytea,
     amount          text,
     fee             text
@@ -115,7 +119,9 @@ CREATE TABLE gateway.br_collected
     tx_hash         bytea not null
         primary key,
     "index" bigint,
+    "chain_id"     bigint      NOT NULL,
     block_timestamp timestamp with time zone,
+    "block_number" bigint      NOT NULL,
     "user"          bytea,
     amount          text
 );
