@@ -8,6 +8,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"fmt"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/processors"
 	"github.com/rss3-network/gateway-common/accesslog"
 	"github.com/rss3-network/gateway-common/control"
 	"log"
@@ -49,7 +50,9 @@ var (
 )
 
 var (
-	gatewayApp     *handlers.App
+	handlerApp   *handlers.App
+	processorApp *processors.App
+
 	redisClient    *redis.Client
 	databaseClient *gorm.DB
 	jwtClient      *jwtImpl.JWT
@@ -101,9 +104,15 @@ func init() {
 		log.Panic(err)
 	}
 
+	// Prepare processor
+	processorApp, err = processors.NewApp(controlClient, databaseClient)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	// Prepare echo
 	e := echo.New()
-	gatewayApp, err = handlers.NewApp(
+	handlerApp, err = handlers.NewApp(
 		controlClient,
 		redisClient,
 		databaseClient,
@@ -115,7 +124,7 @@ func init() {
 	}
 
 	// Configure middlewares
-	configureMiddlewares(e, gatewayApp, jwtClient, databaseClient, controlClient)
+	configureMiddlewares(e, handlerApp, jwtClient, databaseClient, controlClient)
 
 	handler = e.Server.Handler
 }
@@ -668,7 +677,7 @@ func Test_ProcessAccessLog(t *testing.T) {
 	}
 
 	for _, reqLog := range requestLogs {
-		gatewayApp.ProcessAccessLog(&reqLog)
+		processorApp.ProcessAccessLog(&reqLog)
 	}
 
 	// Check RU consumption
