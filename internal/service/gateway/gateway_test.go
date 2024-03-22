@@ -8,6 +8,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"fmt"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/processors"
 	"github.com/rss3-network/gateway-common/accesslog"
 	"github.com/rss3-network/gateway-common/control"
 	"log"
@@ -49,7 +50,9 @@ var (
 )
 
 var (
-	gatewayApp     *handlers.App
+	handlerApp   *handlers.App
+	processorApp *processors.App
+
 	redisClient    *redis.Client
 	databaseClient *gorm.DB
 	jwtClient      *jwtImpl.JWT
@@ -101,9 +104,15 @@ func init() {
 		log.Panic(err)
 	}
 
+	// Prepare processor
+	processorApp, err = processors.NewApp(controlClient, databaseClient)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	// Prepare echo
 	e := echo.New()
-	gatewayApp, err = handlers.NewApp(
+	handlerApp, err = handlers.NewApp(
 		controlClient,
 		redisClient,
 		databaseClient,
@@ -115,7 +124,7 @@ func init() {
 	}
 
 	// Configure middlewares
-	configureMiddlewares(e, gatewayApp, jwtClient, databaseClient, controlClient)
+	configureMiddlewares(e, handlerApp, jwtClient, databaseClient, controlClient)
 
 	handler = e.Server.Handler
 }
@@ -629,14 +638,14 @@ func Test_ProcessAccessLog(t *testing.T) {
 	fakeUser, exist, err := model.AccountGetByAddress(ctx, fakeUser.Address, databaseClient, controlClient)
 	assert.NoError(t, err)
 	assert.True(t, exist)
-	assert.Equal(t, fakeUser.RuLimit, int64(100))
+	assert.Equal(t, int64(100), fakeUser.RuLimit)
 
 	// Create test key
 	fakeUserKey, err := model.KeyCreate(ctx, fakeUser.Address, "fake key", databaseClient, controlClient)
 	assert.NoError(t, err)
 	fakeUserKey, exist, err = fakeUser.GetKey(ctx, fakeUserKey.ID)
 	assert.True(t, exist)
-	assert.Equal(t, fakeUserKey.RuUsedCurrent, int64(0))
+	assert.Equal(t, int64(0), fakeUserKey.RuUsedCurrent)
 
 	// Mock some request logs
 	keyID := strconv.FormatUint(fakeUserKey.ID, 10)
@@ -668,21 +677,21 @@ func Test_ProcessAccessLog(t *testing.T) {
 	}
 
 	for _, reqLog := range requestLogs {
-		gatewayApp.ProcessAccessLog(&reqLog)
+		processorApp.ProcessAccessLog(&reqLog)
 	}
 
 	// Check RU consumption
 	fakeUser, exist, err = model.AccountGetByAddress(ctx, fakeUser.Address, databaseClient, controlClient)
 	assert.NoError(t, err)
 	assert.True(t, exist)
-	assert.Equal(t, fakeUser.RuLimit, int64(100))
+	assert.Equal(t, int64(100), fakeUser.RuLimit)
 	fakeUserKey, exist, err = fakeUser.GetKey(ctx, fakeUserKey.ID)
 	assert.NoError(t, err)
 	assert.True(t, exist)
-	assert.Equal(t, fakeUserKey.RuUsedCurrent, int64(10))
+	assert.Equal(t, int64(1), fakeUserKey.RuUsedCurrent)
 
 	_, ruUsedCurrent, _, apiCallsCurrent, err := fakeUser.GetUsage(ctx)
 	assert.NoError(t, err)
-	assert.Equal(t, ruUsedCurrent, int64(10))
-	assert.Equal(t, apiCallsCurrent, int64(2))
+	assert.Equal(t, int64(1), ruUsedCurrent)
+	assert.Equal(t, int64(2), apiCallsCurrent)
 }

@@ -16,6 +16,7 @@ import (
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/handlers"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/jwt"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/middlewares"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/processors"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/siwe"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/swagger"
 	"github.com/redis/go-redis/v9"
@@ -40,34 +41,15 @@ func (s *Server) Run(ctx context.Context) error {
 	errorPool.Go(func(ctx context.Context) error {
 		// Prepare JWT
 		jwtClient, err := jwt.New(s.config.API.JWTKey)
-
 		if err != nil {
-			return err
+			return fmt.Errorf("prepare JWT: %w", err)
 		}
 
 		// Prepare SIWE
 		siweClient, err := siwe.New(s.config.API.SIWEDomain, s.redis)
-
 		if err != nil {
-			return err
+			return fmt.Errorf("prepare SIWE: %w", err)
 		}
-
-		// Prepare echo
-		e := echo.New()
-		echoHandler, err := handlers.NewApp(
-			s.controlClient,
-			s.redis,
-			s.databaseClient.Raw(),
-			jwtClient,
-			siweClient,
-		)
-
-		if err != nil {
-			return err
-		}
-
-		// Configure middlewares
-		configureMiddlewares(e, echoHandler, jwtClient, s.databaseClient.Raw(), s.controlClient)
 
 		// Connect to kafka for access logs
 		kafkaClient, err := accesslog.NewConsumer(
@@ -76,15 +58,35 @@ func (s *Server) Run(ctx context.Context) error {
 			"gateway",
 		)
 		if err != nil {
-			// Failed to Initialize kafka consumer
-			return err
+			return fmt.Errorf("prepare kafka: %w", err)
 		}
 
-		err = kafkaClient.Start(echoHandler.ProcessAccessLog)
+		// Prepare processors
+		processorApp, err := processors.NewApp(s.controlClient, s.databaseClient.Raw())
 		if err != nil {
-			// Failed to start kafka consumer
-			return err
+			return fmt.Errorf("prepare processors: %w", err)
 		}
+
+		err = kafkaClient.Start(processorApp.ProcessAccessLog)
+		if err != nil {
+			return fmt.Errorf("start kafka: %w", err)
+		}
+
+		// Prepare handler
+		e := echo.New()
+		handlerApp, err := handlers.NewApp(
+			s.controlClient,
+			s.redis,
+			s.databaseClient.Raw(),
+			jwtClient,
+			siweClient,
+		)
+		if err != nil {
+			return fmt.Errorf("start handler: %w", err)
+		}
+
+		// Configure middlewares
+		configureMiddlewares(e, handlerApp, jwtClient, s.databaseClient.Raw(), s.controlClient)
 
 		// Start echo API server
 		return e.Start(fmt.Sprintf("%s:%d", s.config.API.Listen.Host, s.config.API.Listen.Port))

@@ -1,16 +1,13 @@
-package handlers
+package processors
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
-	rules "github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/ru_rules"
 	"github.com/rss3-network/gateway-common/accesslog"
 )
 
@@ -58,17 +55,7 @@ func (app *App) ProcessAccessLog(accessLog *accesslog.Log) {
 	}
 
 	// Consumer RU
-	pathSplits := strings.Split(accessLog.Path, "/")
-	ruCalculator, ok := rules.Prefix2RUCalculator[pathSplits[1]]
-
-	if !ok {
-		// Invalid path
-		log.Printf("No matching route prefix")
-
-		return
-	}
-
-	ru := ruCalculator(fmt.Sprintf("/%s", strings.Join(pathSplits[2:], "/")))
+	ru := int64(1) // Default // TODO
 	err = key.ConsumeRu(rctx, ru)
 
 	if err != nil {
