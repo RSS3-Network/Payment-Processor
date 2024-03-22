@@ -96,6 +96,8 @@ func (s *Server) listenEpochEvent(ctx context.Context) error {
 
 		s.checkpoint = checkpoint
 
+		// TODO
+
 		//// Find the latest epoch event from database.
 		//epochEvent, err := s.databaseClient.FindEpochs(ctx, 1, nil)
 		//if err != nil && !errors.Is(err, database.ErrorRowNotFound) {
@@ -143,6 +145,8 @@ func (s *Server) listenEpochEvent(ctx context.Context) error {
 		//	s.timer = time.NewTimer(18*time.Hour - now.Sub(lastEpochEventTime))
 		//	time.Sleep(time.Minute)
 		//}
+
+		zap.L().Debug("fill to fix lint")
 	}
 }
 
