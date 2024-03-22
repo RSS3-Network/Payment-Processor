@@ -55,7 +55,7 @@ func (app *App) ProcessAccessLog(accessLog *accesslog.Log) {
 	}
 
 	// Consumer RU
-	ru := int64(1) // Default
+	ru := int64(1) // Default // TODO
 	err = key.ConsumeRu(rctx, ru)
 
 	if err != nil {
