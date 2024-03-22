@@ -2,5 +2,5 @@ package docs
 
 import "embed"
 
-//go:embed openapi.yaml
+//go:embed gateway.yml
 var EmbedFS embed.FS

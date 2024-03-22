@@ -3,35 +3,22 @@ package indexer
 import (
 	"context"
 
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/config"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/database"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/indexer/l1"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service/indexer/l2"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/config"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service/indexer/l2"
+	"github.com/rss3-network/gateway-common/control"
 	"github.com/sourcegraph/conc/pool"
 )
 
 type Server struct {
 	config         config.RSS3Chain
 	databaseClient database.Client
+	controlClient  *control.StateClientWriter
+	ruPerToken     int64
 }
 
 func (s *Server) Run(ctx context.Context) error {
 	errorPool := pool.New().WithContext(ctx).WithCancelOnError().WithFirstError()
-
-	// Run L1 indexer.
-	errorPool.Go(func(ctx context.Context) error {
-		l1Config := l1.Config{
-			Endpoint:     s.config.EndpointL1,
-			BlockThreads: s.config.BlockThreadsL1,
-		}
-
-		serverL1, err := l1.NewServer(ctx, s.databaseClient, l1Config)
-		if err != nil {
-			return err
-		}
-
-		return serverL1.Run(ctx)
-	})
 
 	// Run L2 indexer.
 	errorPool.Go(func(ctx context.Context) error {
@@ -39,7 +26,7 @@ func (s *Server) Run(ctx context.Context) error {
 			Endpoint: s.config.EndpointL2,
 		}
 
-		serverL2, err := l2.NewServer(ctx, s.databaseClient, l2Config)
+		serverL2, err := l2.NewServer(ctx, s.databaseClient, s.controlClient, s.ruPerToken, l2Config)
 		if err != nil {
 			return err
 		}
@@ -58,10 +45,12 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 }
 
-func New(databaseClient database.Client, config config.RSS3Chain) (*Server, error) {
+func New(databaseClient database.Client, controlClient *control.StateClientWriter, ruPerToken int64, config config.RSS3Chain) (*Server, error) {
 	instance := Server{
 		config:         config,
 		databaseClient: databaseClient,
+		controlClient:  controlClient,
+		ruPerToken:     ruPerToken,
 	}
 
 	return &instance, nil

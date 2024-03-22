@@ -9,27 +9,31 @@ redis:
   uri: redis://localhost:6379/0
 
 rss3_chain:
-  endpoint_l1: https://rpc.ankr.com/eth_sepolia
   endpoint_l2: https://rpc.testnet.rss3.io
-  block_threads_l1: 20
 
 epoch:
   wallet_address:
   signer_endpoint: http://localhost:3000
   gas_limit: 3000000
 
-geo_ip:
-  account:
-  license_key:
+gateway:
+  api:
+    listen:
+      host: "0.0.0.0"
+      port: 5555
+      prom_port: 9000
+    jwt_key: abcdefg1234567
+    siwe_domain: "localhost:3000"
+  kafka:
+    brokers:
+      - "localhost:19092"
+    topic: "gateway.log.access"
+  etcd:
+    endpoints:
+      - "localhost:2379"
 
-rpc:
-  network:
-    ethereum:
-      endpoint: https://rpc.ankr.com/eth
-    crossbell:
-      endpoint: https://rpc.crossbell.io
-    polygon:
-      endpoint: https://rpc.ankr.com/polygon
-    farcaster:
-      endpoint: https://nemes.farcaster.xyz:2281
-      api_key:
+billing:
+  collect_token_to: "0x9E85cb8f7606dA552cdEb42130c315F3fed26625"
+  ru_per_token: 1000
+  slack_notification:
+    blockchain_scan: "https://scan.testnet.rss3.io/tx/"

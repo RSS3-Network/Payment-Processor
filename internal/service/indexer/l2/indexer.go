@@ -8,14 +8,14 @@ import (
 	"time"
 
 	"github.com/avast/retry-go/v4"
-	"github.com/ethereum-optimism/optimism/op-bindings/bindings"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/naturalselectionlabs/rss3-global-indexer/contract/l2"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/database"
-	"github.com/naturalselectionlabs/rss3-global-indexer/internal/service"
-	"github.com/naturalselectionlabs/rss3-global-indexer/schema"
+	"github.com/naturalselectionlabs/rss3-gateway/contract/l2"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
+	"github.com/naturalselectionlabs/rss3-gateway/internal/service"
+	"github.com/naturalselectionlabs/rss3-gateway/schema"
+	"github.com/rss3-network/gateway-common/control"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 )
@@ -23,17 +23,14 @@ import (
 var _ service.Server = (*server)(nil)
 
 type server struct {
-	databaseClient                 database.Client
-	ethereumClient                 *ethclient.Client
-	chainID                        *big.Int
-	contractGovernanceToken        *bindings.GovernanceToken
-	contractL2CrossDomainMessenger *bindings.L2CrossDomainMessenger
-	contractL2StandardBridge       *bindings.L2StandardBridge
-	contractL2ToL1MessagePasser    *bindings.L2ToL1MessagePasser
-	contractStaking                *l2.Staking
-	contractChips                  *l2.Chips
-	checkpoint                     *schema.Checkpoint
-	blockNumberLatest              uint64
+	databaseClient    database.Client
+	ethereumClient    *ethclient.Client
+	chainID           *big.Int
+	contractBilling   *l2.Billing
+	checkpoint        *schema.Checkpoint
+	blockNumberLatest uint64
+	controlClient     *control.StateClientWriter // For account resume only
+	ruPerToken        int64
 }
 
 func (s *server) Run(ctx context.Context) (err error) {
@@ -141,17 +138,9 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 			}
 
 			switch log.Address {
-			case l2.AddressL2StandardBridgeProxy:
-				if err := s.indexBridgingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
-					return fmt.Errorf("index bridge log: %w", err)
-				}
-			case l2.ContractMap[s.chainID.Uint64()].AddressStakingProxy:
-				if err := s.indexStakingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, databaseTransaction); err != nil {
-					return fmt.Errorf("index staking log: %w", err)
-				}
-			case l2.ContractMap[s.chainID.Uint64()].AddressChipsProxy:
-				if err := s.indexChipsLog(ctx, header, block.Transaction(log.TxHash), receipt, log, databaseTransaction); err != nil {
-					return fmt.Errorf("index staking log: %w", err)
+			case l2.ContractMap[s.chainID.Uint64()].AddressBillingProxy:
+				if err := s.indexBillingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
+					return fmt.Errorf("index billing log %s %d: %w", log.TxHash, log.Index, err)
 				}
 			}
 		}
@@ -172,10 +161,12 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 	return nil
 }
 
-func NewServer(ctx context.Context, databaseClient database.Client, config Config) (service.Server, error) {
+func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, ruPerToken int64, config Config) (service.Server, error) {
 	var (
 		instance = server{
 			databaseClient: databaseClient,
+			controlClient:  controlClient,
+			ruPerToken:     ruPerToken,
 		}
 		err error
 	)
@@ -193,27 +184,7 @@ func NewServer(ctx context.Context, databaseClient database.Client, config Confi
 		return nil, fmt.Errorf("chain id %d is not supported", instance.chainID)
 	}
 
-	if instance.contractGovernanceToken, err = bindings.NewGovernanceToken(l2.AddressGovernanceTokenProxy, instance.ethereumClient); err != nil {
-		return nil, err
-	}
-
-	if instance.contractL2CrossDomainMessenger, err = bindings.NewL2CrossDomainMessenger(l2.AddressL2CrossDomainMessengerProxy, instance.ethereumClient); err != nil {
-		return nil, err
-	}
-
-	if instance.contractL2StandardBridge, err = bindings.NewL2StandardBridge(l2.AddressL2StandardBridgeProxy, instance.ethereumClient); err != nil {
-		return nil, err
-	}
-
-	if instance.contractL2ToL1MessagePasser, err = bindings.NewL2ToL1MessagePasser(l2.AddressL2ToL1MessagePasser, instance.ethereumClient); err != nil {
-		return nil, err
-	}
-
-	if instance.contractStaking, err = l2.NewStaking(contractAddresses.AddressStakingProxy, instance.ethereumClient); err != nil {
-		return nil, err
-	}
-
-	if instance.contractChips, err = l2.NewChips(contractAddresses.AddressChipsProxy, instance.ethereumClient); err != nil {
+	if instance.contractBilling, err = l2.NewBilling(contractAddresses.AddressBillingProxy, instance.ethereumClient); err != nil {
 		return nil, err
 	}
 

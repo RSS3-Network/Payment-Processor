@@ -11,7 +11,7 @@ services:
       - "26257:26257"
     command:
       - start-single-node
-      - --cluster-name=rss3-global-indexer
+      - --cluster-name=rss3-gateway
       - --insecure
   redis:
     container_name: redis
