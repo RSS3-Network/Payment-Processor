@@ -3,13 +3,13 @@ package model
 import (
 	"context"
 	"errors"
-	"github.com/rss3-network/gateway-common/control"
 	"log"
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/google/uuid"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/gateway-common/control"
 	"gorm.io/gorm"
 )
 

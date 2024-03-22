@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
+
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
 	"github.com/pressly/goose/v3"

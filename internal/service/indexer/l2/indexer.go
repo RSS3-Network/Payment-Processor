@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rss3-network/gateway-common/control"
 	"math/big"
 	"time"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service"
 	"github.com/naturalselectionlabs/rss3-gateway/schema"
+	"github.com/rss3-network/gateway-common/control"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 )

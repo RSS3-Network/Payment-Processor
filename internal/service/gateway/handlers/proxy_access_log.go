@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/rss3-network/gateway-common/accesslog"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,6 +11,7 @@ import (
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
 	rules "github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/ru_rules"
+	"github.com/rss3-network/gateway-common/accesslog"
 )
 
 func (app *App) ProcessAccessLog(accessLog *accesslog.Log) {

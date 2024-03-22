@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/rss3-network/gateway-common/control"
 	"os"
 	"os/signal"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/indexer"
 	"github.com/redis/go-redis/v9"
+	"github.com/rss3-network/gateway-common/control"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"

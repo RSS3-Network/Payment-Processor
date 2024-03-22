@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"github.com/rss3-network/gateway-common/control"
 	"net/http"
 	"regexp"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/jwt"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/utils"
+	"github.com/rss3-network/gateway-common/control"
 	"gorm.io/gorm"
 )
 

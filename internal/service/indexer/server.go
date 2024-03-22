@@ -2,11 +2,11 @@ package indexer
 
 import (
 	"context"
-	"github.com/rss3-network/gateway-common/control"
 
 	"github.com/naturalselectionlabs/rss3-gateway/internal/config"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/indexer/l2"
+	"github.com/rss3-network/gateway-common/control"
 	"github.com/sourcegraph/conc/pool"
 )
 
