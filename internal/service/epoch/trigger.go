@@ -29,6 +29,8 @@ func (s *Server) trigger(ctx context.Context, epoch uint64) error {
 
 	// TODO: Withdraw
 
+	// TODO: Reward
+
 	zap.L().Info("Reward distribution completed")
 
 	return nil

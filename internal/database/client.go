@@ -25,14 +25,6 @@ type Client interface {
 
 	FindCheckpoint(ctx context.Context, chainID uint64) (*schema.Checkpoint, error)
 	SaveCheckpoint(ctx context.Context, checkpoint *schema.Checkpoint) error
-	SaveEpoch(ctx context.Context, epoch *schema.Epoch) error
-	FindEpochs(ctx context.Context, limit int, cursor *string) ([]*schema.Epoch, error)
-	FindEpochTransactions(ctx context.Context, id uint64, itemsLimit int, cursor *string) ([]*schema.Epoch, error)
-	FindEpochTransaction(ctx context.Context, transactionHash common.Hash, itemsLimit int, cursor *string) (*schema.Epoch, error)
-	FindEpochNodeRewards(ctx context.Context, nodeAddress common.Address, limit int, cursor *string) ([]*schema.Epoch, error)
-
-	SaveEpochTrigger(ctx context.Context, epochTrigger *schema.EpochTrigger) error
-	FindLatestEpochTrigger(ctx context.Context) (*schema.EpochTrigger, error)
 
 	SaveBillingRecordDeposited(ctx context.Context, billingRecord *schema.BillingRecordDeposited) error
 	SaveBillingRecordWithdrawal(ctx context.Context, billingRecord *schema.BillingRecordWithdrawal) error

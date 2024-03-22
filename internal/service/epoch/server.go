@@ -96,53 +96,53 @@ func (s *Server) listenEpochEvent(ctx context.Context) error {
 
 		s.checkpoint = checkpoint
 
-		// Find the latest epoch event from database.
-		epochEvent, err := s.databaseClient.FindEpochs(ctx, 1, nil)
-		if err != nil && !errors.Is(err, database.ErrorRowNotFound) {
-			zap.L().Error("get latest epoch event from database", zap.Error(err))
+		//// Find the latest epoch event from database.
+		//epochEvent, err := s.databaseClient.FindEpochs(ctx, 1, nil)
+		//if err != nil && !errors.Is(err, database.ErrorRowNotFound) {
+		//	zap.L().Error("get latest epoch event from database", zap.Error(err))
+		//
+		//	return err
+		//}
+		//
+		//// Find the latest epoch trigger from database.
+		//epochTrigger, err := s.databaseClient.FindLatestEpochTrigger(ctx)
+		//if err != nil && !errors.Is(err, database.ErrorRowNotFound) {
+		//	zap.L().Error("get latest epoch trigger from database", zap.Error(err))
+		//
+		//	return err
+		//}
+		//
+		//var lastEpochEventTime, lastEpochTriggerTime time.Time
+		//
+		//if len(epochEvent) > 0 {
+		//	lastEpochEventTime = time.Unix(epochEvent[0].BlockTimestamp, 0)
+		//	s.currentEpoch = epochEvent[0].ID
+		//}
+		//
+		//if epochTrigger != nil {
+		//	lastEpochTriggerTime = epochTrigger.CreatedAt
+		//}
 
-			return err
-		}
-
-		// Find the latest epoch trigger from database.
-		epochTrigger, err := s.databaseClient.FindLatestEpochTrigger(ctx)
-		if err != nil && !errors.Is(err, database.ErrorRowNotFound) {
-			zap.L().Error("get latest epoch trigger from database", zap.Error(err))
-
-			return err
-		}
-
-		var lastEpochEventTime, lastEpochTriggerTime time.Time
-
-		if len(epochEvent) > 0 {
-			lastEpochEventTime = time.Unix(epochEvent[0].BlockTimestamp, 0)
-			s.currentEpoch = epochEvent[0].ID
-		}
-
-		if epochTrigger != nil {
-			lastEpochTriggerTime = epochTrigger.CreatedAt
-		}
-
-		now := time.Now()
-
-		if now.Sub(lastEpochEventTime) >= 18*time.Hour && now.Sub(lastEpochTriggerTime) >= 18*time.Hour {
-			// Trigger new epoch
-			if err := s.trigger(ctx, s.currentEpoch+1); err != nil {
-				zap.L().Error("trigger new epoch", zap.Error(err))
-
-				return err
-			}
-		} else if now.Sub(lastEpochEventTime) >= 18*time.Hour && now.Sub(lastEpochTriggerTime) < 18*time.Hour {
-			// Wait for epoch event indexer
-			zap.L().Info("wait for epoch event indexer", zap.Time("last_epoch_event_time", lastEpochEventTime),
-				zap.Time("last_epoch_trigger_time", lastEpochTriggerTime))
-
-			time.Sleep(5 * time.Second)
-		} else if now.Sub(lastEpochEventTime) < 18*time.Hour {
-			// Set timer
-			s.timer = time.NewTimer(18*time.Hour - now.Sub(lastEpochEventTime))
-			time.Sleep(time.Minute)
-		}
+		//now := time.Now()
+		//
+		//if now.Sub(lastEpochEventTime) >= 18*time.Hour && now.Sub(lastEpochTriggerTime) >= 18*time.Hour {
+		//	// Trigger new epoch
+		//	if err := s.trigger(ctx, s.currentEpoch+1); err != nil {
+		//		zap.L().Error("trigger new epoch", zap.Error(err))
+		//
+		//		return err
+		//	}
+		//} else if now.Sub(lastEpochEventTime) >= 18*time.Hour && now.Sub(lastEpochTriggerTime) < 18*time.Hour {
+		//	// Wait for epoch event indexer
+		//	zap.L().Info("wait for epoch event indexer", zap.Time("last_epoch_event_time", lastEpochEventTime),
+		//		zap.Time("last_epoch_trigger_time", lastEpochTriggerTime))
+		//
+		//	time.Sleep(5 * time.Second)
+		//} else if now.Sub(lastEpochEventTime) < 18*time.Hour {
+		//	// Set timer
+		//	s.timer = time.NewTimer(18*time.Hour - now.Sub(lastEpochEventTime))
+		//	time.Sleep(time.Minute)
+		//}
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/rss3-network/gateway-common/control"
 	"math/big"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
 	"github.com/naturalselectionlabs/rss3-gateway/contract/l2"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service"
@@ -29,7 +29,7 @@ type server struct {
 	contractBilling   *l2.Billing
 	checkpoint        *schema.Checkpoint
 	blockNumberLatest uint64
-	apisixClient      *apisix.Client // For account resume only
+	controlClient     *control.StateClientWriter // For account resume only
 	ruPerToken        int64
 }
 
@@ -161,11 +161,11 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 	return nil
 }
 
-func NewServer(ctx context.Context, databaseClient database.Client, apisixClient *apisix.Client, ruPerToken int64, config Config) (service.Server, error) {
+func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, ruPerToken int64, config Config) (service.Server, error) {
 	var (
 		instance = server{
 			databaseClient: databaseClient,
-			apisixClient:   apisixClient,
+			controlClient:  controlClient,
 			ruPerToken:     ruPerToken,
 		}
 		err error

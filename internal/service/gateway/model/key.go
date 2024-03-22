@@ -3,11 +3,12 @@ package model
 import (
 	"context"
 	"errors"
+	"github.com/rss3-network/gateway-common/control"
 	"log"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/google/uuid"
-	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
 	"gorm.io/gorm"
 )
@@ -16,10 +17,10 @@ type Key struct {
 	table.GatewayKey
 
 	databaseClient *gorm.DB
-	apisixClient   *apisix.Client
+	controlClient  *control.StateClientWriter
 }
 
-func KeyCreate(ctx context.Context, accountAddress common.Address, keyName string, databaseClient *gorm.DB, apisixClient *apisix.Client) (*Key, error) {
+func KeyCreate(ctx context.Context, accountAddress common.Address, keyName string, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*Key, error) {
 	keyUUID := uuid.New()
 	k := table.GatewayKey{
 		Key:            keyUUID,
@@ -36,7 +37,7 @@ func KeyCreate(ctx context.Context, accountAddress common.Address, keyName strin
 			return err
 		}
 		// APISix
-		err = apisixClient.NewConsumer(ctx, k.ID, keyUUID.String(), accountAddress.Hex())
+		err = controlClient.CreateKey(ctx, accountAddress.Hex(), strconv.FormatUint(k.ID, 10), keyUUID.String())
 		if err != nil {
 			return err
 		}
@@ -48,10 +49,10 @@ func KeyCreate(ctx context.Context, accountAddress common.Address, keyName strin
 		return nil, err
 	}
 
-	return &Key{k, databaseClient, apisixClient}, nil
+	return &Key{k, databaseClient, controlClient}, nil
 }
 
-func KeyGetByID(ctx context.Context, KeyID uint64, activeOnly bool, databaseClient *gorm.DB, apisixClient *apisix.Client) (*Key, bool, error) {
+func KeyGetByID(ctx context.Context, KeyID uint64, activeOnly bool, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*Key, bool, error) {
 	queryBase := databaseClient.WithContext(ctx).Model(&table.GatewayKey{})
 
 	if activeOnly {
@@ -70,7 +71,7 @@ func KeyGetByID(ctx context.Context, KeyID uint64, activeOnly bool, databaseClie
 		return nil, false, err
 	}
 
-	return &Key{k, databaseClient, apisixClient}, true, nil
+	return &Key{k, databaseClient, controlClient}, true, nil
 }
 
 func (k *Key) ConsumeRu(ctx context.Context, ru int64) error {
@@ -95,11 +96,11 @@ func (k *Key) ConsumeRu(ctx context.Context, ru int64) error {
 }
 
 func (k *Key) GetAccount(_ context.Context) (*Account, error) {
-	return &Account{k.Account, k.databaseClient, k.apisixClient}, nil
+	return &Account{k.Account, k.databaseClient, k.controlClient}, nil
 }
 
 func (k *Key) Delete(ctx context.Context) error {
-	err := k.apisixClient.DeleteConsumer(ctx, k.ID)
+	err := k.controlClient.DeleteKey(ctx, k.Key.String())
 
 	if err != nil {
 		return err
@@ -131,8 +132,7 @@ func (k *Key) UpdateInfo(ctx context.Context, name string) error {
 }
 
 func (k *Key) Rotate(ctx context.Context) error {
-	// Replace old consumer
-	oldConsumer, err := k.apisixClient.CheckConsumer(ctx, k.ID)
+	err := k.controlClient.DeleteKey(ctx, k.Key.String())
 
 	if err != nil {
 		return err
@@ -150,7 +150,7 @@ func (k *Key) Rotate(ctx context.Context) error {
 	}
 
 	// Update consumer
-	err = k.apisixClient.NewConsumer(ctx, k.ID, k.Key.String(), oldConsumer.Value.GroupID)
+	err = k.controlClient.CreateKey(ctx, k.Account.Address.Hex(), strconv.FormatUint(k.ID, 10), k.Key.String())
 	if err != nil {
 		return err
 	}

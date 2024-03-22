@@ -6,7 +6,7 @@ endif
 
 lint:
 	go mod tidy
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.55.2 run
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.55.2 run --fix
 
 test:
 	go test -cover -race -v ./...
@@ -25,7 +25,7 @@ image:
 run:
 	ENVIRONMENT=development go run ./cmd
 
-OAPI_SPEC ?= spec/gateway.yml
+OAPI_SPEC ?= docs/gateway.yml
 OAPI_TARGET ?= internal/service/gateway/gen/oapi/
 OAPI_TARGET_FILENAME ?= oapi.go
 gengatewayapi:

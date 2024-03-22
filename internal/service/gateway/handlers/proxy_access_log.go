@@ -3,33 +3,34 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"github.com/rss3-network/gateway-common/accesslog"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/accesslog"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
 	rules "github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/ru_rules"
 )
 
-func (app *App) ProcessAccessLog(accessLog accesslog.AccessLog) {
+func (app *App) ProcessAccessLog(accessLog *accesslog.Log) {
 	rctx := context.Background()
 
 	// Check billing eligibility
-	if accessLog.Consumer == nil {
+	if accessLog.KeyID == nil {
 		return
 	}
 
 	// Find user
-	keyID, err := app.apisixClient.RecoverKeyIDFromConsumerUsername(*accessLog.Consumer)
+	keyIDParsed, err := strconv.ParseUint(*accessLog.KeyID, 10, 64)
 
 	if err != nil {
 		log.Printf("Failed to recover key id with error: %v", err)
 		return
 	}
 
-	key, _, err := model.KeyGetByID(rctx, keyID, false, app.databaseClient, app.apisixClient) // Deleted key could also be used for pending bills
+	key, _, err := model.KeyGetByID(rctx, keyIDParsed, false, app.databaseClient, app.controlClient) // Deleted key could also be used for pending bills
 
 	if err != nil {
 		log.Printf("Failed to get key by id with error: %v", err)
@@ -57,7 +58,7 @@ func (app *App) ProcessAccessLog(accessLog accesslog.AccessLog) {
 	}
 
 	// Consumer RU
-	pathSplits := strings.Split(accessLog.URI, "/")
+	pathSplits := strings.Split(accessLog.Path, "/")
 	ruCalculator, ok := rules.Prefix2RUCalculator[pathSplits[1]]
 
 	if !ok {
@@ -90,7 +91,7 @@ func (app *App) ProcessAccessLog(accessLog accesslog.AccessLog) {
 		log.Printf("Insufficient remain RU, pause account")
 		// Pause user account
 		if !key.Account.IsPaused {
-			err = app.apisixClient.PauseConsumerGroup(rctx, key.Account.Address.Hex())
+			err = app.controlClient.PauseAccount(rctx, key.Account.Address.Hex())
 			if err != nil {
 				log.Printf("Failed to pause account with error: %v", err)
 			} else {

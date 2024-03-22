@@ -4,16 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/rss3-network/gateway-common/accesslog"
+	"github.com/rss3-network/gateway-common/control"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/config"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/accesslog"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/gen/oapi"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/handlers"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/jwt"
@@ -30,7 +30,7 @@ type Server struct {
 	config         config.Gateway
 	redis          *redis.Client
 	databaseClient database.Client
-	apisixClient   *apisix.Client
+	controlClient  *control.StateClientWriter
 }
 
 func (s *Server) Run(ctx context.Context) error {
@@ -55,7 +55,7 @@ func (s *Server) Run(ctx context.Context) error {
 		// Prepare echo
 		e := echo.New()
 		echoHandler, err := handlers.NewApp(
-			s.apisixClient,
+			s.controlClient,
 			s.redis,
 			s.databaseClient.Raw(),
 			jwtClient,
@@ -67,12 +67,13 @@ func (s *Server) Run(ctx context.Context) error {
 		}
 
 		// Configure middlewares
-		configureMiddlewares(e, echoHandler, jwtClient, s.databaseClient.Raw(), s.apisixClient)
+		configureMiddlewares(e, echoHandler, jwtClient, s.databaseClient.Raw(), s.controlClient)
 
 		// Connect to kafka for access logs
-		kafkaClient, err := accesslog.New(
-			strings.Split(s.config.APISixKafka.Brokers, ","),
-			s.config.APISixKafka.Topic,
+		kafkaClient, err := accesslog.NewConsumer(
+			s.config.Kafka.Brokers,
+			s.config.Kafka.Topic,
+			"gateway",
 		)
 		if err != nil {
 			// Failed to Initialize kafka consumer
@@ -100,18 +101,18 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 }
 
-func New(databaseClient database.Client, redis *redis.Client, apisixClient *apisix.Client, config config.Gateway) (service.Server, error) {
+func New(databaseClient database.Client, redis *redis.Client, controlClient *control.StateClientWriter, config config.Gateway) (service.Server, error) {
 	instance := Server{
 		config:         config,
 		redis:          redis,
 		databaseClient: databaseClient,
-		apisixClient:   apisixClient,
+		controlClient:  controlClient,
 	}
 
 	return &instance, nil
 }
 
-func configureMiddlewares(e *echo.Echo, app *handlers.App, jwtClient *jwt.JWT, databaseClient *gorm.DB, apisixClient *apisix.Client) {
+func configureMiddlewares(e *echo.Echo, app *handlers.App, jwtClient *jwt.JWT, databaseClient *gorm.DB, controlClient *control.StateClientWriter) {
 	oapi.RegisterHandlers(e, app)
 
 	// Add api docs
@@ -134,7 +135,7 @@ func configureMiddlewares(e *echo.Echo, app *handlers.App, jwtClient *jwt.JWT, d
 	}
 
 	// Check user authentication
-	e.Use(middlewares.UserAuthenticationMiddleware(databaseClient, apisixClient, jwtClient))
+	e.Use(middlewares.UserAuthenticationMiddleware(databaseClient, controlClient, jwtClient))
 
 	e.HTTPErrorHandler = customHTTPErrorHandler
 }

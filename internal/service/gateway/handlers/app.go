@@ -1,27 +1,27 @@
 package handlers
 
 import (
-	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/gen/oapi"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/jwt"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/siwe"
 	"github.com/redis/go-redis/v9"
+	"github.com/rss3-network/gateway-common/control"
 	"gorm.io/gorm"
 )
 
 var _ oapi.ServerInterface = (*App)(nil)
 
 type App struct {
-	apisixClient   *apisix.Client
+	controlClient  *control.StateClientWriter
 	redisClient    *redis.Client
 	databaseClient *gorm.DB
 	jwtClient      *jwt.JWT
 	siweClient     *siwe.SIWE
 }
 
-func NewApp(apiService *apisix.Client, redis *redis.Client, databaseClient *gorm.DB, jwtClient *jwt.JWT, siweClient *siwe.SIWE) (*App, error) {
+func NewApp(controlClient *control.StateClientWriter, redis *redis.Client, databaseClient *gorm.DB, jwtClient *jwt.JWT, siweClient *siwe.SIWE) (*App, error) {
 	return &App{
-		apisixClient:   apiService,
+		controlClient:  controlClient,
 		redisClient:    redis,
 		databaseClient: databaseClient,
 		jwtClient:      jwtClient,

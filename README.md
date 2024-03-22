@@ -6,4 +6,4 @@ The RSS3 Billing Gateway
 
 <!-- We use MIT as it's almost unrestricted. -->
 
-[MIT](MIT).
+[MIT](LICENSE).

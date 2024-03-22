@@ -1,11 +1,11 @@
 package middlewares
 
 import (
+	"github.com/rss3-network/gateway-common/control"
 	"net/http"
 	"regexp"
 
 	"github.com/labstack/echo/v4"
-	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/constants"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/jwt"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
@@ -13,8 +13,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func authenticateUser(ctx echo.Context, jwtUser *jwt.User, databaseClient *gorm.DB, apisixClient *apisix.Client) (*model.Account, error) {
-	account, _, err := model.AccountGetByAddress(ctx.Request().Context(), jwtUser.Address, databaseClient, apisixClient)
+func authenticateUser(ctx echo.Context, jwtUser *jwt.User, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*model.Account, error) {
+	account, _, err := model.AccountGetByAddress(ctx.Request().Context(), jwtUser.Address, databaseClient, controlClient)
 
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ var (
 	SkipMiddlewarePaths = regexp.MustCompile("^/(users/|health)")
 )
 
-func UserAuthenticationMiddleware(databaseClient *gorm.DB, apisixClient *apisix.Client, jwtClient *jwt.JWT) echo.MiddlewareFunc {
+func UserAuthenticationMiddleware(databaseClient *gorm.DB, controlClient *control.StateClientWriter, jwtClient *jwt.JWT) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// this is a hack to workaround codegen and echo router group issue
@@ -57,7 +57,7 @@ func UserAuthenticationMiddleware(databaseClient *gorm.DB, apisixClient *apisix.
 			}
 
 			// Authenticate user
-			account, err := authenticateUser(c, user, databaseClient, apisixClient)
+			account, err := authenticateUser(c, user, databaseClient, controlClient)
 
 			if err != nil || account == nil {
 				return utils.SendJSONError(c, http.StatusUnauthorized)

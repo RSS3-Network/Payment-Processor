@@ -3,10 +3,10 @@ package model
 import (
 	"context"
 	"errors"
+	"github.com/rss3-network/gateway-common/control"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
 	"gorm.io/gorm"
 )
@@ -15,38 +15,25 @@ type Account struct {
 	table.GatewayAccount
 
 	databaseClient *gorm.DB
-	apisixClient   *apisix.Client
+	controlClient  *control.StateClientWriter
 }
 
-func AccountCreate(ctx context.Context, address common.Address, databaseClient *gorm.DB, apisixClient *apisix.Client) (*Account, error) {
+func AccountCreate(ctx context.Context, address common.Address, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*Account, error) {
 	acc := table.GatewayAccount{
 		Address: address,
 	}
-	err := databaseClient.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// DB
-		err := tx.
-			Save(&acc).
-			Error
-		if err != nil {
-			return err
-		}
-		// APISix
-		err = apisixClient.NewConsumerGroup(ctx, address.Hex())
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
+	err := databaseClient.WithContext(ctx).
+		Save(&acc).
+		Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &Account{acc, databaseClient, apisixClient}, nil
+	return &Account{acc, databaseClient, controlClient}, nil
 }
 
-func AccountGetByAddress(ctx context.Context, address common.Address, databaseClient *gorm.DB, apisixClient *apisix.Client) (*Account, bool, error) {
+func AccountGetByAddress(ctx context.Context, address common.Address, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*Account, bool, error) {
 	var acc table.GatewayAccount
 
 	err := databaseClient.WithContext(ctx).
@@ -63,16 +50,16 @@ func AccountGetByAddress(ctx context.Context, address common.Address, databaseCl
 		return nil, false, err
 	}
 
-	return &Account{acc, databaseClient, apisixClient}, true, nil
+	return &Account{acc, databaseClient, controlClient}, true, nil
 }
 
-func AccountGetOrCreate(ctx context.Context, address common.Address, databaseClient *gorm.DB, apisixClient *apisix.Client) (*Account, error) {
-	acc, exist, err := AccountGetByAddress(ctx, address, databaseClient, apisixClient)
+func AccountGetOrCreate(ctx context.Context, address common.Address, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*Account, error) {
+	acc, exist, err := AccountGetByAddress(ctx, address, databaseClient, controlClient)
 
 	if err != nil {
 		return nil, err
 	} else if !exist {
-		return AccountCreate(ctx, address, databaseClient, apisixClient)
+		return AccountCreate(ctx, address, databaseClient, controlClient)
 	}
 
 	return acc, nil
@@ -93,7 +80,7 @@ func (acc *Account) ListKeys(ctx context.Context) ([]*Key, error) {
 
 	wrappedKeys := make([]*Key, len(keys))
 	for i, k := range keys {
-		wrappedKeys[i] = &Key{k, acc.databaseClient, acc.apisixClient}
+		wrappedKeys[i] = &Key{k, acc.databaseClient, acc.controlClient}
 	}
 
 	return wrappedKeys, nil
@@ -164,5 +151,5 @@ func (acc *Account) GetKey(ctx context.Context, keyID uint64) (*Key, bool, error
 		return nil, false, err
 	}
 
-	return &Key{k, acc.databaseClient, acc.apisixClient}, true, nil
+	return &Key{k, acc.databaseClient, acc.controlClient}, true, nil
 }

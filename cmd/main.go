@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/rss3-network/gateway-common/control"
 	"os"
 	"os/signal"
 
-	"github.com/naturalselectionlabs/rss3-gateway/common/apisix"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/config"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/config/flag"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer"
@@ -41,16 +41,13 @@ var indexCommand = &cobra.Command{
 			return fmt.Errorf("migrate database: %w", err)
 		}
 
-		// Initialize APISIX configurations
-		apisixClient, err := apisix.New(
-			config.APISixAdmin.Endpoint,
-			config.APISixAdmin.Key,
-		)
+		// Initialize control configurations
+		controlClient, err := control.NewWriter(config.Gateway.Etcd.Endpoints)
 		if err != nil {
-			return fmt.Errorf("prepare apisix httpapi service: %w", err)
+			return fmt.Errorf("prepare control service: %w", err)
 		}
 
-		instance, err := indexer.New(databaseClient, apisixClient, config.Billing.RuPerToken, *config.RSS3Chain)
+		instance, err := indexer.New(databaseClient, controlClient, config.Billing.RuPerToken, *config.RSS3Chain)
 		if err != nil {
 			return err
 		}
@@ -121,16 +118,13 @@ var command = &cobra.Command{
 
 		redisClient := redis.NewClient(options)
 
-		// Initialize APISIX configurations
-		apisixClient, err := apisix.New(
-			config.APISixAdmin.Endpoint,
-			config.APISixAdmin.Key,
-		)
+		// Initialize control configurations
+		controlClient, err := control.NewWriter(config.Gateway.Etcd.Endpoints)
 		if err != nil {
-			return fmt.Errorf("prepare apisix httpapi service: %w", err)
+			return fmt.Errorf("prepare control service: %w", err)
 		}
 
-		instance, err := gateway.New(databaseClient, redisClient, apisixClient, *config.Gateway)
+		instance, err := gateway.New(databaseClient, redisClient, controlClient, *config.Gateway)
 		if err != nil {
 			return err
 		}

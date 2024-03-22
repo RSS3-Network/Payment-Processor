@@ -20,7 +20,7 @@ jobs:
           - 6379:6379
 
       etcd:
-        image: bitnami/etcd:3.4.15
+        image: bitnami/etcd:3.5.12
         env:
           ETCD_ENABLE_V2: "true"
           ALLOW_NONE_AUTHENTICATION: "yes"
@@ -42,22 +42,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Start APISix container
-        run: |
-          docker run -d --name apisix \
-            --network ${{ job.container.network }} --network-alias apisix \
-            -p 9180:9180/tcp -p 9080:9080/tcp -p 9091:9091/tcp -p 9443:9443/tcp \
-            -e GITHUB_ACTIONS=true -e CI=true \
-            -v "${{ github.workspace }}/.github/testing/apisix/config.yaml":"/usr/local/apisix/conf/config.yaml" \
-            -v "${{ github.workspace }}/.github/testing/apisix/apisix.yaml":"/usr/local/apisix/conf/apisix.yaml" \
-            apache/apisix:3.6.0-debian
       - name: Start Redpanda container
         run: |
           docker run -d --name redpanda-0 \
             --network ${{ job.container.network }} --network-alias redpanda-0 \
             -p 9092:9092 -p 18081:18081 -p 18082:18082 -p 19092:19092 -p 19644:9644 \
             -e GITHUB_ACTIONS=true -e CI=true \
-            docker.redpanda.com/redpandadata/redpanda:v23.2.12 \
+            docker.redpanda.com/redpandadata/redpanda:v23.3.9 \
             redpanda start \
               --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092 \
               --advertise-kafka-addr internal://redpanda-0:9092,external://localhost:19092 \
@@ -70,6 +61,7 @@ jobs:
               --memory 1G \
               --mode dev-container \
               --default-log-level=debug
+
       - name: Start CRDB container
         run: |
           docker run -d --name crdb \
