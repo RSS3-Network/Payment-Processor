@@ -1,0 +1,11 @@
+http:
+  middlewares:
+    my-gfc:
+      plugin:
+        gatewayflowcontroller:
+          Average: "20"
+          Burst: "60"
+          ConnectorRPC: "connector:1234"
+          KeyHeader: "X-API-Key"
+          MaxSources: "65536"
+          Period: "60"

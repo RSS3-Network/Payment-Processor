@@ -30,3 +30,6 @@ go.work
 
 ### Project
 /build/*
+
+### Config
+deploy/config.yaml
