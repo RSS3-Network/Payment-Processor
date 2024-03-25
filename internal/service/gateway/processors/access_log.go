@@ -2,36 +2,37 @@ package processors
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
 	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
 	"github.com/rss3-network/gateway-common/accesslog"
+	"go.uber.org/zap"
 )
 
-func (app *App) ProcessAccessLog(accessLog *accesslog.Log) {
+func (app *App) ProcessAccessLog(l *accesslog.Log) {
 	rctx := context.Background()
 
+	zap.L().Debug("new access log arrive")
+
 	// Check billing eligibility
-	if accessLog.KeyID == nil {
+	if l.KeyID == nil {
 		return
 	}
 
 	// Find user
-	keyIDParsed, err := strconv.ParseUint(*accessLog.KeyID, 10, 64)
+	keyIDParsed, err := strconv.ParseUint(*l.KeyID, 10, 64)
 
 	if err != nil {
-		log.Printf("Failed to recover key id with error: %v", err)
+		zap.L().Error("recover key id", zap.String("keyID string", *l.KeyID), zap.Error(err))
 		return
 	}
 
 	key, _, err := model.KeyGetByID(rctx, keyIDParsed, false, app.databaseClient, app.controlClient) // Deleted key could also be used for pending bills
 
 	if err != nil {
-		log.Printf("Failed to get key by id with error: %v", err)
-
+		zap.L().Error("get key by id", zap.Uint64("keyID", keyIDParsed), zap.Error(err))
 		return
 	}
 
@@ -39,16 +40,15 @@ func (app *App) ProcessAccessLog(accessLog *accesslog.Log) {
 
 	if err != nil {
 		// Failed to get account
-		log.Printf("Faield to get account with error: %v", err)
-
+		zap.L().Error("get account", zap.Error(err))
 		return
 	}
 
-	if accessLog.Status != http.StatusOK || key.Account.IsPaused {
-		err = key.ConsumeRu(rctx, 0) // Request failed or is in free tier, only increase API call count
-		if err != nil {
+	if l.Status != http.StatusOK || key.Account.IsPaused {
+		// Request failed or is in free tier, only increase API call count
+		if err = key.ConsumeRu(rctx, 0); err != nil {
 			// Failed to consumer RU
-			log.Printf("Faield to increase API call count with error: %v", err)
+			zap.L().Error("increase API call count", zap.Any("account", user), zap.Any("key", key), zap.Error(err))
 		}
 
 		return
@@ -56,11 +56,10 @@ func (app *App) ProcessAccessLog(accessLog *accesslog.Log) {
 
 	// Consumer RU
 	ru := int64(1) // Default // TODO
-	err = key.ConsumeRu(rctx, ru)
 
-	if err != nil {
+	if err = key.ConsumeRu(rctx, ru); err != nil {
 		// Failed to consume RU
-		log.Printf("Faield to consume RU with error: %v", err)
+		zap.L().Error("consume RU", zap.Any("account", user), zap.Any("key", key), zap.Error(err))
 
 		return
 	}
@@ -69,27 +68,23 @@ func (app *App) ProcessAccessLog(accessLog *accesslog.Log) {
 
 	if err != nil {
 		// Failed to get remain RU
-		log.Printf("Faield to get account remain RU with error: %v", err)
+		zap.L().Error("get account remain RU", zap.Any("account", user), zap.Error(err))
 
 		return
 	}
 
 	if ruRemain < 0 {
-		log.Printf("Insufficient remain RU, pause account")
+		zap.L().Info("Insufficient remain RU, pause account", zap.Any("account", user))
 		// Pause user account
-		if !key.Account.IsPaused {
-			err = app.controlClient.PauseAccount(rctx, key.Account.Address.Hex())
-			if err != nil {
-				log.Printf("Failed to pause account with error: %v", err)
-			} else {
-				err = app.databaseClient.WithContext(rctx).
-					Model(&table.GatewayAccount{}).
-					Where("address = ?", key.Account.Address).
-					Update("is_paused", true).
-					Error
-				if err != nil {
-					log.Printf("Failed to save paused account into db with error: %v", err)
-				}
+		if !user.IsPaused {
+			if err = app.controlClient.PauseAccount(rctx, user.Address.Hex()); err != nil {
+				zap.L().Error("pause account in control", zap.Any("account", user), zap.Error(err))
+			} else if err = app.databaseClient.WithContext(rctx).
+				Model(&table.GatewayAccount{}).
+				Where("address = ?", user.Address).
+				Update("is_paused", true).
+				Error; err != nil {
+				zap.L().Error("save paused account into db", zap.Any("account", user), zap.Error(err))
 			}
 		}
 	}

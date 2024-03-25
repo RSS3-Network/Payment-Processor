@@ -3,7 +3,7 @@ package model
 import (
 	"context"
 	"errors"
-	"log"
+	"fmt"
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -28,7 +28,7 @@ func KeyCreate(ctx context.Context, accountAddress common.Address, keyName strin
 		AccountAddress: accountAddress,
 	}
 
-	err := databaseClient.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	if err := databaseClient.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// DB
 		err := tx.
 			Create(&k).
@@ -36,17 +36,15 @@ func KeyCreate(ctx context.Context, accountAddress common.Address, keyName strin
 		if err != nil {
 			return err
 		}
-		// APISix
+		// Control
 		err = controlClient.CreateKey(ctx, accountAddress.Hex(), strconv.FormatUint(k.ID, 10), keyUUID.String())
 		if err != nil {
 			return err
 		}
 
 		return nil
-	})
-
-	if err != nil {
-		return nil, err
+	}); err != nil {
+		return nil, fmt.Errorf("key create: %w", err)
 	}
 
 	return &Key{k, databaseClient, controlClient}, nil
@@ -61,14 +59,12 @@ func KeyGetByID(ctx context.Context, KeyID uint64, activeOnly bool, databaseClie
 
 	var k table.GatewayKey
 
-	err := queryBase.Where("id = ?", KeyID).First(&k).Error
-
-	if err != nil {
+	if err := queryBase.Where("id = ?", KeyID).First(&k).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, false, nil
 		}
 
-		return nil, false, err
+		return nil, false, fmt.Errorf("key get by id: %w", err)
 	}
 
 	return &Key{k, databaseClient, controlClient}, true, nil
@@ -88,8 +84,7 @@ func (k *Key) ConsumeRu(ctx context.Context, ru int64) error {
 
 	if err != nil {
 		// Failed to consumer RU
-		log.Printf("Faield to increase API call count with error: %v", err)
-		return err
+		return fmt.Errorf("increase API call count: %w", err)
 	}
 
 	return nil
