@@ -39,18 +39,6 @@ func (s *Server) Run(ctx context.Context) error {
 
 	// Run echo server.
 	errorPool.Go(func(ctx context.Context) error {
-		// Prepare JWT
-		jwtClient, err := jwt.New(s.config.API.JWTKey)
-		if err != nil {
-			return fmt.Errorf("prepare JWT: %w", err)
-		}
-
-		// Prepare SIWE
-		siweClient, err := siwe.New(s.config.API.SIWEDomain, s.redis)
-		if err != nil {
-			return fmt.Errorf("prepare SIWE: %w", err)
-		}
-
 		// Connect to kafka for access logs
 		kafkaClient, err := accesslog.NewConsumer(
 			s.config.Kafka.Brokers,
@@ -62,14 +50,24 @@ func (s *Server) Run(ctx context.Context) error {
 		}
 
 		// Prepare processors
-		processorApp, err := processors.NewApp(s.controlClient, s.databaseClient.Raw())
-		if err != nil {
+		if processorApp, err := processors.NewApp(s.controlClient, s.databaseClient.Raw()); err != nil {
 			return fmt.Errorf("prepare processors: %w", err)
+		} else if err = kafkaClient.Start(processorApp.ProcessAccessLog); err != nil {
+			return fmt.Errorf("start kafka client: %w", err)
 		}
 
-		err = kafkaClient.Start(processorApp.ProcessAccessLog)
+		zap.L().Debug("processors started")
+
+		// Prepare JWT
+		jwtClient, err := jwt.New(s.config.API.JWTKey)
 		if err != nil {
-			return fmt.Errorf("start kafka: %w", err)
+			return fmt.Errorf("prepare JWT: %w", err)
+		}
+
+		// Prepare SIWE
+		siweClient, err := siwe.New(s.config.API.SIWEDomain, s.redis)
+		if err != nil {
+			return fmt.Errorf("prepare SIWE: %w", err)
 		}
 
 		// Prepare handler
