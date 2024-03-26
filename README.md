@@ -1,9 +1,7 @@
 # RSS3 Billing Gateway
 
-The RSS3 Billing Gateway
+## About
 
-## License
+This is the billing backend work with [Gateway Flow Controller](https://github.com/RSS3-Network/gatewayflowcontroller)
 
-<!-- We use MIT as it's almost unrestricted. -->
-
-[MIT](LICENSE).
+More details will be added.
