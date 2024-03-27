@@ -11,7 +11,6 @@ import (
 	"github.com/rss3-network/payment-processor/internal/config"
 	"github.com/rss3-network/payment-processor/internal/config/flag"
 	"github.com/rss3-network/payment-processor/internal/database/dialer"
-	"github.com/rss3-network/payment-processor/internal/service/epoch"
 	"github.com/rss3-network/payment-processor/internal/service/hub"
 	"github.com/rss3-network/payment-processor/internal/service/indexer"
 	"github.com/samber/lo"
@@ -48,41 +47,6 @@ var indexCommand = &cobra.Command{
 		}
 
 		instance, err := indexer.New(databaseClient, controlClient, config.Billing.RuPerToken, *config.RSS3Chain)
-		if err != nil {
-			return err
-		}
-
-		return instance.Run(cmd.Context())
-	},
-}
-
-var epochCommand = &cobra.Command{
-	Use: "epoch",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		flags = cmd.PersistentFlags()
-
-		config, err := config.Setup(lo.Must(flags.GetString(flag.KeyConfig)))
-		if err != nil {
-			return fmt.Errorf("setup config file: %w", err)
-		}
-
-		databaseClient, err := dialer.Dial(cmd.Context(), config.Database)
-		if err != nil {
-			return err
-		}
-
-		if err := databaseClient.Migrate(cmd.Context()); err != nil {
-			return fmt.Errorf("migrate database: %w", err)
-		}
-
-		options, err := redis.ParseURL(config.Redis.URI)
-		if err != nil {
-			return fmt.Errorf("parse redis uri: %w", err)
-		}
-
-		redisClient := redis.NewClient(options)
-
-		instance, err := epoch.New(cmd.Context(), databaseClient, redisClient, *config)
 		if err != nil {
 			return err
 		}
@@ -145,11 +109,9 @@ func init() {
 	initializeLogger()
 
 	command.AddCommand(indexCommand)
-	command.AddCommand(epochCommand)
 
 	command.PersistentFlags().String(flag.KeyConfig, "./deploy/config.yaml", "config file path")
 	indexCommand.PersistentFlags().String(flag.KeyConfig, "./deploy/config.yaml", "config file path")
-	epochCommand.PersistentFlags().String(flag.KeyConfig, "./deploy/config.yaml", "config file path")
 }
 
 func main() {
