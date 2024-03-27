@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/naturalselectionlabs/rss3-gateway/schema"
+	"github.com/rss3-network/payment-processor/schema"
 	gorm "gorm.io/gorm/schema"
 )
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
-	"github.com/naturalselectionlabs/rss3-gateway/schema"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/payment-processor/schema"
 	"gorm.io/gorm/clause"
 )
 

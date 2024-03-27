@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/gen/oapi"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/jwt"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/siwe"
 	"github.com/redis/go-redis/v9"
 	"github.com/rss3-network/gateway-common/control"
+	"github.com/rss3-network/payment-processor/internal/service/gateway/gen/oapi"
+	"github.com/rss3-network/payment-processor/internal/service/gateway/jwt"
+	"github.com/rss3-network/payment-processor/internal/service/gateway/siwe"
 	"gorm.io/gorm"
 )
 

@@ -1,7 +1,7 @@
-# RSS3 Billing Gateway
+# Payment Processor
 
 ## About
 
-This is the billing backend work with [Gateway Flow Controller](https://github.com/RSS3-Network/gatewayflowcontroller)
+This is the billing backend work with [Flow Controller](https://github.com/RSS3-Network/gatewayflowcontroller)
 
 More details will be added.

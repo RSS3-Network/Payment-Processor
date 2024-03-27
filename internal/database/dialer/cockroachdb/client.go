@@ -6,9 +6,9 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
 	"github.com/pressly/goose/v3"
+	"github.com/rss3-network/payment-processor/internal/database"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

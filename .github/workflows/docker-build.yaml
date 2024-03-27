@@ -43,7 +43,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: rss3/gateway
+          images: rss3/payment-processor
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v5
@@ -51,7 +51,7 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=rss3/gateway,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=rss3/payment-processor,push-by-digest=true,name-canonical=true,push=true
       - name: Export digest
         run: |
           mkdir -p /tmp/digests
@@ -100,7 +100,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            rss3/gateway
+            rss3/payment-processor
             ghcr.io/${{ github.repository }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
@@ -119,10 +119,10 @@ jobs:
             ARGS="--dry-run"
           fi
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'rss3/gateway@sha256:%s ' *) $ARGS
+            $(printf 'rss3/payment-processor@sha256:%s ' *) $ARGS
       - name: Inspect image
         if: github.event_name != 'pull_request'
         run: |
-          docker buildx imagetools inspect rss3/gateway:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect rss3/payment-processor:${{ steps.meta.outputs.version }}
 
 

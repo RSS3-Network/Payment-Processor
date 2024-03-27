@@ -13,9 +13,9 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/config"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
 	"github.com/redis/go-redis/v9"
+	"github.com/rss3-network/payment-processor/internal/config"
+	"github.com/rss3-network/payment-processor/internal/database"
 	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/zap"
 )

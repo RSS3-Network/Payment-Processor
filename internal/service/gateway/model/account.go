@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
 	"github.com/rss3-network/gateway-common/control"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
 	"gorm.io/gorm"
 )
 

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/naturalselectionlabs/rss3-gateway/internal/database/dialer/cockroachdb/table"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/service/gateway/model"
 	"github.com/rss3-network/gateway-common/accesslog"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/payment-processor/internal/service/gateway/model"
 	"go.uber.org/zap"
 )
 

@@ -6,10 +6,10 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/naturalselectionlabs/rss3-gateway/common/ethereum"
-	"github.com/naturalselectionlabs/rss3-gateway/contract/l2"
-	"github.com/naturalselectionlabs/rss3-gateway/internal/database"
-	"github.com/naturalselectionlabs/rss3-gateway/schema"
+	"github.com/rss3-network/payment-processor/common/ethereum"
+	"github.com/rss3-network/payment-processor/contract/l2"
+	"github.com/rss3-network/payment-processor/internal/database"
+	"github.com/rss3-network/payment-processor/schema"
 	"go.uber.org/zap"
 )
 

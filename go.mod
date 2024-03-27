@@ -1,4 +1,4 @@
-module github.com/naturalselectionlabs/rss3-gateway
+module github.com/rss3-network/payment-processor
 
 go 1.21.4
 
