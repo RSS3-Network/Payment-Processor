@@ -7,8 +7,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/redis/go-redis/v9"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/constants"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/utils"
+	"github.com/rss3-network/payment-processor/internal/service/hub/constants"
+	"github.com/rss3-network/payment-processor/internal/service/hub/utils"
 	"github.com/samber/lo"
 	"github.com/spruceid/siwe-go"
 )

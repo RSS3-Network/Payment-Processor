@@ -12,7 +12,7 @@ import (
 	"github.com/rss3-network/payment-processor/internal/config/flag"
 	"github.com/rss3-network/payment-processor/internal/database/dialer"
 	"github.com/rss3-network/payment-processor/internal/service/epoch"
-	"github.com/rss3-network/payment-processor/internal/service/gateway"
+	"github.com/rss3-network/payment-processor/internal/service/hub"
 	"github.com/rss3-network/payment-processor/internal/service/indexer"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
@@ -124,7 +124,7 @@ var command = &cobra.Command{
 			return fmt.Errorf("prepare control service: %w", err)
 		}
 
-		instance, err := gateway.New(databaseClient, redisClient, controlClient, *config.Gateway)
+		instance, err := hub.New(databaseClient, redisClient, controlClient, *config.Gateway)
 		if err != nil {
 			return err
 		}

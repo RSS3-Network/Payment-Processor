@@ -1,4 +1,4 @@
-package gateway
+package hub
 
 import (
 	"context"
@@ -15,13 +15,13 @@ import (
 	"github.com/rss3-network/payment-processor/internal/config"
 	"github.com/rss3-network/payment-processor/internal/database"
 	"github.com/rss3-network/payment-processor/internal/service"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/gen/oapi"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/handlers"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/jwt"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/middlewares"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/processors"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/siwe"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/swagger"
+	"github.com/rss3-network/payment-processor/internal/service/hub/gen/oapi"
+	"github.com/rss3-network/payment-processor/internal/service/hub/handlers"
+	"github.com/rss3-network/payment-processor/internal/service/hub/jwt"
+	"github.com/rss3-network/payment-processor/internal/service/hub/middlewares"
+	"github.com/rss3-network/payment-processor/internal/service/hub/processors"
+	"github.com/rss3-network/payment-processor/internal/service/hub/siwe"
+	"github.com/rss3-network/payment-processor/internal/service/hub/swagger"
 	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/zap"
 	"gorm.io/gorm"

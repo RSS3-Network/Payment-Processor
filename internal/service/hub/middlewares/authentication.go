@@ -6,10 +6,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/rss3-network/gateway-common/control"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/constants"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/jwt"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/model"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/utils"
+	"github.com/rss3-network/payment-processor/internal/service/hub/constants"
+	"github.com/rss3-network/payment-processor/internal/service/hub/jwt"
+	"github.com/rss3-network/payment-processor/internal/service/hub/model"
+	"github.com/rss3-network/payment-processor/internal/service/hub/utils"
 	"gorm.io/gorm"
 )
 

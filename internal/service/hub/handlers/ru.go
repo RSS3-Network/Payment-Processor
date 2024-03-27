@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/gen/oapi"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/model"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/utils"
+	"github.com/rss3-network/payment-processor/internal/service/hub/gen/oapi"
+	"github.com/rss3-network/payment-processor/internal/service/hub/model"
+	"github.com/rss3-network/payment-processor/internal/service/hub/utils"
 )
 
 func (app *App) GetRUStatus(ctx echo.Context) error {

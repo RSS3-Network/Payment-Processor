@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/gen/oapi"
+	"github.com/rss3-network/payment-processor/internal/service/hub/gen/oapi"
 )
 
 // HealthCheck implements oapi.ServerInterface

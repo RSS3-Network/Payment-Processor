@@ -7,7 +7,7 @@ import (
 
 	"github.com/rss3-network/gateway-common/accesslog"
 	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/model"
+	"github.com/rss3-network/payment-processor/internal/service/hub/model"
 	"go.uber.org/zap"
 )
 

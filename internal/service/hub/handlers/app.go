@@ -3,9 +3,9 @@ package handlers
 import (
 	"github.com/redis/go-redis/v9"
 	"github.com/rss3-network/gateway-common/control"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/gen/oapi"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/jwt"
-	"github.com/rss3-network/payment-processor/internal/service/gateway/siwe"
+	"github.com/rss3-network/payment-processor/internal/service/hub/gen/oapi"
+	"github.com/rss3-network/payment-processor/internal/service/hub/jwt"
+	"github.com/rss3-network/payment-processor/internal/service/hub/siwe"
 	"gorm.io/gorm"
 )
 
