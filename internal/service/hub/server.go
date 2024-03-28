@@ -132,7 +132,7 @@ func configureMiddlewares(isDevEnv bool, e *echo.Echo, app *handlers.App, jwtCli
 			zap.L().Error("marshal swagger doc", zap.Error(err))
 		}
 
-		e.Pre(swagger.SwaggerDoc("/", swgJSON))
+		e.Pre(swagger.Doc("/", swgJSON))
 	}
 
 	// Check user authentication
