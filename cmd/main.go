@@ -41,7 +41,7 @@ var indexCommand = &cobra.Command{
 		}
 
 		// Initialize control configurations
-		controlClient, err := control.NewWriter(config.Gateway.Etcd.Endpoints)
+		controlClient, err := control.NewWriter(config.Gateway.Etcd.Endpoints, config.Gateway.Etcd.Username, config.Gateway.Etcd.Password)
 		if err != nil {
 			return fmt.Errorf("prepare control service: %w", err)
 		}
@@ -83,7 +83,7 @@ var command = &cobra.Command{
 		redisClient := redis.NewClient(options)
 
 		// Initialize control configurations
-		controlClient, err := control.NewWriter(config.Gateway.Etcd.Endpoints)
+		controlClient, err := control.NewWriter(config.Gateway.Etcd.Endpoints, config.Gateway.Etcd.Username, config.Gateway.Etcd.Password)
 		if err != nil {
 			return fmt.Errorf("prepare control service: %w", err)
 		}

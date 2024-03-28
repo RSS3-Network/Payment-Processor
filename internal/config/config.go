@@ -61,6 +61,8 @@ type Gateway struct {
 	} `yaml:"kafka" validate:"required"`
 	Etcd struct {
 		Endpoints []string `yaml:"endpoints" validate:"required"`
+		Username  *string  `yaml:"username"`
+		Password  *string  `yaml:"password"`
 	} `yaml:"etcd" validate:"required"`
 }
 

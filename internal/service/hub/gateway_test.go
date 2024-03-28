@@ -87,7 +87,7 @@ func init() {
 	redisClient = redis.NewClient(rc)
 
 	// Initialize controlClient configurations
-	controlClient, err = control.NewWriter([]string{"localhost:2379"})
+	controlClient, err = control.NewWriter([]string{"localhost:2379"}, nil, nil)
 	if err != nil {
 		log.Panic(err)
 	}
