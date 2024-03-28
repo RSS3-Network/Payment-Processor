@@ -37,7 +37,7 @@ services:
       - connector
 
   connector:
-    image: rss3/gateway-flowcontroller-connector:v0.0.4 # Please ensure this version tag equals to plugin version in traefik-static.yml
+    image: rss3/gateway-flowcontroller-connector:v0.0.5 # Please ensure this version tag equals to plugin version in traefik-static.yml
     volumes:
       - ./connector.yml:/app/config.yml
     depends_on:
