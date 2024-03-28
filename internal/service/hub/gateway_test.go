@@ -124,7 +124,7 @@ func init() {
 	}
 
 	// Configure middlewares
-	configureMiddlewares(e, handlerApp, jwtClient, databaseClient, controlClient)
+	configureMiddlewares(false, e, handlerApp, jwtClient, databaseClient, controlClient)
 
 	handler = e.Server.Handler
 }

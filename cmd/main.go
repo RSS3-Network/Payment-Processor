@@ -26,14 +26,18 @@ var indexCommand = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		flags = cmd.PersistentFlags()
 
-		config, err := config.Setup(lo.Must(flags.GetString(flag.KeyConfig)))
+		cfg, err := config.Setup(lo.Must(flags.GetString(flag.KeyConfig)))
 		if err != nil {
 			return fmt.Errorf("setup config file: %w", err)
 		}
 
-		databaseClient, err := dialer.Dial(cmd.Context(), config.Database)
+		isDevEnv := cfg.Environment == config.EnvironmentDevelopment
+
+		initializeLogger(isDevEnv)
+
+		databaseClient, err := dialer.Dial(cmd.Context(), cfg.Database)
 		if err != nil {
-			return err
+			return fmt.Errorf("dial database: %w", err)
 		}
 
 		if err := databaseClient.Migrate(cmd.Context()); err != nil {
@@ -41,14 +45,14 @@ var indexCommand = &cobra.Command{
 		}
 
 		// Initialize control configurations
-		controlClient, err := control.NewWriter(config.Gateway.Etcd.Endpoints, config.Gateway.Etcd.Username, config.Gateway.Etcd.Password)
+		controlClient, err := control.NewWriter(cfg.Gateway.Etcd.Endpoints, cfg.Gateway.Etcd.Username, cfg.Gateway.Etcd.Password)
 		if err != nil {
 			return fmt.Errorf("prepare control service: %w", err)
 		}
 
-		instance, err := indexer.New(databaseClient, controlClient, config.Billing.RuPerToken, *config.RSS3Chain)
+		instance, err := indexer.New(databaseClient, controlClient, cfg.Billing.RuPerToken, *cfg.RSS3Chain)
 		if err != nil {
-			return err
+			return fmt.Errorf("create indexer: %w", err)
 		}
 
 		return instance.Run(cmd.Context())
@@ -61,21 +65,25 @@ var command = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		flags = cmd.PersistentFlags()
 
-		config, err := config.Setup(lo.Must(flags.GetString(flag.KeyConfig)))
+		cfg, err := config.Setup(lo.Must(flags.GetString(flag.KeyConfig)))
 		if err != nil {
 			return fmt.Errorf("setup config file: %w", err)
 		}
 
-		databaseClient, err := dialer.Dial(cmd.Context(), config.Database)
+		isDevEnv := cfg.Environment == config.EnvironmentDevelopment
+
+		initializeLogger(isDevEnv)
+
+		databaseClient, err := dialer.Dial(cmd.Context(), cfg.Database)
 		if err != nil {
-			return err
+			return fmt.Errorf("dial database: %w", err)
 		}
 
 		if err := databaseClient.Migrate(cmd.Context()); err != nil {
 			return fmt.Errorf("migrate database: %w", err)
 		}
 
-		options, err := redis.ParseURL(config.Redis.URI)
+		options, err := redis.ParseURL(cfg.Redis.URI)
 		if err != nil {
 			return fmt.Errorf("parse redis uri: %w", err)
 		}
@@ -83,22 +91,22 @@ var command = &cobra.Command{
 		redisClient := redis.NewClient(options)
 
 		// Initialize control configurations
-		controlClient, err := control.NewWriter(config.Gateway.Etcd.Endpoints, config.Gateway.Etcd.Username, config.Gateway.Etcd.Password)
+		controlClient, err := control.NewWriter(cfg.Gateway.Etcd.Endpoints, cfg.Gateway.Etcd.Username, cfg.Gateway.Etcd.Password)
 		if err != nil {
 			return fmt.Errorf("prepare control service: %w", err)
 		}
 
-		instance, err := hub.New(databaseClient, redisClient, controlClient, *config.Gateway)
+		instance, err := hub.New(isDevEnv, databaseClient, redisClient, controlClient, *cfg.Gateway)
 		if err != nil {
-			return err
+			return fmt.Errorf("create hub: %w", err)
 		}
 
 		return instance.Run(cmd.Context())
 	},
 }
 
-func initializeLogger() {
-	if os.Getenv(config.Environment) == config.EnvironmentDevelopment {
+func initializeLogger(isDevEnv bool) {
+	if isDevEnv {
 		zap.ReplaceGlobals(zap.Must(zap.NewDevelopment()))
 	} else {
 		zap.ReplaceGlobals(zap.Must(zap.NewProduction()))
@@ -106,8 +114,6 @@ func initializeLogger() {
 }
 
 func init() {
-	initializeLogger()
-
 	command.AddCommand(indexCommand)
 
 	command.PersistentFlags().String(flag.KeyConfig, "./deploy/config.yaml", "config file path")

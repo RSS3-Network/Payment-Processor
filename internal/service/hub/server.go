@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -28,6 +27,7 @@ import (
 )
 
 type Server struct {
+	isDevEnv       bool
 	config         config.Gateway
 	redis          *redis.Client
 	databaseClient database.Client
@@ -84,7 +84,7 @@ func (s *Server) Run(ctx context.Context) error {
 		}
 
 		// Configure middlewares
-		configureMiddlewares(e, handlerApp, jwtClient, s.databaseClient.Raw(), s.controlClient)
+		configureMiddlewares(s.isDevEnv, e, handlerApp, jwtClient, s.databaseClient.Raw(), s.controlClient)
 
 		// Start echo API server
 		return e.Start(fmt.Sprintf("%s:%d", s.config.API.Listen.Host, s.config.API.Listen.Port))
@@ -101,8 +101,9 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 }
 
-func New(databaseClient database.Client, redis *redis.Client, controlClient *control.StateClientWriter, config config.Gateway) (service.Server, error) {
+func New(isDevEnv bool, databaseClient database.Client, redis *redis.Client, controlClient *control.StateClientWriter, config config.Gateway) (service.Server, error) {
 	instance := Server{
+		isDevEnv:       isDevEnv,
 		config:         config,
 		redis:          redis,
 		databaseClient: databaseClient,
@@ -112,11 +113,11 @@ func New(databaseClient database.Client, redis *redis.Client, controlClient *con
 	return &instance, nil
 }
 
-func configureMiddlewares(e *echo.Echo, app *handlers.App, jwtClient *jwt.JWT, databaseClient *gorm.DB, controlClient *control.StateClientWriter) {
+func configureMiddlewares(isDevEnv bool, e *echo.Echo, app *handlers.App, jwtClient *jwt.JWT, databaseClient *gorm.DB, controlClient *control.StateClientWriter) {
 	oapi.RegisterHandlers(e, app)
 
 	// Add api docs
-	if os.Getenv(config.Environment) == config.EnvironmentDevelopment {
+	if isDevEnv {
 		swg, err := oapi.GetSwagger()
 
 		if err != nil {

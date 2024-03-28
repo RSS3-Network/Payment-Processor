@@ -11,7 +11,6 @@ import (
 )
 
 const (
-	Environment            = "environment"
 	EnvironmentDevelopment = "development"
 	EnvironmentProduction  = "production"
 )
