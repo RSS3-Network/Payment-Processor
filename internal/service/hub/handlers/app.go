@@ -19,10 +19,10 @@ type App struct {
 	siweClient     *siwe.SIWE
 }
 
-func NewApp(controlClient *control.StateClientWriter, redis *redis.Client, databaseClient *gorm.DB, jwtClient *jwt.JWT, siweClient *siwe.SIWE) (*App, error) {
+func NewApp(controlClient *control.StateClientWriter, redisClient *redis.Client, databaseClient *gorm.DB, jwtClient *jwt.JWT, siweClient *siwe.SIWE) (*App, error) {
 	return &App{
 		controlClient:  controlClient,
-		redisClient:    redis,
+		redisClient:    redisClient,
 		databaseClient: databaseClient,
 		jwtClient:      jwtClient,
 		siweClient:     siweClient,

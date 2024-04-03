@@ -660,7 +660,7 @@ func Test_ProcessAccessLog(t *testing.T) {
 		{ // Should be billed
 			KeyID:     &keyID,
 			Timestamp: time1,
-			Path:      "/data/accounts/activities", // 10 RU
+			Path:      "/data/accounts/activities",
 			Status:    200,
 		},
 		{ // Should not be billed

@@ -35,6 +35,7 @@ var indexCommand = &cobra.Command{
 
 		initializeLogger(isDevEnv)
 
+		// Initialize database client
 		databaseClient, err := dialer.Dial(cmd.Context(), cfg.Database)
 		if err != nil {
 			return fmt.Errorf("dial database: %w", err)
@@ -50,7 +51,16 @@ var indexCommand = &cobra.Command{
 			return fmt.Errorf("prepare control service: %w", err)
 		}
 
-		instance, err := indexer.New(databaseClient, controlClient, cfg.Billing.RuPerToken, *cfg.RSS3Chain)
+		// Initialize Redis client
+		options, err := redis.ParseURL(cfg.Redis.URI)
+		if err != nil {
+			return fmt.Errorf("parse redis uri: %w", err)
+		}
+
+		redisClient := redis.NewClient(options)
+
+		// Start
+		instance, err := indexer.New(databaseClient, controlClient, redisClient, cfg.Billing.RuPerToken, *cfg.RSS3Chain)
 		if err != nil {
 			return fmt.Errorf("create indexer: %w", err)
 		}
@@ -74,6 +84,7 @@ var command = &cobra.Command{
 
 		initializeLogger(isDevEnv)
 
+		// Initialize database client
 		databaseClient, err := dialer.Dial(cmd.Context(), cfg.Database)
 		if err != nil {
 			return fmt.Errorf("dial database: %w", err)
@@ -83,6 +94,7 @@ var command = &cobra.Command{
 			return fmt.Errorf("migrate database: %w", err)
 		}
 
+		// Initialize redis client
 		options, err := redis.ParseURL(cfg.Redis.URI)
 		if err != nil {
 			return fmt.Errorf("parse redis uri: %w", err)
@@ -96,6 +108,7 @@ var command = &cobra.Command{
 			return fmt.Errorf("prepare control service: %w", err)
 		}
 
+		// Start
 		instance, err := hub.New(isDevEnv, databaseClient, redisClient, controlClient, *cfg.Gateway)
 		if err != nil {
 			return fmt.Errorf("create hub: %w", err)

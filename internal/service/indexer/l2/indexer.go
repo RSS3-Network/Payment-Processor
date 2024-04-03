@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"math/big"
 	"time"
 
@@ -23,14 +24,16 @@ import (
 var _ service.Server = (*server)(nil)
 
 type server struct {
-	databaseClient    database.Client
-	ethereumClient    *ethclient.Client
-	chainID           *big.Int
-	contractBilling   *l2.Billing
-	checkpoint        *schema.Checkpoint
-	blockNumberLatest uint64
-	controlClient     *control.StateClientWriter // For account resume only
-	ruPerToken        int64
+	databaseClient     database.Client
+	redisClient        *redis.Client
+	ethereumClient     *ethclient.Client
+	chainID            *big.Int
+	contractBilling    *l2.Billing
+	contractSettlement *l2.Settlement
+	checkpoint         *schema.Checkpoint
+	blockNumberLatest  uint64
+	controlClient      *control.StateClientWriter // For account resume only
+	ruPerToken         int64
 }
 
 func (s *server) Run(ctx context.Context) (err error) {
@@ -142,6 +145,10 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 				if err := s.indexBillingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
 					return fmt.Errorf("index billing log %s %d: %w", log.TxHash, log.Index, err)
 				}
+			case l2.ContractMap[s.chainID.Uint64()].AddressSettlementProxy:
+				if err := s.indexSettlementLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
+					return fmt.Errorf("index settlement log %s %d: %w", log.TxHash, log.Index, err)
+				}
 			}
 		}
 	}
@@ -161,11 +168,12 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 	return nil
 }
 
-func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, ruPerToken int64, config Config) (service.Server, error) {
+func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, ruPerToken int64, config Config) (service.Server, error) {
 	var (
 		instance = server{
 			databaseClient: databaseClient,
 			controlClient:  controlClient,
+			redisClient:    redisClient,
 			ruPerToken:     ruPerToken,
 		}
 		err error
@@ -185,6 +193,10 @@ func NewServer(ctx context.Context, databaseClient database.Client, controlClien
 	}
 
 	if instance.contractBilling, err = l2.NewBilling(contractAddresses.AddressBillingProxy, instance.ethereumClient); err != nil {
+		return nil, err
+	}
+
+	if instance.contractSettlement, err = l2.NewSettlement(contractAddresses.AddressSettlementProxy, instance.ethereumClient); err != nil {
 		return nil, err
 	}
 

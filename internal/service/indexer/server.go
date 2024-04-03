@@ -2,6 +2,7 @@ package indexer
 
 import (
 	"context"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/rss3-network/gateway-common/control"
 	"github.com/rss3-network/payment-processor/internal/config"
@@ -14,6 +15,7 @@ type Server struct {
 	config         config.RSS3Chain
 	databaseClient database.Client
 	controlClient  *control.StateClientWriter
+	redisClient    *redis.Client
 	ruPerToken     int64
 }
 
@@ -26,7 +28,7 @@ func (s *Server) Run(ctx context.Context) error {
 			Endpoint: s.config.EndpointL2,
 		}
 
-		serverL2, err := l2.NewServer(ctx, s.databaseClient, s.controlClient, s.ruPerToken, l2Config)
+		serverL2, err := l2.NewServer(ctx, s.databaseClient, s.controlClient, s.redisClient, s.ruPerToken, l2Config)
 		if err != nil {
 			return err
 		}
@@ -45,11 +47,12 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 }
 
-func New(databaseClient database.Client, controlClient *control.StateClientWriter, ruPerToken int64, config config.RSS3Chain) (*Server, error) {
+func New(databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, ruPerToken int64, config config.RSS3Chain) (*Server, error) {
 	instance := Server{
 		config:         config,
 		databaseClient: databaseClient,
 		controlClient:  controlClient,
+		redisClient:    redisClient,
 		ruPerToken:     ruPerToken,
 	}
 
