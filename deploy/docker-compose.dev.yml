@@ -1,5 +1,5 @@
 version: "3.9"
-name: gateway_dev
+name: pp_dev
 services:
   # CRDB
   cockroach:
