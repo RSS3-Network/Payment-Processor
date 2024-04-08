@@ -24,16 +24,16 @@ import (
 var _ service.Server = (*server)(nil)
 
 type server struct {
-	databaseClient     database.Client
-	redisClient        *redis.Client
-	ethereumClient     *ethclient.Client
-	chainID            *big.Int
-	contractBilling    *l2.Billing
-	contractSettlement *l2.Settlement
-	checkpoint         *schema.Checkpoint
-	blockNumberLatest  uint64
-	controlClient      *control.StateClientWriter // For account resume only
-	ruPerToken         int64
+	databaseClient    database.Client
+	redisClient       *redis.Client
+	ethereumClient    *ethclient.Client
+	chainID           *big.Int
+	contractBilling   *l2.Billing
+	contractStaking   *l2.Staking
+	checkpoint        *schema.Checkpoint
+	blockNumberLatest uint64
+	controlClient     *control.StateClientWriter // For account resume only
+	ruPerToken        int64
 }
 
 func (s *server) Run(ctx context.Context) (err error) {
@@ -145,9 +145,9 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 				if err := s.indexBillingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
 					return fmt.Errorf("index billing log %s %d: %w", log.TxHash, log.Index, err)
 				}
-			case l2.ContractMap[s.chainID.Uint64()].AddressSettlementProxy:
-				if err := s.indexSettlementLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
-					return fmt.Errorf("index settlement log %s %d: %w", log.TxHash, log.Index, err)
+			case l2.ContractMap[s.chainID.Uint64()].AddressStakingProxy:
+				if err := s.indexStakingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
+					return fmt.Errorf("index staking log %s %d: %w", log.TxHash, log.Index, err)
 				}
 			}
 		}
@@ -196,7 +196,7 @@ func NewServer(ctx context.Context, databaseClient database.Client, controlClien
 		return nil, err
 	}
 
-	if instance.contractSettlement, err = l2.NewSettlement(contractAddresses.AddressSettlementProxy, instance.ethereumClient); err != nil {
+	if instance.contractStaking, err = l2.NewStaking(contractAddresses.AddressStakingProxy, instance.ethereumClient); err != nil {
 		return nil, err
 	}
 

@@ -6,15 +6,15 @@ import (
 )
 
 //go:generate go run --mod=mod github.com/ethereum/go-ethereum/cmd/abigen@v1.13.5 --abi ./abi/Billing.abi --pkg l2 --type Billing --out contract_billing.go
-//go:generate go run --mod=mod github.com/ethereum/go-ethereum/cmd/abigen@v1.13.5 --abi ./abi/Settlement.abi --pkg l2 --type Settlement --out contract_settlement.go
+//go:generate go run --mod=mod github.com/ethereum/go-ethereum/cmd/abigen@v1.13.5 --abi ./abi/Staking.abi --pkg l2 --type Staking --out contract_staking.go
 
 var ContractMap = map[uint64]*struct {
-	AddressBillingProxy    common.Address
-	AddressSettlementProxy common.Address
+	AddressBillingProxy common.Address
+	AddressStakingProxy common.Address
 }{
 	2331: {
-		AddressBillingProxy:    common.HexToAddress("0x4630b9ad9b149ebf13d185ab7b96cb4afe95e6c4"), // https://scan.testnet.rss3.io/address/0x4630b9ad9b149ebf13d185ab7b96cb4afe95e6c4
-		AddressSettlementProxy: common.HexToAddress("0xA37a6Ef0c3635824be2b6c87A23F6Df5d0E2ba1b"), // https://scan.testnet.rss3.io/address/0xA37a6Ef0c3635824be2b6c87A23F6Df5d0E2ba1b
+		AddressBillingProxy: common.HexToAddress("0x4630b9ad9b149ebf13d185ab7b96cb4afe95e6c4"), // https://scan.testnet.rss3.io/address/0x4630b9ad9b149ebf13d185ab7b96cb4afe95e6c4
+		AddressStakingProxy: common.HexToAddress("0xb1b209Ee24272C7EE8076764DAa27563c5add9FF"), // https://scan.testnet.rss3.io/address/0xb1b209Ee24272C7EE8076764DAa27563c5add9FF
 	},
 }
 
@@ -23,7 +23,7 @@ var (
 	EventHashBillingTokensWithdrawn = crypto.Keccak256Hash([]byte("TokensWithdrawn(address,uint256,uint256)"))
 	EventHashBillingTokensCollected = crypto.Keccak256Hash([]byte("TokensCollected(address,uint256)"))
 
-	EventHashSettlementDistributeRewards = crypto.Keccak256Hash([]byte("DistributeRewards(uint256,address[],uint256[],uint256[],bool)"))
+	EventHashStakingRewardDistributed = crypto.Keccak256Hash([]byte("RewardDistributed(uint256,uint256,uint256,address[],uint256[],uint256[],uint256[],uint256[])"))
 )
 
 var (
