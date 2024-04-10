@@ -13,7 +13,7 @@ var ContractMap = map[uint64]*struct {
 	AddressStakingProxy common.Address
 }{
 	2331: {
-		AddressBillingProxy: common.HexToAddress("0x4630b9ad9b149ebf13d185ab7b96cb4afe95e6c4"), // https://scan.testnet.rss3.io/address/0x4630b9ad9b149ebf13d185ab7b96cb4afe95e6c4
+		AddressBillingProxy: common.HexToAddress("0x2d2f2649f314100a17ead85c7a0b7099780e743e"), // https://scan.testnet.rss3.io/address/0x2d2f2649f314100a17ead85c7a0b7099780e743e
 		AddressStakingProxy: common.HexToAddress("0xb1b209Ee24272C7EE8076764DAa27563c5add9FF"), // https://scan.testnet.rss3.io/address/0xb1b209Ee24272C7EE8076764DAa27563c5add9FF
 	},
 }
