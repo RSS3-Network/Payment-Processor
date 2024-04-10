@@ -99,7 +99,7 @@ func init() {
 	}
 
 	// Prepare SIWE
-	siweClient, err = siwe.New("localhost:3000", redisClient)
+	siweClient, err = siwe.New("localhost:3000", redisClient, false)
 	if err != nil {
 		log.Panic(err)
 	}
