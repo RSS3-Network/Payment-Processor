@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/redis/go-redis/v9"
@@ -16,12 +17,14 @@ import (
 type SIWE struct {
 	domain      string
 	redisClient *redis.Client
+	isDevEnv    bool
 }
 
-func New(domain string, redisClient *redis.Client) (*SIWE, error) {
+func New(domain string, redisClient *redis.Client, isDevEnv bool) (*SIWE, error) {
 	return &SIWE{
 		domain:      domain,
 		redisClient: redisClient,
+		isDevEnv:    isDevEnv,
 	}, nil
 }
 
@@ -42,8 +45,15 @@ func (s *SIWE) ValidateSIWESignature(ctx context.Context, rawMessage, signature 
 		return nil, 0, err
 	}
 
+	// Verify domain
+	domain := &s.domain
+	if s.isDevEnv && strings.Contains(message.GetDomain(), "localhost") {
+		// Is dev mode, proceed without domain requirement
+		domain = nil
+	}
+
 	// Verifying and Authenticating a SIWE Message
-	_, err = message.Verify(signature, &s.domain, nil, nil)
+	_, err = message.Verify(signature, domain, nil, nil)
 	if err != nil {
 		return nil, 0, err
 	}
