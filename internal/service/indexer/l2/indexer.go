@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/redis/go-redis/v9"
+	"github.com/rss3-network/payment-processor/common/txmgr"
 	"github.com/rss3-network/payment-processor/internal/config"
 	"math/big"
 	"time"
@@ -15,6 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/rss3-network/gateway-common/control"
+	gicrypto "github.com/rss3-network/payment-processor/common/crypto"
 	"github.com/rss3-network/payment-processor/contract/l2"
 	"github.com/rss3-network/payment-processor/internal/database"
 	"github.com/rss3-network/payment-processor/internal/service"
@@ -37,6 +39,7 @@ type server struct {
 	controlClient     *control.StateClientWriter // For account resume only
 	ruPerToken        int64
 	collectTokenTo    common.Address
+	txManager         txmgr.TxManager
 
 	slackNotificationChannel        string
 	slackNotificationBlockchainScan string
@@ -176,40 +179,73 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 }
 
 func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, config Config, billingConfig config.Billing) (service.Server, error) {
-	var (
-		instance = server{
-			databaseClient:                  databaseClient,
-			controlClient:                   controlClient,
-			redisClient:                     redisClient,
-			ruPerToken:                      billingConfig.RuPerToken,
-			collectTokenTo:                  common.HexToAddress(billingConfig.CollectTokenTo),
-			slackNotificationChannel:        billingConfig.SlackNotification.Channel,
-			slackNotificationBlockchainScan: billingConfig.SlackNotification.BlockchainScan,
-			slackNotificationBotToken:       billingConfig.SlackNotification.BotToken,
-		}
-		err error
-	)
+	// Start
+	ethereumClient, err := ethclient.DialContext(ctx, config.Endpoint)
 
-	if instance.ethereumClient, err = ethclient.DialContext(ctx, config.Endpoint); err != nil {
+	if err != nil {
 		return nil, err
 	}
 
-	if instance.chainID, err = instance.ethereumClient.ChainID(ctx); err != nil {
+	chainID, err := ethereumClient.ChainID(ctx)
+
+	if err != nil {
 		return nil, fmt.Errorf("get chain id: %w", err)
 	}
 
-	contractAddresses := l2.ContractMap[instance.chainID.Uint64()]
+	contractAddresses := l2.ContractMap[chainID.Uint64()]
+
 	if contractAddresses == nil {
-		return nil, fmt.Errorf("chain id %d is not supported", instance.chainID)
+		return nil, fmt.Errorf("chain id %d is not supported", chainID)
 	}
 
-	if instance.contractBilling, err = l2.NewBilling(contractAddresses.AddressBillingProxy, instance.ethereumClient); err != nil {
+	contractBilling, err := l2.NewBilling(contractAddresses.AddressBillingProxy, ethereumClient)
+
+	if err != nil {
 		return nil, err
 	}
 
-	if instance.contractStaking, err = l2.NewStaking(contractAddresses.AddressStakingProxy, instance.ethereumClient); err != nil {
+	contractStaking, err := l2.NewStaking(contractAddresses.AddressStakingProxy, ethereumClient)
+
+	if err != nil {
 		return nil, err
 	}
 
-	return &instance, nil
+	signerFactory, from, err := gicrypto.NewSignerFactory(billingConfig.Settler.PrivateKey, billingConfig.Settler.SignerEndpoint, billingConfig.Settler.WalletAddress)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create signer")
+	}
+
+	defaultTxConfig := txmgr.Config{
+		ResubmissionTimeout:       20 * time.Second,
+		FeeLimitMultiplier:        5,
+		TxSendTimeout:             5 * time.Minute,
+		TxNotInMempoolTimeout:     1 * time.Hour,
+		NetworkTimeout:            5 * time.Minute,
+		ReceiptQueryInterval:      500 * time.Millisecond,
+		NumConfirmations:          5,
+		SafeAbortNonceTooLowCount: 3,
+	}
+
+	txManager, err := txmgr.NewSimpleTxManager(defaultTxConfig, chainID, nil, ethereumClient, from, signerFactory(chainID))
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create tx manager")
+	}
+
+	return &server{
+		databaseClient:                  databaseClient,
+		controlClient:                   controlClient,
+		redisClient:                     redisClient,
+		ruPerToken:                      billingConfig.RuPerToken,
+		collectTokenTo:                  common.HexToAddress(billingConfig.CollectTokenTo),
+		slackNotificationChannel:        billingConfig.SlackNotification.Channel,
+		slackNotificationBlockchainScan: billingConfig.SlackNotification.BlockchainScan,
+		slackNotificationBotToken:       billingConfig.SlackNotification.BotToken,
+		ethereumClient:                  ethereumClient,
+		chainID:                         chainID,
+		contractBilling:                 contractBilling,
+		contractStaking:                 contractStaking,
+		txManager:                       txManager,
+	}, nil
 }

@@ -66,13 +66,26 @@ type Gateway struct {
 }
 
 type Billing struct {
-	CollectTokenTo    string `yaml:"collect_token_to" validate:"required"`
-	RuPerToken        int64  `yaml:"ru_per_token" default:"1000"`
+	CollectTokenTo    string   `yaml:"collect_token_to" validate:"required"`
+	RuPerToken        int64    `yaml:"ru_per_token" default:"1000"`
+	Settler           *Settler `yaml:"settler"`
 	SlackNotification struct {
 		BotToken       string `yaml:"bot_token"`
 		Channel        string `yaml:"channel"`
 		BlockchainScan string `yaml:"blockchain_scan" validate:"required"`
 	} `yaml:"slack_notification"`
+}
+
+type Settler struct {
+	PrivateKey     string `yaml:"private_key"`
+	WalletAddress  string `yaml:"wallet_address"`
+	SignerEndpoint string `yaml:"signer_endpoint"`
+	// EpochIntervalInHours
+	EpochIntervalInHours int    `yaml:"epoch_interval_in_hours" default:"18"`
+	GasLimit             uint64 `yaml:"gas_limit" default:"2500000"`
+	// BatchSize is the number of Nodes to process in each batch.
+	// This is to prevent the contract call from running out of gas.
+	BatchSize int `yaml:"batch_size" default:"200"`
 }
 
 func Setup(configFilePath string) (*File, error) {
