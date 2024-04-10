@@ -10,16 +10,16 @@ import (
 	"math/big"
 )
 
-func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.Int) ([]*schema.NodeRequestRewards, error) {
-	var rewardsRecord []table.NodeRequestRewards
+func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.Int) ([]*schema.NodeRequestRecord, error) {
+	var rewardsRecord []table.NodeRequestRecord
 
 	if err := c.database.
 		WithContext(ctx).
-		Find(&rewardsRecord, table.NodeRequestRewards{Epoch: epoch.Uint64()}).Error; err != nil {
+		Find(&rewardsRecord, table.NodeRequestRecord{Epoch: epoch.Uint64()}).Error; err != nil {
 		return nil, err
 	}
 
-	rewardsSchema := make([]*schema.NodeRequestRewards, len(rewardsRecord))
+	rewardsSchema := make([]*schema.NodeRequestRecord, len(rewardsRecord))
 
 	var err error
 
@@ -33,21 +33,21 @@ func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.I
 	return rewardsSchema, nil
 }
 
-func (c *client) SaveNodeRequestRewards(ctx context.Context, rewards *schema.NodeRequestRewards) error {
-	var value table.NodeRequestRewards
-	if err := value.Import(*rewards); err != nil {
+func (c *client) SaveNodeRequestCount(ctx context.Context, record *schema.NodeRequestRecord) error {
+	var value table.NodeRequestRecord
+	if err := value.Import(*record); err != nil {
 		return fmt.Errorf("import node request rewards: %w", err)
 	}
 
 	return c.database.WithContext(ctx).Create(&value).Error
 }
 
-func (c *client) SetNodeRequestRewards(ctx context.Context, epoch *big.Int, nodeAddr common.Address, rewards *big.Int) error {
+func (c *client) SetNodeRequestRewards(ctx context.Context, epoch *big.Int, nodeAddr common.Address, reward *big.Int) error {
 	return c.database.WithContext(ctx).
-		Updates(table.NodeRequestRewards{
-			RequestRewards: decimal.NewFromBigInt(rewards, 0),
+		Updates(table.NodeRequestRecord{
+			RequestReward: decimal.NewFromBigInt(reward, 0),
 		}).
-		Where(table.NodeRequestRewards{
+		Where(table.NodeRequestRecord{
 			Epoch:       epoch.Uint64(),
 			NodeAddress: nodeAddr,
 		}).

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/rss3-network/payment-processor/contract/l2"
 	"github.com/rss3-network/payment-processor/internal/database"
@@ -38,19 +39,18 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	//    5. billing: distribute request rewards
 
 	// TODO:
-	//   1. Done ~~prepare settlement contract (seems like there's no DistributeRewards event)~~
 	//   2. prepare database tables required with new orm technology (requires main branch update)
 
 	// Step 1: collect all data
 	for i, nodeAddr := range stakingDistributeRewardsEvent.NodeAddrs {
-		err = s.databaseClient.SaveNodeRequestRewards(ctx, &schema.NodeRequestRewards{
-			NodeAddress:   nodeAddr,
-			Epoch:         stakingDistributeRewardsEvent.Epoch,
-			RequestCounts: stakingDistributeRewardsEvent.RequestCounts[i],
+		err = s.databaseClient.SaveNodeRequestCount(ctx, &schema.NodeRequestRecord{
+			NodeAddress:  nodeAddr,
+			Epoch:        stakingDistributeRewardsEvent.Epoch,
+			RequestCount: stakingDistributeRewardsEvent.RequestCounts[i],
 		})
 		if err != nil {
 			// Error, but no need to abort
-			zap.L().Error("save node request rewards", zap.Any("index", i), zap.Any("event", stakingDistributeRewardsEvent), zap.Error(err))
+			zap.L().Error("save node request count", zap.Any("index", i), zap.Any("event", stakingDistributeRewardsEvent), zap.Error(err))
 		}
 	}
 
@@ -87,18 +87,43 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	}
 
 	// 2.4. calc request percentage
-	allRequests, err := s.databaseClient.FindNodeRequestRewardsByEpoch(ctx, stakingDistributeRewardsEvent.Epoch)
+	allNodes, err := s.databaseClient.FindNodeRequestRewardsByEpoch(ctx, stakingDistributeRewardsEvent.Epoch)
 	if err != nil {
 		return fmt.Errorf("failed to find node requests record: %w", err)
 	}
 
 	// Sum all requests count
 	totalRequestCount := big.NewInt(0)
-	for _, request := range allRequests {
-		totalRequestCount.Add(totalRequestCount, request.RequestCounts)
+	for _, node := range allNodes {
+		totalRequestCount.Add(totalRequestCount, node.RequestCount)
 	}
 
+	// Calculate reward per request
 	rewardPerRequest := new(big.Int).Quo(totalCollected, totalRequestCount)
+	zap.L().Info(
+		"epoch reward per request",
+		zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()),
+		zap.String("totalRewards", totalCollected.String()),
+		zap.String("totalRequests", totalRequestCount.String()),
+		zap.String("rewardPerRequest", rewardPerRequest.String()),
+	)
+
+	// Calculate reward for nodes
+	rewardNodesAddress := make([]common.Address, len(allNodes))
+	rewardNodesAmount := make([]*big.Int, len(allNodes))
+
+	for i, node := range allNodes {
+		// Calculate reward per node
+		rewardNodesAddress[i] = node.NodeAddress
+		rewardNodesAmount[i] = new(big.Int).Mul(rewardPerRequest, node.RequestCount)
+
+		// Save into database
+		err = s.databaseClient.SetNodeRequestRewards(ctx, rewardNodesAddress[i], rewardNodesAmount[i])
+		if err != nil {
+			// Error, but no need to abort
+			zap.L().Error("update node request rewards", zap.String("address", rewardNodesAddress[i].String()), zap.String("amount", rewardNodesAmount[i].String()), zap.Any("node", node), zap.Error(err))
+		}
+	}
 
 	// 2.5. billing: distribute request rewards
 	// TODO
