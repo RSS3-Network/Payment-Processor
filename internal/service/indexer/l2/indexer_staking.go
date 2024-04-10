@@ -38,9 +38,6 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	//    4. calc requestCounts percentage of each node collected in step 1
 	//    5. billing: distribute request rewards
 
-	// TODO:
-	//   2. prepare database tables required with new orm technology (requires main branch update)
-
 	// Step 1: collect all data
 	for i, nodeAddr := range stakingDistributeRewardsEvent.NodeAddrs {
 		err = s.databaseClient.SaveNodeRequestCount(ctx, &schema.NodeRequestRecord{
@@ -126,7 +123,10 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	}
 
 	// 2.5. billing: distribute request rewards
-	// TODO
+	err = s.triggerDistributeRequestRewards(rewardNodesAddress, rewardNodesAmount)
+	if err != nil {
+		return fmt.Errorf("trigger distribute request rewards: %w", err)
+	}
 
 	return nil
 
