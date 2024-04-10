@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"math/big"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -35,6 +36,10 @@ type Client interface {
 	UpdateBillingRuLimit(ctx context.Context, succeededUsersWithRu map[common.Address]int64) error
 
 	GatewayDeposit(ctx context.Context, address common.Address, ruIncrease int64) (bool, error)
+
+	FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.Int) ([]schema.NodeRequestRewards, error)
+	SaveNodeRequestRewards(ctx context.Context, rewards *schema.NodeRequestRewards) error
+	SetNodeRequestRewards(ctx context.Context, nodeAddr common.Address, rewards *big.Int) error
 
 	Raw() *gorm.DB
 }
