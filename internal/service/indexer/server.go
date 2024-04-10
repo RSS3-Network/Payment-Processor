@@ -12,11 +12,11 @@ import (
 )
 
 type Server struct {
-	config         config.RSS3Chain
+	chainConfig    config.RSS3Chain
+	billingConfig  config.Billing
 	databaseClient database.Client
 	controlClient  *control.StateClientWriter
 	redisClient    *redis.Client
-	ruPerToken     int64
 }
 
 func (s *Server) Run(ctx context.Context) error {
@@ -25,10 +25,10 @@ func (s *Server) Run(ctx context.Context) error {
 	// Run L2 indexer.
 	errorPool.Go(func(ctx context.Context) error {
 		l2Config := l2.Config{
-			Endpoint: s.config.EndpointL2,
+			Endpoint: s.chainConfig.EndpointL2,
 		}
 
-		serverL2, err := l2.NewServer(ctx, s.databaseClient, s.controlClient, s.redisClient, s.ruPerToken, l2Config)
+		serverL2, err := l2.NewServer(ctx, s.databaseClient, s.controlClient, s.redisClient, l2Config, s.billingConfig)
 		if err != nil {
 			return err
 		}
@@ -47,13 +47,13 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 }
 
-func New(databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, ruPerToken int64, config config.RSS3Chain) (*Server, error) {
+func New(databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, chainConfig config.RSS3Chain, billingConfig config.Billing) (*Server, error) {
 	instance := Server{
-		config:         config,
+		chainConfig:    chainConfig,
+		billingConfig:  billingConfig,
 		databaseClient: databaseClient,
 		controlClient:  controlClient,
 		redisClient:    redisClient,
-		ruPerToken:     ruPerToken,
 	}
 
 	return &instance, nil

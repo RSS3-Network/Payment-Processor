@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/redis/go-redis/v9"
+	"github.com/rss3-network/payment-processor/internal/config"
 	"math/big"
 	"time"
 
@@ -34,6 +36,11 @@ type server struct {
 	blockNumberLatest uint64
 	controlClient     *control.StateClientWriter // For account resume only
 	ruPerToken        int64
+	collectTokenTo    common.Address
+
+	slackNotificationChannel        string
+	slackNotificationBlockchainScan string
+	slackNotificationBotToken       string
 }
 
 func (s *server) Run(ctx context.Context) (err error) {
@@ -168,13 +175,17 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 	return nil
 }
 
-func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, ruPerToken int64, config Config) (service.Server, error) {
+func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, config Config, billingConfig config.Billing) (service.Server, error) {
 	var (
 		instance = server{
-			databaseClient: databaseClient,
-			controlClient:  controlClient,
-			redisClient:    redisClient,
-			ruPerToken:     ruPerToken,
+			databaseClient:                  databaseClient,
+			controlClient:                   controlClient,
+			redisClient:                     redisClient,
+			ruPerToken:                      billingConfig.RuPerToken,
+			collectTokenTo:                  common.HexToAddress(billingConfig.CollectTokenTo),
+			slackNotificationChannel:        billingConfig.SlackNotification.Channel,
+			slackNotificationBlockchainScan: billingConfig.SlackNotification.BlockchainScan,
+			slackNotificationBotToken:       billingConfig.SlackNotification.BotToken,
 		}
 		err error
 	)
