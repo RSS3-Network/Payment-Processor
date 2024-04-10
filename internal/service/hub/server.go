@@ -65,7 +65,7 @@ func (s *Server) Run(ctx context.Context) error {
 		}
 
 		// Prepare SIWE
-		siweClient, err := siwe.New(s.config.API.SIWEDomain, s.redisClient, s.isDevEnv)
+		siweClient, err := siwe.New(s.config.API.SIWEDomain, s.redisClient)
 		if err != nil {
 			return fmt.Errorf("prepare SIWE: %w", err)
 		}
