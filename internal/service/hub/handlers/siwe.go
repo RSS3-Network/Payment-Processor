@@ -11,6 +11,7 @@ import (
 	"github.com/rss3-network/payment-processor/internal/service/hub/model"
 	"github.com/rss3-network/payment-processor/internal/service/hub/utils"
 	"github.com/samber/lo"
+	"go.uber.org/zap"
 )
 
 // SIWEGetNonce implements oapi.ServerInterface
@@ -19,6 +20,7 @@ func (app *App) SIWEGetNonce(ctx echo.Context) error {
 	nonce, err := app.siweClient.GetNonce(ctx.Request().Context())
 
 	if err != nil {
+		zap.L().Error("SIWEGetNonce", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
