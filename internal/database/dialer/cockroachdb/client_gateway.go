@@ -26,7 +26,7 @@ func (c *client) GatewayDeposit(ctx context.Context, address common.Address, ruI
 	// Increase RU
 	err = c.database.WithContext(ctx).
 		Model(&table.GatewayAccount{}).
-		Where("address = ?", address).
+		Where("address = ?", address.Hex()).
 		Update("ru_limit", gorm.Expr("ru_limit + ?", ruIncrease)).
 		Error
 
@@ -44,7 +44,7 @@ func (c *client) GatewayDeposit(ctx context.Context, address common.Address, ruI
 	// else is paused, resume account
 	err = c.database.WithContext(ctx).
 		Model(&table.GatewayAccount{}).
-		Where("address = ?", address).
+		Where("address = ?", address.Hex()).
 		Update("is_paused", false).
 		Error
 

@@ -187,7 +187,7 @@ func (c *client) PrepareBillingWithdrawTokens(ctx context.Context) (*map[common.
 func (c *client) UpdateBillingRuLimit(ctx context.Context, succeededUsersWithRu map[common.Address]int64) error {
 	for address, ruLimit := range succeededUsersWithRu {
 		c.database.WithContext(ctx).
-			Where("address = ?", address).
+			Where("address = ?", address.Hex()).
 			Update("ru_limit", ruLimit)
 	}
 
