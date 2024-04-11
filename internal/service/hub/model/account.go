@@ -110,7 +110,7 @@ func (acc *Account) GetUsageByDate(ctx context.Context, since time.Time, until t
 
 	err := acc.databaseClient.WithContext(ctx).
 		Model(&table.GatewayConsumptionLog{}).
-		Joins("JOIN gateway.key").
+		Joins("LEFT JOIN gateway.key ON consumption_log.key_id = key.id").
 		Where("account_address = ? AND consumption_date BETWEEN ? AND ?", acc.Address.Hex(), since, until).
 		Select("SUM(ru_used) AS ru_used, SUM(api_calls) AS api_calls, (EXTRACT(EPOCH FROM consumption_date)*1000)::BIGINT AS consumption_date").
 		Group("consumption_date").
