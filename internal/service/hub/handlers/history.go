@@ -238,10 +238,6 @@ func (app *App) GetConsumptionHistoryByAccount(ctx echo.Context, params oapi.Get
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
-	if err != nil {
-		return utils.SendJSONError(ctx, http.StatusInternalServerError)
-	}
-
 	sinceInt64 := since.UnixMilli()
 	untilInt64 := until.UnixMilli()
 	resp := &oapi.ConsumptionLogResponse{
