@@ -38,7 +38,7 @@ func AccountGetByAddress(ctx context.Context, address common.Address, databaseCl
 
 	err := databaseClient.WithContext(ctx).
 		Model(&table.GatewayAccount{}).
-		Where("address = ?", address).
+		Where("address = ?", address.Hex()).
 		First(&acc).
 		Error
 
