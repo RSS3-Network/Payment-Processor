@@ -1,3 +1,6 @@
+// Code generated (actually copied) from https://github.com/RSS3-Network/Global-Indexer
+// DO NOT LET LINTERS RUIN THEM
+
 package txmgr
 
 import (
