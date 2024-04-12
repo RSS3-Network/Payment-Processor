@@ -12,8 +12,12 @@ CREATE TABLE "billing_record_bases" (
   "amount" text NULL,
   PRIMARY KEY ("tx_hash")
 );
+-- create index "idx_billing_record_bases_block_number" to table: "billing_record_bases"
+CREATE INDEX "idx_billing_record_bases_block_number" ON "billing_record_bases" ("block_number");
 -- create index "idx_billing_record_bases_block_timestamp" to table: "billing_record_bases"
 CREATE INDEX "idx_billing_record_bases_block_timestamp" ON "billing_record_bases" ("block_timestamp");
+-- create index "idx_billing_record_bases_chain_id" to table: "billing_record_bases"
+CREATE INDEX "idx_billing_record_bases_chain_id" ON "billing_record_bases" ("chain_id");
 -- create "checkpoints" table
 CREATE TABLE "checkpoints" (
   "chain_id" bigint NOT NULL DEFAULT unique_rowid(),
@@ -111,7 +115,11 @@ DROP INDEX "idx_account_deleted_at";
 DROP TABLE "account";
 -- reverse: create "checkpoints" table
 DROP TABLE "checkpoints";
+-- reverse: create index "idx_billing_record_bases_chain_id" to table: "billing_record_bases"
+DROP INDEX "idx_billing_record_bases_chain_id";
 -- reverse: create index "idx_billing_record_bases_block_timestamp" to table: "billing_record_bases"
 DROP INDEX "idx_billing_record_bases_block_timestamp";
+-- reverse: create index "idx_billing_record_bases_block_number" to table: "billing_record_bases"
+DROP INDEX "idx_billing_record_bases_block_number";
 -- reverse: create "billing_record_bases" table
 DROP TABLE "billing_record_bases";
