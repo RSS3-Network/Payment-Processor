@@ -5,16 +5,16 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rss3-network/payment-processor/schema"
-	gorm "gorm.io/gorm/schema"
+	gormSchema "gorm.io/gorm/schema"
 )
 
 var (
-	_ gorm.Tabler                  = (*Checkpoint)(nil)
+	_ gormSchema.Tabler            = (*Checkpoint)(nil)
 	_ schema.CheckpointTransformer = (*Checkpoint)(nil)
 )
 
 type Checkpoint struct {
-	ChainID     uint64    `gorm:"column:chain_id"`
+	ChainID     uint64    `gorm:"primaryKey;column:chain_id"`
 	BlockNumber uint64    `gorm:"column:block_number"`
 	BlockHash   string    `gorm:"column:block_hash"`
 	CreatedAt   time.Time `gorm:"column:created_at"`

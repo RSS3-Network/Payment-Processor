@@ -22,5 +22,5 @@ type GatewayPendingWithdrawRequest struct {
 }
 
 func (r *GatewayPendingWithdrawRequest) TableName() string {
-	return "gateway.pending_withdraw_request"
+	return "pending_withdraw_request"
 }
