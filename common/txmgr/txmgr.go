@@ -16,7 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/txpool"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	gicrypto "github.com/naturalselectionlabs/rss3-global-indexer/common/crypto"
+	gicrypto "github.com/rss3-network/payment-processor/common/crypto"
 	"go.uber.org/zap"
 )
 
