@@ -24,5 +24,5 @@ type GatewayAccount struct {
 }
 
 func (r *GatewayAccount) TableName() string {
-	return "gateway.account"
+	return "account"
 }
