@@ -13,7 +13,6 @@ var (
 )
 
 type GatewayAccount struct {
-	gorm.Model
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`

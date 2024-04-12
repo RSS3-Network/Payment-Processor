@@ -14,7 +14,6 @@ var (
 )
 
 type GatewayKey struct {
-	gorm.Model
 	ID        uint64 `gorm:"primaryKey;column:id"`
 	CreatedAt time.Time
 	UpdatedAt time.Time

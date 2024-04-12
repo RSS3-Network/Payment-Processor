@@ -3,7 +3,6 @@ package table
 import (
 	"time"
 
-	"gorm.io/gorm"
 	gormSchema "gorm.io/gorm/schema"
 )
 
@@ -12,7 +11,6 @@ var (
 )
 
 type GatewayConsumptionLog struct {
-	gorm.Model
 	ID        uint `gorm:"primaryKey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
