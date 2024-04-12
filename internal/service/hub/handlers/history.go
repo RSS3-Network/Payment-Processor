@@ -40,11 +40,11 @@ func (app *App) GetDepositHistory(ctx echo.Context, params oapi.GetDepositHistor
 	list := make([]oapi.DepositRecord, len(records))
 
 	for i, record := range records {
-		blockTs := record.BlockTimestamp.UnixMilli()
+		blockTS := record.BlockTimestamp.UnixMilli()
 		amount, _ := utils.ParseAmount(record.Amount.BigInt()).Float32()
 		list[i] = oapi.DepositRecord{
 			TxHash:         lo.ToPtr(record.TxHash.Hex()),
-			BlockTimestamp: &blockTs,
+			BlockTimestamp: &blockTS,
 			Index:          lo.ToPtr(int(record.Index)),
 			Amount:         &amount,
 		}
@@ -90,12 +90,12 @@ func (app *App) GetWithdrawalHistory(ctx echo.Context, params oapi.GetWithdrawal
 	list := make([]oapi.WithdrawalRecord, len(records))
 
 	for i, record := range records {
-		blockTs := record.BlockTimestamp.UnixMilli()
+		blockTS := record.BlockTimestamp.UnixMilli()
 		amount, _ := utils.ParseAmount(record.Amount.BigInt()).Float32()
 		fee, _ := utils.ParseAmount(record.Fee.BigInt()).Float32()
 		list[i] = oapi.WithdrawalRecord{
 			TxHash:         lo.ToPtr(record.TxHash.Hex()),
-			BlockTimestamp: &blockTs,
+			BlockTimestamp: &blockTS,
 			Index:          lo.ToPtr(int(record.Index)),
 			User:           lo.ToPtr(record.User.Hex()),
 			Amount:         &amount,
@@ -142,11 +142,11 @@ func (app *App) GetCollectionHistory(ctx echo.Context, params oapi.GetCollection
 	list := make([]oapi.CollectionRecord, len(records))
 
 	for i, record := range records {
-		blockTs := record.BlockTimestamp.UnixMilli()
+		blockTS := record.BlockTimestamp.UnixMilli()
 		amount, _ := utils.ParseAmount(record.Amount.BigInt()).Float32()
 		list[i] = oapi.CollectionRecord{
 			TxHash:         lo.ToPtr(record.TxHash.Hex()),
-			BlockTimestamp: &blockTs,
+			BlockTimestamp: &blockTS,
 			Index:          lo.ToPtr(int(record.Index)),
 			Amount:         &amount,
 		}
