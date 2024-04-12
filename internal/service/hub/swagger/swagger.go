@@ -45,17 +45,7 @@ type config struct {
 	IsHTTPS bool
 }
 
-// Doc creates a middleware to serve a documentation site for a swagger spec.
-// This allows for altering the spec before starting the http listener.
-func Doc(basePath string, swaggerJSON []byte, opts ...Opts) echo.MiddlewareFunc {
-	cfg := &config{
-		SpecURL:     path.Join(basePath, "swagger.json"),
-		SwaggerHost: "https://petstore.swagger.io",
-	}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-
+func prepare(basePath string, cfg *config, swaggerJSON []byte) (string, string, []byte) {
 	docPath := path.Join(basePath, "apidocs")
 
 	// swagger html
@@ -78,10 +68,36 @@ func Doc(basePath string, swaggerJSON []byte, opts ...Opts) echo.MiddlewareFunc 
 			1))
 	}
 
+	return docPath, uiHTML, responseSwaggerJSON
+}
+
+func strIn(target string, source ...string) bool {
+	for _, s := range source {
+		if target == s {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Doc creates a middleware to serve a documentation site for a swagger spec.
+// This allows for altering the spec before starting the http listener.
+func Doc(basePath string, swaggerJSON []byte, opts ...Opts) echo.MiddlewareFunc {
+	cfg := &config{
+		SpecURL:     path.Join(basePath, "swagger.json"),
+		SwaggerHost: "https://petstore.swagger.io",
+	}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	docPath, uiHTML, responseSwaggerJSON := prepare(basePath, cfg, swaggerJSON)
+
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			reqPath := c.Request().URL.Path
-			if reqPath == basePath || reqPath == docPath || reqPath == cfg.SpecURL {
+			if strIn(reqPath, basePath, docPath, cfg.SpecURL) {
 				if cfg.Authorizer != nil && !cfg.Authorizer(c.Request()) {
 					return c.String(403, "Forbidden")
 				}

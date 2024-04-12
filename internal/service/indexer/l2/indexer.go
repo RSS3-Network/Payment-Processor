@@ -126,6 +126,26 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 
 	defer lo.Try(databaseTransaction.Rollback)
 
+	if err = s.processIndex(ctx, block, receipts, databaseTransaction); err != nil {
+		return fmt.Errorf("process index: %w", err)
+	}
+
+	// Update and save checkpoint to memory and database.
+	s.checkpoint.BlockHash = block.Hash()
+	s.checkpoint.BlockNumber = block.NumberU64()
+
+	if err := databaseTransaction.SaveCheckpoint(ctx, s.checkpoint); err != nil {
+		return fmt.Errorf("save checkpoint: %w", err)
+	}
+
+	if databaseTransaction.Commit() != nil {
+		return fmt.Errorf("commit database transaction: %w", err)
+	}
+
+	return nil
+}
+
+func (s *server) processIndex(ctx context.Context, block *types.Block, receipts types.Receipts, databaseTransaction database.Client) error {
 	header := block.Header()
 
 	for _, receipt := range receipts {
@@ -161,18 +181,6 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 				}
 			}
 		}
-	}
-
-	// Update and save checkpoint to memory and database.
-	s.checkpoint.BlockHash = block.Hash()
-	s.checkpoint.BlockNumber = block.NumberU64()
-
-	if err := databaseTransaction.SaveCheckpoint(ctx, s.checkpoint); err != nil {
-		return fmt.Errorf("save checkpoint: %w", err)
-	}
-
-	if databaseTransaction.Commit() != nil {
-		return fmt.Errorf("commit database transaction: %w", err)
 	}
 
 	return nil
