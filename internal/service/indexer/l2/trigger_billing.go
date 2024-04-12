@@ -9,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rss3-network/payment-processor/common/ethereum"
+	"github.com/rss3-network/payment-processor/common/txmgr"
 	"github.com/rss3-network/payment-processor/contract/l2"
 	"go.uber.org/zap"
 )
@@ -242,7 +243,7 @@ func (s *server) buildBillingWithdrawTokens(ctx context.Context) ([]common.Addre
 
 func (s *server) triggerBillingCollectTokens(ctx context.Context, users []common.Address, amounts []*big.Int) error {
 	// Trigger collectTokens contract.
-	input, err := s.encodeInput(l2.BillingMetaData.ABI, l2.MethodCollectTokens, users, amounts)
+	input, err := txmgr.EncodeInput(l2.BillingMetaData.ABI, l2.MethodCollectTokens, users, amounts)
 	if err != nil {
 		return fmt.Errorf("encode input: %w", err)
 	}
@@ -268,7 +269,7 @@ func (s *server) triggerBillingWithdrawTokens(ctx context.Context, users []commo
 		fees[i] = fee
 	}
 
-	input, err := s.encodeInput(l2.BillingMetaData.ABI, l2.MethodWithdrawTokens, users, amounts, fees)
+	input, err := txmgr.EncodeInput(l2.BillingMetaData.ABI, l2.MethodWithdrawTokens, users, amounts, fees)
 	if err != nil {
 		return fmt.Errorf("encode input: %w", err)
 	}

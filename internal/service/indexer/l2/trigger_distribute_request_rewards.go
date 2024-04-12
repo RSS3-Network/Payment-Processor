@@ -6,6 +6,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/rss3-network/payment-processor/common/txmgr"
 	"github.com/rss3-network/payment-processor/contract/l2"
 	"go.uber.org/zap"
 )
@@ -29,7 +30,7 @@ func (s *server) distributeRequestRewards(ctx context.Context, nodeAddress []com
 
 func (s *server) triggerDistributeRequestRewards(ctx context.Context, nodeAddress []common.Address, amounts []*big.Int) error {
 	// Trigger distribute requests contract.
-	input, err := s.encodeInput(l2.BillingMetaData.ABI, l2.MethodDistributeRewards, nodeAddress, amounts)
+	input, err := txmgr.EncodeInput(l2.BillingMetaData.ABI, l2.MethodDistributeRewards, nodeAddress, amounts)
 	if err != nil {
 		return fmt.Errorf("encode input: %w", err)
 	}
