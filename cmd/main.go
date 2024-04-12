@@ -60,7 +60,7 @@ var indexCommand = &cobra.Command{
 		redisClient := redis.NewClient(options)
 
 		// Start
-		instance, err := indexer.New(databaseClient, controlClient, redisClient, *cfg.RSS3Chain, *cfg.Billing)
+		instance, err := indexer.New(databaseClient, controlClient, redisClient, cfg.RSS3Chain, cfg.Billing)
 		if err != nil {
 			return fmt.Errorf("create indexer: %w", err)
 		}

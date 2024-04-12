@@ -12,8 +12,8 @@ import (
 )
 
 type Server struct {
-	chainConfig    config.RSS3Chain
-	billingConfig  config.Billing
+	chainConfig    *config.RSS3Chain
+	billingConfig  *config.Billing
 	databaseClient database.Client
 	controlClient  *control.StateClientWriter
 	redisClient    *redis.Client
@@ -28,7 +28,7 @@ func (s *Server) Run(ctx context.Context) error {
 			Endpoint: s.chainConfig.EndpointL2,
 		}
 
-		serverL2, err := l2.NewServer(ctx, s.databaseClient, s.controlClient, s.redisClient, l2Config, s.billingConfig)
+		serverL2, err := l2.NewServer(ctx, s.databaseClient, s.controlClient, s.redisClient, &l2Config, s.billingConfig)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 }
 
-func New(databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, chainConfig config.RSS3Chain, billingConfig config.Billing) (*Server, error) {
+func New(databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, chainConfig *config.RSS3Chain, billingConfig *config.Billing) (*Server, error) {
 	instance := Server{
 		chainConfig:    chainConfig,
 		billingConfig:  billingConfig,

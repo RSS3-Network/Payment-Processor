@@ -14,9 +14,11 @@ var (
 
 type NodeRequestRecord struct {
 	// Composite Primary Key (epoch-node_address)
-	NodeAddress  common.Address `gorm:"primaryKey;type:bytea;column:node_address"`
-	Epoch        uint64         `gorm:"primaryKey;autoIncrement:false;column:epoch"`
-	RequestCount uint64         `gorm:"column:request_counts"` // From GI on-chain requests
+	Epoch       uint64         `gorm:"primaryKey;autoIncrement:false;column:epoch"`
+	NodeAddress common.Address `gorm:"primaryKey;type:bytea;column:node_address"`
+
+	// Event data (ignore `operationRewards` `stakingRewards` `taxAmounts` because they are not required here)
+	RequestCount uint64 `gorm:"column:request_counts"` // From GI on-chain requests
 
 	RequestReward decimal.Decimal `gorm:"column:request_rewards"` // Update after request rewards distribute
 }

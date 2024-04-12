@@ -123,7 +123,7 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	}
 
 	// 2.5. billing: distribute request rewards
-	err = s.triggerDistributeRequestRewards(rewardNodesAddress, rewardNodesAmount)
+	err = s.distributeRequestRewards(ctx, rewardNodesAddress, rewardNodesAmount)
 	if err != nil {
 		return fmt.Errorf("trigger distribute request rewards: %w", err)
 	}

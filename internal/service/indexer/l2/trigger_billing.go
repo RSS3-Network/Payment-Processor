@@ -5,12 +5,8 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/rss3-network/payment-processor/common/ethereum"
 	"github.com/rss3-network/payment-processor/contract/l2"
-	"github.com/rss3-network/payment-processor/internal/service/indexer/constants"
-	"github.com/samber/lo"
 	"go.uber.org/zap"
 	"math/big"
 	"time"
@@ -75,8 +71,8 @@ func (s *server) billingCollect(ctx context.Context) ([]common.Address, *big.Int
 	// call contract slice by slice
 	for len(users) > 0 {
 		limit := len(users)
-		if limit > constants.BatchSize {
-			limit = constants.BatchSize
+		if limit > s.billingConfig.Settler.BatchSize {
+			limit = s.billingConfig.Settler.BatchSize
 		}
 
 		err = s.triggerBillingCollectTokens(ctx, users[:limit], amounts[:limit])
@@ -128,8 +124,8 @@ func (s *server) billingWithdraw(ctx context.Context) ([]common.Address, error) 
 	// call contract slice by slice
 	for len(users) > 0 {
 		limit := len(users)
-		if limit > constants.BatchSize {
-			limit = constants.BatchSize
+		if limit > s.billingConfig.Settler.BatchSize {
+			limit = s.billingConfig.Settler.BatchSize
 		}
 
 		err = s.triggerBillingWithdrawTokens(ctx, users[:limit], amounts[:limit], fee)
@@ -182,7 +178,7 @@ func (s *server) buildBillingCollectTokens(ctx context.Context, nowTime time.Tim
 	for addr, ruC := range *collectTokensData {
 		consumedTokenRaw := new(big.Int).Quo(
 			new(big.Int).Mul(big.NewInt(ruC.Ru), big.NewInt(ethereum.BillingTokenDecimals)),
-			big.NewInt(s.ruPerToken),
+			big.NewInt(s.billingConfig.RuPerToken),
 		)
 
 		consumedToken, _ := new(big.Float).Mul(
@@ -245,59 +241,18 @@ func (s *server) buildBillingWithdrawTokens(ctx context.Context) ([]common.Addre
 
 func (s *server) triggerBillingCollectTokens(ctx context.Context, users []common.Address, amounts []*big.Int) error {
 	// Trigger collectTokens contract.
-	nonce, err := s.ethereumClient.PendingNonceAt(ctx, s.fromAddress)
-	if err != nil {
-		return fmt.Errorf("get pending nonce: %w", err)
-	}
-
-	gasPrice, err := s.ethereumClient.SuggestGasPrice(ctx)
-	if err != nil {
-		return fmt.Errorf("get gas price: %w", err)
-	}
-
-	input, err := s.encodeInput(l2.BillingMetaData.ABI, l2.MethodCollectTokens, users, amounts, s.toAddress)
+	input, err := s.encodeInput(l2.BillingMetaData.ABI, l2.MethodCollectTokens, users, amounts)
 	if err != nil {
 		return fmt.Errorf("encode input: %w", err)
 	}
 
-	unsignedTX := types.NewTx(&types.LegacyTx{
-		Nonce:    nonce,
-		GasPrice: gasPrice,
-		Gas:      s.gasLimit,
-		To:       lo.ToPtr(l2.ContractMap[s.chainID.Uint64()].AddressBillingProxy),
-		Value:    big.NewInt(0),
-		Data:     input,
-	})
-
-	args := s.newTransactionArgsFromTransaction(s.chainID, s.fromAddress, unsignedTX)
-
-	var result hexutil.Bytes
-	if err = s.rpcClient.CallContext(ctx, &result, "eth_signTransaction", args); err != nil {
-		return fmt.Errorf("eth_signTransaction failed: %w", err)
-	}
-
-	signedTX := &types.Transaction{}
-	if err = signedTX.UnmarshalBinary(result); err != nil {
-		return err
-	}
-
-	err = s.ethereumClient.SendTransaction(ctx, signedTX)
+	receipt, err := s.sendTransaction(ctx, input)
 	if err != nil {
-		zap.L().Error("collect tokens", zap.Error(err), zap.Any("users", users), zap.Any("amounts", amounts))
-		s.ReportFailedTransactionToSlack(err, signedTX.Hash().Hex(), "Collect", users, amounts)
-
-		return fmt.Errorf("prepare billing collect tokens contract call: %w", err)
+		s.ReportFailedTransactionToSlack(err, "", l2.MethodCollectTokens, users, amounts)
+		return fmt.Errorf("send transaction receipt: %w", err)
 	}
 
-	// Wait for transaction receipt.
-	if err = s.transactionReceipt(ctx, signedTX.Hash()); err != nil {
-		zap.L().Error("wait for transaction receipt", zap.Error(err), zap.String("tx", signedTX.Hash().String()))
-		s.ReportFailedTransactionToSlack(err, signedTX.Hash().Hex(), "Collect", users, amounts)
-
-		return fmt.Errorf("wait for transaction receipt: %w", err)
-	}
-
-	zap.L().Info("collect tokens successfully", zap.String("tx", signedTX.Hash().String()))
+	zap.L().Info("collect tokens successfully", zap.String("tx", receipt.TxHash.String()))
 
 	return nil
 }
@@ -312,59 +267,18 @@ func (s *server) triggerBillingWithdrawTokens(ctx context.Context, users []commo
 		fees[i] = fee
 	}
 
-	nonce, err := s.ethereumClient.PendingNonceAt(ctx, s.fromAddress)
-	if err != nil {
-		return fmt.Errorf("get pending nonce: %w", err)
-	}
-
-	gasPrice, err := s.ethereumClient.SuggestGasPrice(ctx)
-	if err != nil {
-		return fmt.Errorf("get gas price: %w", err)
-	}
-
 	input, err := s.encodeInput(l2.BillingMetaData.ABI, l2.MethodWithdrawTokens, users, amounts, fees)
 	if err != nil {
 		return fmt.Errorf("encode input: %w", err)
 	}
 
-	unsignedTX := types.NewTx(&types.LegacyTx{
-		Nonce:    nonce,
-		GasPrice: gasPrice,
-		Gas:      s.gasLimit,
-		To:       lo.ToPtr(l2.ContractMap[s.chainID.Uint64()].AddressBillingProxy),
-		Value:    big.NewInt(0),
-		Data:     input,
-	})
-
-	args := s.newTransactionArgsFromTransaction(s.chainID, s.fromAddress, unsignedTX)
-
-	var result hexutil.Bytes
-	if err = s.rpcClient.CallContext(ctx, &result, "eth_signTransaction", args); err != nil {
-		return fmt.Errorf("eth_signTransaction failed: %w", err)
-	}
-
-	signedTX := &types.Transaction{}
-	if err = signedTX.UnmarshalBinary(result); err != nil {
-		return err
-	}
-
-	err = s.ethereumClient.SendTransaction(ctx, signedTX)
+	receipt, err := s.sendTransaction(ctx, input)
 	if err != nil {
-		zap.L().Error("collect tokens", zap.Error(err), zap.Any("users", users), zap.Any("amounts", amounts))
-		s.ReportFailedTransactionToSlack(err, signedTX.Hash().Hex(), "Withdraw", users, amounts)
-
-		return fmt.Errorf("prepare billing collect tokens contract call: %w", err)
+		s.ReportFailedTransactionToSlack(err, "", l2.MethodWithdrawTokens, users, amounts)
+		return fmt.Errorf("send transaction receipt: %w", err)
 	}
 
-	// Wait for transaction receipt.
-	if err = s.transactionReceipt(ctx, signedTX.Hash()); err != nil {
-		zap.L().Error("wait for transaction receipt", zap.Error(err), zap.String("tx", signedTX.Hash().String()))
-		s.ReportFailedTransactionToSlack(err, signedTX.Hash().Hex(), "Withdraw", users, amounts)
-
-		return fmt.Errorf("wait for transaction receipt: %w", err)
-	}
-
-	zap.L().Info("collect tokens successfully", zap.String("tx", signedTX.Hash().String()))
+	zap.L().Info("collect tokens successfully", zap.String("tx", receipt.TxHash.String()))
 
 	return nil
 }
@@ -392,7 +306,7 @@ func (s *server) getCurrentRuBalance(ctx context.Context, users []common.Address
 		parsedRu, _ := new(big.Float).Mul(new(big.Float).Quo(
 			new(big.Float).SetInt(balance),
 			new(big.Float).SetInt(big.NewInt(ethereum.BillingTokenDecimals)),
-		), big.NewFloat(float64(s.ruPerToken))).Int64()
+		), big.NewFloat(float64(s.billingConfig.RuPerToken))).Int64()
 
 		latestRuLimit[address] = parsedRu
 	}

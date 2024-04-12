@@ -27,6 +27,7 @@ var (
 )
 
 var (
-	MethodCollectTokens  = "collectTokens"
-	MethodWithdrawTokens = "withdrawTokens"
+	MethodCollectTokens     = "collectTokens"
+	MethodWithdrawTokens    = "withdrawTokens"
+	MethodDistributeRewards = "distributeRewards"
 )

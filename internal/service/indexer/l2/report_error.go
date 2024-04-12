@@ -60,7 +60,7 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFu
 
 	summary := fmt.Sprintf("⚠ %s transaction error", txFunc)
 	message := SlackMessageStructure{
-		Channel: s.slackNotificationChannel,
+		Channel: s.billingConfig.SlackNotification.Channel,
 		Text:    summary,
 		Blocks: []SlackMessageBlock{
 			{
@@ -82,7 +82,7 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFu
 				Elements: []SlackMessageElement{
 					{
 						Type: "mrkdwn",
-						Text: fmt.Sprintf("*Txn*: <%s%s|%s>", s.slackNotificationBlockchainScan, txHash, txHash),
+						Text: fmt.Sprintf("*Txn*: <%s%s|%s>", s.billingConfig.SlackNotification.BlockchainScan, txHash, txHash),
 					},
 				},
 			},
@@ -104,7 +104,7 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFu
 	}
 
 	msgReq.Header.Set("Content-Type", "application/json")
-	msgReq.Header.Set("Authorization", "Bearer "+s.slackNotificationBotToken)
+	msgReq.Header.Set("Authorization", "Bearer "+s.billingConfig.SlackNotification.BotToken)
 
 	res, err := (&http.Client{}).Do(msgReq)
 
@@ -127,7 +127,7 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFu
 		return
 	}
 
-	_, err = channelsWriter.Write([]byte(s.slackNotificationChannel))
+	_, err = channelsWriter.Write([]byte(s.billingConfig.SlackNotification.Channel))
 
 	if err != nil {
 		log.Printf("Failed to write channels field with error: %v", err)
@@ -169,7 +169,7 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFu
 	}
 
 	fileReq.Header.Set("Content-Type", bodyWriter.FormDataContentType())
-	fileReq.Header.Set("Authorization", "Bearer "+s.slackNotificationBotToken)
+	fileReq.Header.Set("Authorization", "Bearer "+s.billingConfig.SlackNotification.BotToken)
 
 	res, err = (&http.Client{}).Do(fileReq)
 

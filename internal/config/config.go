@@ -20,7 +20,6 @@ type File struct {
 	Database    *Database  `yaml:"database"`
 	Redis       *Redis     `yaml:"redis"`
 	RSS3Chain   *RSS3Chain `yaml:"rss3_chain"`
-	Epoch       *Epoch     `yaml:"epoch"`
 	Gateway     *Gateway   `yaml:"gateway"`
 	Billing     *Billing   `yaml:"billing"`
 }
@@ -36,12 +35,6 @@ type Redis struct {
 
 type RSS3Chain struct {
 	EndpointL2 string `yaml:"endpoint_l2" validate:"required"`
-}
-
-type Epoch struct {
-	WalletAddress  string `yaml:"wallet_address" validate:"required"`
-	SignerEndpoint string `yaml:"signer_endpoint" validate:"required"`
-	GasLimit       uint64 `yaml:"gas_limit" default:"2500000"`
 }
 
 type Gateway struct {
@@ -66,7 +59,6 @@ type Gateway struct {
 }
 
 type Billing struct {
-	CollectTokenTo    string   `yaml:"collect_token_to" validate:"required"`
 	RuPerToken        int64    `yaml:"ru_per_token" default:"1000"`
 	Settler           *Settler `yaml:"settler"`
 	SlackNotification struct {

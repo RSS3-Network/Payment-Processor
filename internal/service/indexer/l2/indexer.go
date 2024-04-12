@@ -37,13 +37,10 @@ type server struct {
 	checkpoint        *schema.Checkpoint
 	blockNumberLatest uint64
 	controlClient     *control.StateClientWriter // For account resume only
-	ruPerToken        int64
-	collectTokenTo    common.Address
 	txManager         txmgr.TxManager
 
-	slackNotificationChannel        string
-	slackNotificationBlockchainScan string
-	slackNotificationBotToken       string
+	fromAddress   common.Address
+	billingConfig *config.Billing
 }
 
 func (s *server) Run(ctx context.Context) (err error) {
@@ -186,7 +183,7 @@ func (s *server) processIndex(ctx context.Context, block *types.Block, receipts 
 	return nil
 }
 
-func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, config Config, billingConfig config.Billing) (service.Server, error) {
+func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, config *Config, billingConfig *config.Billing) (service.Server, error) {
 	// Start
 	ethereumClient, err := ethclient.DialContext(ctx, config.Endpoint)
 
@@ -242,18 +239,15 @@ func NewServer(ctx context.Context, databaseClient database.Client, controlClien
 	}
 
 	return &server{
-		databaseClient:                  databaseClient,
-		controlClient:                   controlClient,
-		redisClient:                     redisClient,
-		ruPerToken:                      billingConfig.RuPerToken,
-		collectTokenTo:                  common.HexToAddress(billingConfig.CollectTokenTo),
-		slackNotificationChannel:        billingConfig.SlackNotification.Channel,
-		slackNotificationBlockchainScan: billingConfig.SlackNotification.BlockchainScan,
-		slackNotificationBotToken:       billingConfig.SlackNotification.BotToken,
-		ethereumClient:                  ethereumClient,
-		chainID:                         chainID,
-		contractBilling:                 contractBilling,
-		contractStaking:                 contractStaking,
-		txManager:                       txManager,
+		databaseClient:  databaseClient,
+		controlClient:   controlClient,
+		redisClient:     redisClient,
+		ethereumClient:  ethereumClient,
+		chainID:         chainID,
+		contractBilling: contractBilling,
+		contractStaking: contractStaking,
+		txManager:       txManager,
+		billingConfig:   billingConfig,
+		fromAddress:     from,
 	}, nil
 }
