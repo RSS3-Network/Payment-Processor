@@ -44,4 +44,3 @@ genmigration:
 	docker compose -f ./deploy/docker-compose.migration.yml down -v
 applymigration:
 	atlas migrate apply --env $(ENV)
-
