@@ -79,3 +79,8 @@ jobs:
 
       - name: Test
         run: make test
+
+      - name: Stop containers
+        run: |
+          docker stop redpanda-0 crdb
+          docker rm redpanda-0 crdb
