@@ -61,19 +61,17 @@ func (app *App) findAccount(ctx context.Context, keyID string) (*model.Key, *mod
 }
 
 func (app *App) updateConsumption(ctx context.Context, key *model.Key, isRUConsumption bool) error {
-	// Request failed or is in free tier, only increase API call count
-	if err := key.ConsumeRu(ctx, 0); err != nil {
-		// Failed to consumer RU
-		return fmt.Errorf("key (%v) increase API call count: %w", key, err)
+	ru := int64(0)
+
+	// Increase RU
+	if isRUConsumption {
+		ru = 1 // Default // TODO: differ endpoint (path) weights
 	}
 
-	if isRUConsumption {
-		ru := int64(1) // Default // TODO
-
-		if err := key.ConsumeRu(ctx, ru); err != nil {
-			// Failed to consume RU
-			return fmt.Errorf("key (%v) consume RU: %w", key, err)
-		}
+	// Request failed or is in free tier, only increase API call count
+	if err := key.ConsumeRu(ctx, ru); err != nil {
+		// Failed to consume RU
+		return fmt.Errorf("key (%v) consume RU (%d): %w", key, ru, err)
 	}
 
 	return nil
