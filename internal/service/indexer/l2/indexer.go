@@ -168,16 +168,26 @@ func (s *server) processIndex(ctx context.Context, block *types.Block, receipts 
 				continue
 			}
 
-			switch log.Address {
-			case l2.ContractMap[s.chainID.Uint64()].AddressBillingProxy:
-				if err := s.indexBillingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
-					return fmt.Errorf("index billing log %s %d: %w", log.TxHash, log.Index, err)
-				}
-			case l2.ContractMap[s.chainID.Uint64()].AddressStakingProxy:
-				if err := s.indexStakingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
-					return fmt.Errorf("index staking log %s %d: %w", log.TxHash, log.Index, err)
-				}
+			err := s.processLog(ctx, block, receipt, databaseTransaction, log, header, index) // WHY IS THIS LINTER SO ANNOYING
+
+			if err != nil {
+				return err
 			}
+		}
+	}
+
+	return nil
+}
+
+func (s *server) processLog(ctx context.Context, block *types.Block, receipt *types.Receipt, databaseTransaction database.Client, log *types.Log, header *types.Header, index int) error {
+	switch log.Address {
+	case l2.ContractMap[s.chainID.Uint64()].AddressBillingProxy:
+		if err := s.indexBillingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
+			return fmt.Errorf("index billing log %s %d: %w", log.TxHash, log.Index, err)
+		}
+	case l2.ContractMap[s.chainID.Uint64()].AddressStakingProxy:
+		if err := s.indexStakingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
+			return fmt.Errorf("index staking log %s %d: %w", log.TxHash, log.Index, err)
 		}
 	}
 

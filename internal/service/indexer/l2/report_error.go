@@ -47,6 +47,11 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFu
 
 	defer log.Println("============================================================")
 
+	s.sendNotificationMessage(txErr, txHash, txFunc)
+	s.uploadUsersList(txHash, users, amount)
+}
+
+func (s *server) sendNotificationMessage(txErr error, txHash string, txFunc string) {
 	// Send base information
 	var errReason string
 
@@ -117,7 +122,9 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFu
 	res.Body.Close()
 
 	log.Printf("Notification message sent, preparing users list...")
+}
 
+func (s *server) uploadUsersList(txHash string, users []common.Address, amount []*big.Int) {
 	// Upload failed users list as csv file
 	bodyBuffer := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuffer)
@@ -172,7 +179,7 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFu
 	fileReq.Header.Set("Content-Type", bodyWriter.FormDataContentType())
 	fileReq.Header.Set("Authorization", "Bearer "+s.billingConfig.SlackNotification.BotToken)
 
-	res, err = (&http.Client{}).Do(fileReq)
+	res, err := (&http.Client{}).Do(fileReq)
 
 	if err != nil {
 		log.Printf("Failed to send error log to Slack with error: %v", err)

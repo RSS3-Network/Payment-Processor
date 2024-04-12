@@ -15,16 +15,16 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *server) indexStakingLog(ctx context.Context, header *types.Header, transaction *types.Transaction, receipt *types.Receipt, log *types.Log, logIndex int, databaseTransaction database.Client) error {
+func (s *server) indexStakingLog(ctx context.Context, header *types.Header, _ *types.Transaction, _ *types.Receipt, log *types.Log, _ int, databaseTransaction database.Client) error {
 	switch eventHash := log.Topics[0]; eventHash {
 	case l2.EventHashStakingRewardDistributed:
-		return s.indexStakingDistributeRewardsLog(ctx, header, transaction, receipt, log, logIndex, databaseTransaction)
+		return s.indexStakingDistributeRewardsLog(ctx, header, log, databaseTransaction)
 	default:
 		return nil
 	}
 }
 
-func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *types.Header, transaction *types.Transaction, receipt *types.Receipt, log *types.Log, _ int, databaseTransaction database.Client) error {
+func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *types.Header, log *types.Log, databaseTransaction database.Client) error {
 	stakingDistributeRewardsEvent, err := s.contractStaking.ParseRewardDistributed(*log)
 	if err != nil {
 		return fmt.Errorf("parse RewardDistributed event: %w", err)
@@ -41,7 +41,7 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 
 	// Step 1: collect all data
 	for i, nodeAddr := range stakingDistributeRewardsEvent.NodeAddrs {
-		err = s.databaseClient.SaveNodeRequestCount(ctx, &schema.NodeRequestRecord{
+		err = databaseTransaction.SaveNodeRequestCount(ctx, &schema.NodeRequestRecord{
 			NodeAddress:  nodeAddr,
 			Epoch:        stakingDistributeRewardsEvent.Epoch,
 			RequestCount: stakingDistributeRewardsEvent.RequestCounts[i],
@@ -53,13 +53,19 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	}
 
 	// Step 2: check if is last batch of this epoch
+	return s.closeEpoch(ctx, header, stakingDistributeRewardsEvent.Epoch)
+}
+
+func (s *server) closeEpoch(ctx context.Context, header *types.Header, epoch *big.Int) error {
 	isStillProceeding, err := s.contractStaking.IsSettlementPhase(&bind.CallOpts{
 		Context:     ctx,
 		BlockNumber: header.Number,
 	})
+
 	if err != nil {
 		return fmt.Errorf("failed to check is settlement phase: %w", err)
 	}
+
 	if isStillProceeding {
 		// Not last batch, return
 		return nil
@@ -67,9 +73,11 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 
 	// 2.1. Set mutex lock
 	isMutexLockSuccessful, err := s.redisClient.SetNX(ctx, constants.EpochMutexLockKey, 1, constants.EpochMutexExpiration).Result()
+
 	if err != nil {
 		return fmt.Errorf("failed to set mutex lock with redis: %w", err)
 	}
+
 	if !isMutexLockSuccessful {
 		// A process already running, skip
 		return nil
@@ -80,18 +88,21 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 
 	// 2.2-3. billing
 	totalCollected, err := s.billingFlow(ctx)
+
 	if err != nil {
 		return fmt.Errorf("failed to execute billing flow: %w", err)
 	}
 
 	// 2.4. calc request percentage
-	allNodes, err := s.databaseClient.FindNodeRequestRewardsByEpoch(ctx, stakingDistributeRewardsEvent.Epoch)
+	allNodes, err := s.databaseClient.FindNodeRequestRewardsByEpoch(ctx, epoch)
+
 	if err != nil {
 		return fmt.Errorf("failed to find node requests record: %w", err)
 	}
 
 	// Sum all requests count
 	totalRequestCount := big.NewInt(0)
+
 	for _, node := range allNodes {
 		totalRequestCount.Add(totalRequestCount, node.RequestCount)
 	}
@@ -100,7 +111,7 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	rewardPerRequest := new(big.Int).Quo(totalCollected, totalRequestCount)
 	zap.L().Info(
 		"epoch reward per request",
-		zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()),
+		zap.Uint64("epoch", epoch.Uint64()),
 		zap.String("totalRewards", totalCollected.String()),
 		zap.String("totalRequests", totalRequestCount.String()),
 		zap.String("rewardPerRequest", rewardPerRequest.String()),
@@ -116,7 +127,8 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 		rewardNodesAmount[i] = new(big.Int).Mul(rewardPerRequest, node.RequestCount)
 
 		// Save into database
-		err = s.databaseClient.SetNodeRequestRewards(ctx, stakingDistributeRewardsEvent.Epoch, rewardNodesAddress[i], rewardNodesAmount[i])
+		err = s.databaseClient.SetNodeRequestRewards(ctx, epoch, rewardNodesAddress[i], rewardNodesAmount[i])
+
 		if err != nil {
 			// Error, but no need to abort
 			zap.L().Error("update node request rewards", zap.String("address", rewardNodesAddress[i].String()), zap.String("amount", rewardNodesAmount[i].String()), zap.Any("node", node), zap.Error(err))

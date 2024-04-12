@@ -68,18 +68,22 @@ func (s *server) billingCollect(ctx context.Context) ([]common.Address, *big.Int
 
 	// else Need collect
 	var succeededUsers []common.Address
+
 	totalCollected := big.NewInt(0)
 
 	// call contract slice by slice
 	for len(users) > 0 {
 		limit := len(users)
+
 		if limit > s.settlerConfig.BatchSize {
 			limit = s.settlerConfig.BatchSize
 		}
 
 		err = s.triggerBillingCollectTokens(ctx, users[:limit], amounts[:limit])
+
 		if err == nil {
 			succeededUsers = append(succeededUsers, users[:limit]...)
+
 			for _, amount := range amounts[limit:] {
 				totalCollected.Add(totalCollected, amount)
 			}
@@ -113,11 +117,13 @@ func (s *server) billingWithdraw(ctx context.Context) ([]common.Address, error) 
 
 	// Calculate fee
 	currentGas, err := s.ethereumClient.SuggestGasPrice(ctx)
+
 	if err != nil {
 		zap.L().Error("get gas price", zap.Error(err))
 		// fallback
 		currentGas = big.NewInt(1) // TODO
 	}
+
 	fee, _ := new(big.Float).Mul(
 		big.NewFloat(30_000), // TODO
 		new(big.Float).SetInt(currentGas),
@@ -126,11 +132,13 @@ func (s *server) billingWithdraw(ctx context.Context) ([]common.Address, error) 
 	// call contract slice by slice
 	for len(users) > 0 {
 		limit := len(users)
+
 		if limit > s.settlerConfig.BatchSize {
 			limit = s.settlerConfig.BatchSize
 		}
 
 		err = s.triggerBillingWithdrawTokens(ctx, users[:limit], amounts[:limit], fee)
+
 		if err == nil {
 			succeededUsers = append(succeededUsers, users[:limit]...)
 		}
@@ -144,13 +152,14 @@ func (s *server) billingWithdraw(ctx context.Context) ([]common.Address, error) 
 
 func (s *server) billingUpdateRuLimit(ctx context.Context, usersRequireRuLimitRefresh []common.Address) error {
 	// update ru limit
-	currentBalance, err := s.getCurrentRuBalance(ctx, usersRequireRuLimitRefresh)
-	if err != nil {
-		zap.L().Error("refresh ru limit", zap.Error(err), zap.Any("usersRequireRuLimitRefresh", usersRequireRuLimitRefresh))
-	} else if currentBalance != nil {
-		err = s.databaseClient.UpdateBillingRuLimit(ctx, currentBalance)
+	currentBalance := s.getCurrentRuBalance(ctx, usersRequireRuLimitRefresh)
+
+	if currentBalance != nil {
+		err := s.databaseClient.UpdateBillingRuLimit(ctx, currentBalance)
+
 		if err != nil {
-			zap.L().Error("update ru limit", zap.Error(err), zap.Any("usersRequireRuLimitRefresh", usersRequireRuLimitRefresh))
+			zap.L().Error("update ru limit", zap.Any("usersRequireRuLimitRefresh", usersRequireRuLimitRefresh), zap.Error(err))
+			return fmt.Errorf("update ru limit: %w", err)
 		}
 	}
 
@@ -244,11 +253,13 @@ func (s *server) buildBillingWithdrawTokens(ctx context.Context) ([]common.Addre
 func (s *server) triggerBillingCollectTokens(ctx context.Context, users []common.Address, amounts []*big.Int) error {
 	// Trigger collectTokens contract.
 	input, err := txmgr.EncodeInput(l2.BillingMetaData.ABI, l2.MethodCollectTokens, users, amounts)
+
 	if err != nil {
 		return fmt.Errorf("encode input: %w", err)
 	}
 
 	receipt, err := s.sendTransaction(ctx, input)
+
 	if err != nil {
 		s.ReportFailedTransactionToSlack(err, "", l2.MethodCollectTokens, users, amounts)
 		return fmt.Errorf("send transaction receipt: %w", err)
@@ -270,11 +281,13 @@ func (s *server) triggerBillingWithdrawTokens(ctx context.Context, users []commo
 	}
 
 	input, err := txmgr.EncodeInput(l2.BillingMetaData.ABI, l2.MethodWithdrawTokens, users, amounts, fees)
+
 	if err != nil {
 		return fmt.Errorf("encode input: %w", err)
 	}
 
 	receipt, err := s.sendTransaction(ctx, input)
+
 	if err != nil {
 		s.ReportFailedTransactionToSlack(err, "", l2.MethodWithdrawTokens, users, amounts)
 		return fmt.Errorf("send transaction receipt: %w", err)
@@ -285,9 +298,9 @@ func (s *server) triggerBillingWithdrawTokens(ctx context.Context, users []commo
 	return nil
 }
 
-func (s *server) getCurrentRuBalance(ctx context.Context, users []common.Address) (map[common.Address]int64, error) {
+func (s *server) getCurrentRuBalance(ctx context.Context, users []common.Address) map[common.Address]int64 {
 	if len(users) == 0 {
-		return nil, nil
+		return nil
 	}
 
 	latestRuLimit := make(map[common.Address]int64)
@@ -313,5 +326,5 @@ func (s *server) getCurrentRuBalance(ctx context.Context, users []common.Address
 		latestRuLimit[address] = parsedRu
 	}
 
-	return latestRuLimit, nil
+	return latestRuLimit
 }
