@@ -4,20 +4,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/redis/go-redis/v9"
-	"github.com/rss3-network/payment-processor/common/txmgr"
-	"github.com/rss3-network/payment-processor/internal/config"
 	"math/big"
 	"time"
 
 	"github.com/avast/retry-go/v4"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/redis/go-redis/v9"
 	"github.com/rss3-network/gateway-common/control"
 	gicrypto "github.com/rss3-network/payment-processor/common/crypto"
+	"github.com/rss3-network/payment-processor/common/txmgr"
 	"github.com/rss3-network/payment-processor/contract/l2"
+	"github.com/rss3-network/payment-processor/internal/config"
 	"github.com/rss3-network/payment-processor/internal/database"
 	"github.com/rss3-network/payment-processor/internal/service"
 	"github.com/rss3-network/payment-processor/schema"
@@ -41,6 +41,7 @@ type server struct {
 
 	fromAddress   common.Address
 	billingConfig *config.Billing
+	settlerConfig *config.Settler
 }
 
 func (s *server) Run(ctx context.Context) (err error) {
@@ -183,7 +184,7 @@ func (s *server) processIndex(ctx context.Context, block *types.Block, receipts 
 	return nil
 }
 
-func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, config *Config, billingConfig *config.Billing) (service.Server, error) {
+func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, config *Config, billingConfig *config.Billing, settlerConfig *config.Settler) (service.Server, error) {
 	// Start
 	ethereumClient, err := ethclient.DialContext(ctx, config.Endpoint)
 
@@ -215,7 +216,7 @@ func NewServer(ctx context.Context, databaseClient database.Client, controlClien
 		return nil, err
 	}
 
-	signerFactory, from, err := gicrypto.NewSignerFactory(billingConfig.Settler.PrivateKey, billingConfig.Settler.SignerEndpoint, billingConfig.Settler.WalletAddress)
+	signerFactory, from, err := gicrypto.NewSignerFactory(settlerConfig.PrivateKey, settlerConfig.SignerEndpoint, settlerConfig.WalletAddress)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create signer")
@@ -248,6 +249,7 @@ func NewServer(ctx context.Context, databaseClient database.Client, controlClien
 		contractStaking: contractStaking,
 		txManager:       txManager,
 		billingConfig:   billingConfig,
+		settlerConfig:   settlerConfig,
 		fromAddress:     from,
 	}, nil
 }

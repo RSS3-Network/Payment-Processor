@@ -3,6 +3,8 @@ package l2
 import (
 	"context"
 	"fmt"
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -11,7 +13,6 @@ import (
 	"github.com/rss3-network/payment-processor/internal/service/indexer/constants"
 	"github.com/rss3-network/payment-processor/schema"
 	"go.uber.org/zap"
-	"math/big"
 )
 
 func (s *server) indexStakingLog(ctx context.Context, header *types.Header, transaction *types.Transaction, receipt *types.Receipt, log *types.Log, logIndex int, databaseTransaction database.Client) error {
@@ -115,7 +116,7 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 		rewardNodesAmount[i] = new(big.Int).Mul(rewardPerRequest, node.RequestCount)
 
 		// Save into database
-		err = s.databaseClient.SetNodeRequestRewards(ctx, rewardNodesAddress[i], rewardNodesAmount[i])
+		err = s.databaseClient.SetNodeRequestRewards(ctx, stakingDistributeRewardsEvent.Epoch, rewardNodesAddress[i], rewardNodesAmount[i])
 		if err != nil {
 			// Error, but no need to abort
 			zap.L().Error("update node request rewards", zap.String("address", rewardNodesAddress[i].String()), zap.String("amount", rewardNodesAmount[i].String()), zap.Any("node", node), zap.Error(err))
@@ -123,11 +124,7 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	}
 
 	// 2.5. billing: distribute request rewards
-	err = s.distributeRequestRewards(ctx, rewardNodesAddress, rewardNodesAmount)
-	if err != nil {
-		return fmt.Errorf("trigger distribute request rewards: %w", err)
-	}
+	s.distributeRequestRewards(ctx, rewardNodesAddress, rewardNodesAmount)
 
 	return nil
-
 }

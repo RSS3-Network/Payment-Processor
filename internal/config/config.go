@@ -22,6 +22,7 @@ type File struct {
 	RSS3Chain   *RSS3Chain `yaml:"rss3_chain"`
 	Gateway     *Gateway   `yaml:"gateway"`
 	Billing     *Billing   `yaml:"billing"`
+	Settler     *Settler   `yaml:"settler"`
 }
 
 type Database struct {
@@ -59,8 +60,7 @@ type Gateway struct {
 }
 
 type Billing struct {
-	RuPerToken        int64    `yaml:"ru_per_token" default:"1000"`
-	Settler           *Settler `yaml:"settler"`
+	RuPerToken        int64 `yaml:"ru_per_token" default:"1000"`
 	SlackNotification struct {
 		BotToken       string `yaml:"bot_token"`
 		Channel        string `yaml:"channel"`

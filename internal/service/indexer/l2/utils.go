@@ -1,9 +1,10 @@
 package l2
 
 import (
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"math/big"
 	"strings"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
 // encodeInput encodes the input data according to the contract ABI

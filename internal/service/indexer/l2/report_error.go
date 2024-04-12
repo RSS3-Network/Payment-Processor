@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
 	"log"
 	"math/big"
 	"mime/multipart"
 	"net/http"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type SlackMessageElement struct {

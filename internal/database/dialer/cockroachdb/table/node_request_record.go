@@ -1,11 +1,12 @@
 package table
 
 import (
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rss3-network/payment-processor/schema"
 	"github.com/shopspring/decimal"
 	gormSchema "gorm.io/gorm/schema"
-	"math/big"
 )
 
 var (

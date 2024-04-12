@@ -45,7 +45,7 @@ func (s *server) indexBillingTokensDepositedLog(ctx context.Context, header *typ
 	parsedRu, _ := new(big.Float).Mul(new(big.Float).Quo(
 		new(big.Float).SetInt(billingTokensDepositedEvent.Amount),
 		new(big.Float).SetInt(big.NewInt(ethereum.BillingTokenDecimals)),
-	), big.NewFloat(float64(s.ruPerToken))).Int64()
+	), big.NewFloat(float64(s.billingConfig.RuPerToken))).Int64()
 
 	isResumed, err := databaseTransaction.GatewayDeposit(ctx, billingTokensDepositedEvent.User, parsedRu)
 

@@ -3,11 +3,12 @@ package cockroachdb
 import (
 	"context"
 	"fmt"
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
 	"github.com/rss3-network/payment-processor/schema"
 	"github.com/shopspring/decimal"
-	"math/big"
 )
 
 func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.Int) ([]*schema.NodeRequestRecord, error) {

@@ -3,13 +3,14 @@ package l2
 import (
 	"context"
 	"fmt"
+	"math/big"
+	"time"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rss3-network/payment-processor/common/ethereum"
 	"github.com/rss3-network/payment-processor/contract/l2"
 	"go.uber.org/zap"
-	"math/big"
-	"time"
 )
 
 func (s *server) billingFlow(ctx context.Context) (*big.Int, error) {
@@ -71,8 +72,8 @@ func (s *server) billingCollect(ctx context.Context) ([]common.Address, *big.Int
 	// call contract slice by slice
 	for len(users) > 0 {
 		limit := len(users)
-		if limit > s.billingConfig.Settler.BatchSize {
-			limit = s.billingConfig.Settler.BatchSize
+		if limit > s.settlerConfig.BatchSize {
+			limit = s.settlerConfig.BatchSize
 		}
 
 		err = s.triggerBillingCollectTokens(ctx, users[:limit], amounts[:limit])
@@ -124,8 +125,8 @@ func (s *server) billingWithdraw(ctx context.Context) ([]common.Address, error) 
 	// call contract slice by slice
 	for len(users) > 0 {
 		limit := len(users)
-		if limit > s.billingConfig.Settler.BatchSize {
-			limit = s.billingConfig.Settler.BatchSize
+		if limit > s.settlerConfig.BatchSize {
+			limit = s.settlerConfig.BatchSize
 		}
 
 		err = s.triggerBillingWithdrawTokens(ctx, users[:limit], amounts[:limit], fee)

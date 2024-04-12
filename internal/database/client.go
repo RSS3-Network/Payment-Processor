@@ -37,9 +37,9 @@ type Client interface {
 
 	GatewayDeposit(ctx context.Context, address common.Address, ruIncrease int64) (bool, error)
 
-	FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.Int) ([]schema.NodeRequestRecord, error)
+	FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.Int) ([]*schema.NodeRequestRecord, error)
 	SaveNodeRequestCount(ctx context.Context, record *schema.NodeRequestRecord) error
-	SetNodeRequestRewards(ctx context.Context, nodeAddr common.Address, reward *big.Int) error
+	SetNodeRequestRewards(ctx context.Context, epoch *big.Int, nodeAddr common.Address, reward *big.Int) error
 
 	Raw() *gorm.DB
 }

@@ -2,8 +2,8 @@ package indexer
 
 import (
 	"context"
-	"github.com/redis/go-redis/v9"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/rss3-network/gateway-common/control"
 	"github.com/rss3-network/payment-processor/internal/config"
 	"github.com/rss3-network/payment-processor/internal/database"
@@ -14,6 +14,7 @@ import (
 type Server struct {
 	chainConfig    *config.RSS3Chain
 	billingConfig  *config.Billing
+	settlerConfig  *config.Settler
 	databaseClient database.Client
 	controlClient  *control.StateClientWriter
 	redisClient    *redis.Client
@@ -28,7 +29,7 @@ func (s *Server) Run(ctx context.Context) error {
 			Endpoint: s.chainConfig.EndpointL2,
 		}
 
-		serverL2, err := l2.NewServer(ctx, s.databaseClient, s.controlClient, s.redisClient, &l2Config, s.billingConfig)
+		serverL2, err := l2.NewServer(ctx, s.databaseClient, s.controlClient, s.redisClient, &l2Config, s.billingConfig, s.settlerConfig)
 		if err != nil {
 			return err
 		}
@@ -47,13 +48,14 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 }
 
-func New(databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, chainConfig *config.RSS3Chain, billingConfig *config.Billing) (*Server, error) {
+func New(databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, chainConfig *config.RSS3Chain, billingConfig *config.Billing, settlerConfig *config.Settler) (*Server, error) {
 	instance := Server{
 		chainConfig:    chainConfig,
 		billingConfig:  billingConfig,
 		databaseClient: databaseClient,
 		controlClient:  controlClient,
 		redisClient:    redisClient,
+		settlerConfig:  settlerConfig,
 	}
 
 	return &instance, nil
