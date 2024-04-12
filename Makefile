@@ -35,10 +35,13 @@ genoapi:
 	go run github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen -package oapi -generate=types,client,server,spec,skip-prune -o $(OAPI_TARGET)$(OAPI_TARGET_FILENAME) $(OAPI_SPEC)
 	go mod tidy
 
-.PHONY: genmigration
+.PHONY: genmigration applymigration
 MIG ?= new_migration
 ENV ?= dev
 genmigration:
 	docker compose -f ./deploy/docker-compose.migration.yml up -d
 	atlas migrate diff $(MIG) --env $(ENV)
 	docker compose -f ./deploy/docker-compose.migration.yml down -v
+applymigration:
+	atlas migrate apply --env $(ENV)
+
