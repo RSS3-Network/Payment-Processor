@@ -22,9 +22,9 @@ type BillingRecordBase struct {
 
 	TxHash         common.Hash `gorm:"primaryKey;type:bytea;column:tx_hash"`
 	Index          uint        `gorm:"column:index"`
-	ChainID        uint64      `gorm:"index;column:chain_id"`
+	ChainID        uint64      `gorm:"column:chain_id"`
 	BlockTimestamp time.Time   `gorm:"index;column:block_timestamp"`
-	BlockNumber    uint64      `gorm:"index;column:block_number"`
+	BlockNumber    uint64      `gorm:"column:block_number"`
 
 	User   common.Address  `gorm:"type:bytea;column:user"`
 	Amount decimal.Decimal `gorm:"column:amount"`
@@ -45,15 +45,15 @@ type BillingRecordCollected struct {
 }
 
 func (r *BillingRecordDeposited) TableName() string {
-	return "br_deposited"
+	return "gateway.br_deposited"
 }
 
 func (r *BillingRecordWithdrawal) TableName() string {
-	return "br_withdrawn"
+	return "gateway.br_withdrawn"
 }
 
 func (r *BillingRecordCollected) TableName() string {
-	return "br_collected"
+	return "gateway.br_collected"
 }
 
 func (r *BillingRecordDeposited) Import(billingRecord schema.BillingRecordDeposited) error {

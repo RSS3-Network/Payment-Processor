@@ -33,5 +33,5 @@ type GatewayKey struct {
 }
 
 func (r *GatewayKey) TableName() string {
-	return "key"
+	return "gateway.key"
 }

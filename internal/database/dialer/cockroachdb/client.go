@@ -77,26 +77,26 @@ func (c *client) Commit() error {
 	return c.database.Commit().Error
 }
 
-func (c *client) RollbackBlock(ctx context.Context, chainID, blockNumber uint64) error {
+func (c *client) RollbackBlock(ctx context.Context, chainID, blockNUmber uint64) error {
 	databaseClient := c.database.WithContext(ctx)
 
 	// Delete billing records
 	if err := databaseClient.
-		Where(`"chain_id" = ? AND "block_number" >= ?`, chainID, blockNumber).
+		Where(`"chain_id" = ? AND "block_number" >= ?`, chainID, blockNUmber).
 		Delete(&table.BillingRecordDeposited{}).
 		Error; err != nil {
 		return fmt.Errorf("delete billing record deposited: %w", err)
 	}
 
 	if err := databaseClient.
-		Where(`"chain_id" = ? AND "block_number" >= ?`, chainID, blockNumber).
+		Where(`"chain_id" = ? AND "block_number" >= ?`, chainID, blockNUmber).
 		Delete(&table.BillingRecordWithdrawal{}).
 		Error; err != nil {
 		return fmt.Errorf("delete billing record withdrawal: %w", err)
 	}
 
 	if err := databaseClient.
-		Where(`"chain_id" = ? AND "block_number" >= ?`, chainID, blockNumber).
+		Where(`"chain_id" = ? AND "block_number" >= ?`, chainID, blockNUmber).
 		Delete(&table.BillingRecordCollected{}).
 		Error; err != nil {
 		return fmt.Errorf("delete billing record collected: %w", err)

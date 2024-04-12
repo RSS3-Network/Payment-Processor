@@ -138,13 +138,13 @@ func tearDown() {
 
 	// clear tables
 	sqls := []string{
-		`DELETE FROM consumption_log CASCADE;`,
-		`DELETE FROM key CASCADE;`,
-		`DELETE FROM pending_withdraw_request CASCADE;`,
-		`DELETE FROM account CASCADE;`,
-		`DELETE FROM br_collected CASCADE;`,
-		`DELETE FROM br_deposited CASCADE;`,
-		`DELETE FROM br_withdrawn CASCADE;`,
+		`DELETE FROM gateway.consumption_log CASCADE;`,
+		`DELETE FROM gateway.key CASCADE;`,
+		`DELETE FROM gateway.pending_withdraw_request CASCADE;`,
+		`DELETE FROM gateway.account CASCADE;`,
+		`DELETE FROM gateway.br_collected CASCADE;`,
+		`DELETE FROM gateway.br_deposited CASCADE;`,
+		`DELETE FROM gateway.br_withdrawn CASCADE;`,
 	}
 	for _, sql := range sqls {
 		if strings.TrimSpace(sql) == "" {

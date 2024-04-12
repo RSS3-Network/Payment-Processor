@@ -24,5 +24,5 @@ type GatewayConsumptionLog struct {
 }
 
 func (r *GatewayConsumptionLog) TableName() string {
-	return "consumption_log"
+	return "gateway.consumption_log"
 }
