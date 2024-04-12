@@ -13,6 +13,7 @@ var (
 )
 
 type GatewayAccount struct {
+	gorm.Model
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -24,5 +25,5 @@ type GatewayAccount struct {
 }
 
 func (r *GatewayAccount) TableName() string {
-	return "gateway.account"
+	return "account"
 }

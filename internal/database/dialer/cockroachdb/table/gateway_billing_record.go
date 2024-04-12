@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rss3-network/payment-processor/schema"
 	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 	gormSchema "gorm.io/gorm/schema"
 )
 
@@ -17,6 +18,7 @@ var (
 )
 
 type BillingRecordBase struct {
+	gorm.Model
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
@@ -45,15 +47,15 @@ type BillingRecordCollected struct {
 }
 
 func (r *BillingRecordDeposited) TableName() string {
-	return "gateway.br_deposited"
+	return "br_deposited"
 }
 
 func (r *BillingRecordWithdrawal) TableName() string {
-	return "gateway.br_withdrawn"
+	return "br_withdrawn"
 }
 
 func (r *BillingRecordCollected) TableName() string {
-	return "gateway.br_collected"
+	return "br_collected"
 }
 
 func (r *BillingRecordDeposited) Import(billingRecord schema.BillingRecordDeposited) error {

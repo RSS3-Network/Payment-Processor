@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"gorm.io/gorm"
 	gormSchema "gorm.io/gorm/schema"
 )
 
@@ -12,6 +13,7 @@ var (
 )
 
 type GatewayPendingWithdrawRequest struct {
+	gorm.Model
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
@@ -22,5 +24,5 @@ type GatewayPendingWithdrawRequest struct {
 }
 
 func (r *GatewayPendingWithdrawRequest) TableName() string {
-	return "gateway.pending_withdraw_request"
+	return "pending_withdraw_request"
 }
