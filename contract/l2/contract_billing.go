@@ -31,7 +31,7 @@ var (
 
 // BillingMetaData contains all meta data concerning the Billing contract.
 var BillingMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"constructor\",\"inputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"COLLECTOR_ROLE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"DEFAULT_ADMIN_ROLE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"balanceOf\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"collectTokens\",\"inputs\":[{\"name\":\"users\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"amounts\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"},{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"totalCollected\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"deposit\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"getRoleAdmin\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getRoleMember\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getRoleMemberCount\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"grantRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"hasRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"collector\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"renounceRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"revokeRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"supportsInterface\",\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\",\"internalType\":\"bytes4\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"withdrawTokens\",\"inputs\":[{\"name\":\"users\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"amounts\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"},{\"name\":\"fees\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleAdminChanged\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"previousAdminRole\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"newAdminRole\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleGranted\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"sender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleRevoked\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"sender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensCollected\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensDeposited\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensWithdrawn\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"fee\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"ErrInvalidArrayLength\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"ErrTransferFailed\",\"inputs\":[]}]",
+	ABI: "[{\"type\":\"constructor\",\"inputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"COLLECTOR_ROLE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"DEFAULT_ADMIN_ROLE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"balanceOf\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"collectTokens\",\"inputs\":[{\"name\":\"users\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"amounts\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[{\"name\":\"totalCollected\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"collectedBalance\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"deposit\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"distributeRewards\",\"inputs\":[{\"name\":\"nodeAddrs\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"rewards\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"getRoleAdmin\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getRoleMember\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getRoleMemberCount\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"grantRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"hasRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"staking\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"collector\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"renounceRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"revokeRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"stakingContract\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"supportsInterface\",\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\",\"internalType\":\"bytes4\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"withdrawTokens\",\"inputs\":[{\"name\":\"users\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"amounts\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"},{\"name\":\"fees\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RewardsDistributed\",\"inputs\":[{\"name\":\"nodeAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"receiver\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"isPublicGood\",\"type\":\"bool\",\"indexed\":false,\"internalType\":\"bool\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleAdminChanged\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"previousAdminRole\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"newAdminRole\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleGranted\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"sender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleRevoked\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"sender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensCollected\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensDeposited\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensWithdrawn\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"fee\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"ErrInvalidArrayLength\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"ErrTransferFailed\",\"inputs\":[]}]",
 }
 
 // BillingABI is the input ABI used to generate the binding from.
@@ -273,6 +273,37 @@ func (_Billing *BillingCallerSession) BalanceOf(user common.Address) (*big.Int, 
 	return _Billing.Contract.BalanceOf(&_Billing.CallOpts, user)
 }
 
+// CollectedBalance is a free data retrieval call binding the contract method 0x8ddc3b19.
+//
+// Solidity: function collectedBalance() view returns(uint256)
+func (_Billing *BillingCaller) CollectedBalance(opts *bind.CallOpts) (*big.Int, error) {
+	var out []interface{}
+	err := _Billing.contract.Call(opts, &out, "collectedBalance")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// CollectedBalance is a free data retrieval call binding the contract method 0x8ddc3b19.
+//
+// Solidity: function collectedBalance() view returns(uint256)
+func (_Billing *BillingSession) CollectedBalance() (*big.Int, error) {
+	return _Billing.Contract.CollectedBalance(&_Billing.CallOpts)
+}
+
+// CollectedBalance is a free data retrieval call binding the contract method 0x8ddc3b19.
+//
+// Solidity: function collectedBalance() view returns(uint256)
+func (_Billing *BillingCallerSession) CollectedBalance() (*big.Int, error) {
+	return _Billing.Contract.CollectedBalance(&_Billing.CallOpts)
+}
+
 // GetRoleAdmin is a free data retrieval call binding the contract method 0x248a9ca3.
 //
 // Solidity: function getRoleAdmin(bytes32 role) view returns(bytes32)
@@ -397,6 +428,37 @@ func (_Billing *BillingCallerSession) HasRole(role [32]byte, account common.Addr
 	return _Billing.Contract.HasRole(&_Billing.CallOpts, role, account)
 }
 
+// StakingContract is a free data retrieval call binding the contract method 0xee99205c.
+//
+// Solidity: function stakingContract() view returns(address)
+func (_Billing *BillingCaller) StakingContract(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _Billing.contract.Call(opts, &out, "stakingContract")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// StakingContract is a free data retrieval call binding the contract method 0xee99205c.
+//
+// Solidity: function stakingContract() view returns(address)
+func (_Billing *BillingSession) StakingContract() (common.Address, error) {
+	return _Billing.Contract.StakingContract(&_Billing.CallOpts)
+}
+
+// StakingContract is a free data retrieval call binding the contract method 0xee99205c.
+//
+// Solidity: function stakingContract() view returns(address)
+func (_Billing *BillingCallerSession) StakingContract() (common.Address, error) {
+	return _Billing.Contract.StakingContract(&_Billing.CallOpts)
+}
+
 // SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
 //
 // Solidity: function supportsInterface(bytes4 interfaceId) view returns(bool)
@@ -428,25 +490,25 @@ func (_Billing *BillingCallerSession) SupportsInterface(interfaceId [4]byte) (bo
 	return _Billing.Contract.SupportsInterface(&_Billing.CallOpts, interfaceId)
 }
 
-// CollectTokens is a paid mutator transaction binding the contract method 0x66694c40.
+// CollectTokens is a paid mutator transaction binding the contract method 0xf0dc4171.
 //
-// Solidity: function collectTokens(address[] users, uint256[] amounts, address to) returns(uint256 totalCollected)
-func (_Billing *BillingTransactor) CollectTokens(opts *bind.TransactOpts, users []common.Address, amounts []*big.Int, to common.Address) (*types.Transaction, error) {
-	return _Billing.contract.Transact(opts, "collectTokens", users, amounts, to)
+// Solidity: function collectTokens(address[] users, uint256[] amounts) returns(uint256 totalCollected)
+func (_Billing *BillingTransactor) CollectTokens(opts *bind.TransactOpts, users []common.Address, amounts []*big.Int) (*types.Transaction, error) {
+	return _Billing.contract.Transact(opts, "collectTokens", users, amounts)
 }
 
-// CollectTokens is a paid mutator transaction binding the contract method 0x66694c40.
+// CollectTokens is a paid mutator transaction binding the contract method 0xf0dc4171.
 //
-// Solidity: function collectTokens(address[] users, uint256[] amounts, address to) returns(uint256 totalCollected)
-func (_Billing *BillingSession) CollectTokens(users []common.Address, amounts []*big.Int, to common.Address) (*types.Transaction, error) {
-	return _Billing.Contract.CollectTokens(&_Billing.TransactOpts, users, amounts, to)
+// Solidity: function collectTokens(address[] users, uint256[] amounts) returns(uint256 totalCollected)
+func (_Billing *BillingSession) CollectTokens(users []common.Address, amounts []*big.Int) (*types.Transaction, error) {
+	return _Billing.Contract.CollectTokens(&_Billing.TransactOpts, users, amounts)
 }
 
-// CollectTokens is a paid mutator transaction binding the contract method 0x66694c40.
+// CollectTokens is a paid mutator transaction binding the contract method 0xf0dc4171.
 //
-// Solidity: function collectTokens(address[] users, uint256[] amounts, address to) returns(uint256 totalCollected)
-func (_Billing *BillingTransactorSession) CollectTokens(users []common.Address, amounts []*big.Int, to common.Address) (*types.Transaction, error) {
-	return _Billing.Contract.CollectTokens(&_Billing.TransactOpts, users, amounts, to)
+// Solidity: function collectTokens(address[] users, uint256[] amounts) returns(uint256 totalCollected)
+func (_Billing *BillingTransactorSession) CollectTokens(users []common.Address, amounts []*big.Int) (*types.Transaction, error) {
+	return _Billing.Contract.CollectTokens(&_Billing.TransactOpts, users, amounts)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0xd0e30db0.
@@ -470,6 +532,27 @@ func (_Billing *BillingTransactorSession) Deposit() (*types.Transaction, error) 
 	return _Billing.Contract.Deposit(&_Billing.TransactOpts)
 }
 
+// DistributeRewards is a paid mutator transaction binding the contract method 0x143ba4f3.
+//
+// Solidity: function distributeRewards(address[] nodeAddrs, uint256[] rewards) returns()
+func (_Billing *BillingTransactor) DistributeRewards(opts *bind.TransactOpts, nodeAddrs []common.Address, rewards []*big.Int) (*types.Transaction, error) {
+	return _Billing.contract.Transact(opts, "distributeRewards", nodeAddrs, rewards)
+}
+
+// DistributeRewards is a paid mutator transaction binding the contract method 0x143ba4f3.
+//
+// Solidity: function distributeRewards(address[] nodeAddrs, uint256[] rewards) returns()
+func (_Billing *BillingSession) DistributeRewards(nodeAddrs []common.Address, rewards []*big.Int) (*types.Transaction, error) {
+	return _Billing.Contract.DistributeRewards(&_Billing.TransactOpts, nodeAddrs, rewards)
+}
+
+// DistributeRewards is a paid mutator transaction binding the contract method 0x143ba4f3.
+//
+// Solidity: function distributeRewards(address[] nodeAddrs, uint256[] rewards) returns()
+func (_Billing *BillingTransactorSession) DistributeRewards(nodeAddrs []common.Address, rewards []*big.Int) (*types.Transaction, error) {
+	return _Billing.Contract.DistributeRewards(&_Billing.TransactOpts, nodeAddrs, rewards)
+}
+
 // GrantRole is a paid mutator transaction binding the contract method 0x2f2ff15d.
 //
 // Solidity: function grantRole(bytes32 role, address account) returns()
@@ -491,25 +574,25 @@ func (_Billing *BillingTransactorSession) GrantRole(role [32]byte, account commo
 	return _Billing.Contract.GrantRole(&_Billing.TransactOpts, role, account)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// Initialize is a paid mutator transaction binding the contract method 0x485cc955.
 //
-// Solidity: function initialize(address collector) returns()
-func (_Billing *BillingTransactor) Initialize(opts *bind.TransactOpts, collector common.Address) (*types.Transaction, error) {
-	return _Billing.contract.Transact(opts, "initialize", collector)
+// Solidity: function initialize(address staking, address collector) returns()
+func (_Billing *BillingTransactor) Initialize(opts *bind.TransactOpts, staking common.Address, collector common.Address) (*types.Transaction, error) {
+	return _Billing.contract.Transact(opts, "initialize", staking, collector)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// Initialize is a paid mutator transaction binding the contract method 0x485cc955.
 //
-// Solidity: function initialize(address collector) returns()
-func (_Billing *BillingSession) Initialize(collector common.Address) (*types.Transaction, error) {
-	return _Billing.Contract.Initialize(&_Billing.TransactOpts, collector)
+// Solidity: function initialize(address staking, address collector) returns()
+func (_Billing *BillingSession) Initialize(staking common.Address, collector common.Address) (*types.Transaction, error) {
+	return _Billing.Contract.Initialize(&_Billing.TransactOpts, staking, collector)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// Initialize is a paid mutator transaction binding the contract method 0x485cc955.
 //
-// Solidity: function initialize(address collector) returns()
-func (_Billing *BillingTransactorSession) Initialize(collector common.Address) (*types.Transaction, error) {
-	return _Billing.Contract.Initialize(&_Billing.TransactOpts, collector)
+// Solidity: function initialize(address staking, address collector) returns()
+func (_Billing *BillingTransactorSession) Initialize(staking common.Address, collector common.Address) (*types.Transaction, error) {
+	return _Billing.Contract.Initialize(&_Billing.TransactOpts, staking, collector)
 }
 
 // RenounceRole is a paid mutator transaction binding the contract method 0x36568abe.
@@ -703,6 +786,169 @@ func (_Billing *BillingFilterer) WatchInitialized(opts *bind.WatchOpts, sink cha
 func (_Billing *BillingFilterer) ParseInitialized(log types.Log) (*BillingInitialized, error) {
 	event := new(BillingInitialized)
 	if err := _Billing.contract.UnpackLog(event, "Initialized", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// BillingRewardsDistributedIterator is returned from FilterRewardsDistributed and is used to iterate over the raw logs and unpacked data for RewardsDistributed events raised by the Billing contract.
+type BillingRewardsDistributedIterator struct {
+	Event *BillingRewardsDistributed // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *BillingRewardsDistributedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(BillingRewardsDistributed)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(BillingRewardsDistributed)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *BillingRewardsDistributedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *BillingRewardsDistributedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// BillingRewardsDistributed represents a RewardsDistributed event raised by the Billing contract.
+type BillingRewardsDistributed struct {
+	NodeAddr     common.Address
+	Amount       *big.Int
+	Receiver     common.Address
+	IsPublicGood bool
+	Raw          types.Log // Blockchain specific contextual infos
+}
+
+// FilterRewardsDistributed is a free log retrieval operation binding the contract event 0x6e84718920f8e2f7cd5f87a6d7578558898c604ebe2c631e81b50256f626e693.
+//
+// Solidity: event RewardsDistributed(address indexed nodeAddr, uint256 indexed amount, address indexed receiver, bool isPublicGood)
+func (_Billing *BillingFilterer) FilterRewardsDistributed(opts *bind.FilterOpts, nodeAddr []common.Address, amount []*big.Int, receiver []common.Address) (*BillingRewardsDistributedIterator, error) {
+
+	var nodeAddrRule []interface{}
+	for _, nodeAddrItem := range nodeAddr {
+		nodeAddrRule = append(nodeAddrRule, nodeAddrItem)
+	}
+	var amountRule []interface{}
+	for _, amountItem := range amount {
+		amountRule = append(amountRule, amountItem)
+	}
+	var receiverRule []interface{}
+	for _, receiverItem := range receiver {
+		receiverRule = append(receiverRule, receiverItem)
+	}
+
+	logs, sub, err := _Billing.contract.FilterLogs(opts, "RewardsDistributed", nodeAddrRule, amountRule, receiverRule)
+	if err != nil {
+		return nil, err
+	}
+	return &BillingRewardsDistributedIterator{contract: _Billing.contract, event: "RewardsDistributed", logs: logs, sub: sub}, nil
+}
+
+// WatchRewardsDistributed is a free log subscription operation binding the contract event 0x6e84718920f8e2f7cd5f87a6d7578558898c604ebe2c631e81b50256f626e693.
+//
+// Solidity: event RewardsDistributed(address indexed nodeAddr, uint256 indexed amount, address indexed receiver, bool isPublicGood)
+func (_Billing *BillingFilterer) WatchRewardsDistributed(opts *bind.WatchOpts, sink chan<- *BillingRewardsDistributed, nodeAddr []common.Address, amount []*big.Int, receiver []common.Address) (event.Subscription, error) {
+
+	var nodeAddrRule []interface{}
+	for _, nodeAddrItem := range nodeAddr {
+		nodeAddrRule = append(nodeAddrRule, nodeAddrItem)
+	}
+	var amountRule []interface{}
+	for _, amountItem := range amount {
+		amountRule = append(amountRule, amountItem)
+	}
+	var receiverRule []interface{}
+	for _, receiverItem := range receiver {
+		receiverRule = append(receiverRule, receiverItem)
+	}
+
+	logs, sub, err := _Billing.contract.WatchLogs(opts, "RewardsDistributed", nodeAddrRule, amountRule, receiverRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(BillingRewardsDistributed)
+				if err := _Billing.contract.UnpackLog(event, "RewardsDistributed", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseRewardsDistributed is a log parse operation binding the contract event 0x6e84718920f8e2f7cd5f87a6d7578558898c604ebe2c631e81b50256f626e693.
+//
+// Solidity: event RewardsDistributed(address indexed nodeAddr, uint256 indexed amount, address indexed receiver, bool isPublicGood)
+func (_Billing *BillingFilterer) ParseRewardsDistributed(log types.Log) (*BillingRewardsDistributed, error) {
+	event := new(BillingRewardsDistributed)
+	if err := _Billing.contract.UnpackLog(event, "RewardsDistributed", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
