@@ -314,11 +314,6 @@
 				"name": "amounts",
 				"type": "uint256[]",
 				"internalType": "uint256[]"
-			},
-			{
-				"name": "fees",
-				"type": "uint256[]",
-				"internalType": "uint256[]"
 			}
 		],
 		"outputs": [],
@@ -493,12 +488,6 @@
 			},
 			{
 				"name": "amount",
-				"type": "uint256",
-				"indexed": true,
-				"internalType": "uint256"
-			},
-			{
-				"name": "fee",
 				"type": "uint256",
 				"indexed": true,
 				"internalType": "uint256"

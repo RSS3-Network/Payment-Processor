@@ -115,20 +115,6 @@ func (s *server) billingWithdraw(ctx context.Context) ([]common.Address, error) 
 	// else Need withdraw
 	var succeededUsers []common.Address
 
-	// Calculate fee
-	currentGas, err := s.ethereumClient.SuggestGasPrice(ctx)
-
-	if err != nil {
-		zap.L().Error("get gas price", zap.Error(err))
-		// fallback
-		currentGas = big.NewInt(1) // TODO
-	}
-
-	fee, _ := new(big.Float).Mul(
-		big.NewFloat(30_000), // TODO
-		new(big.Float).SetInt(currentGas),
-	).Int(nil)
-
 	// call contract slice by slice
 	for len(users) > 0 {
 		limit := len(users)
@@ -137,7 +123,7 @@ func (s *server) billingWithdraw(ctx context.Context) ([]common.Address, error) 
 			limit = s.settlerConfig.BatchSize
 		}
 
-		err = s.triggerBillingWithdrawTokens(ctx, users[:limit], amounts[:limit], fee)
+		err = s.triggerBillingWithdrawTokens(ctx, users[:limit], amounts[:limit])
 
 		if err == nil {
 			succeededUsers = append(succeededUsers, users[:limit]...)
@@ -270,17 +256,9 @@ func (s *server) triggerBillingCollectTokens(ctx context.Context, users []common
 	return nil
 }
 
-func (s *server) triggerBillingWithdrawTokens(ctx context.Context, users []common.Address, amounts []*big.Int, fee *big.Int) error {
+func (s *server) triggerBillingWithdrawTokens(ctx context.Context, users []common.Address, amounts []*big.Int) error {
 	// Trigger collectTokens contract.
-	// Prepare fees
-	length := len(users)
-	fees := make([]*big.Int, length)
-
-	for i := 0; i < length; i++ {
-		fees[i] = fee
-	}
-
-	input, err := txmgr.EncodeInput(l2.BillingMetaData.ABI, l2.MethodWithdrawTokens, users, amounts, fees)
+	input, err := txmgr.EncodeInput(l2.BillingMetaData.ABI, l2.MethodWithdrawTokens, users, amounts)
 
 	if err != nil {
 		return fmt.Errorf("encode input: %w", err)
