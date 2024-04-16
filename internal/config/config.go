@@ -20,9 +20,9 @@ type File struct {
 	Database    *Database  `yaml:"database"`
 	Redis       *Redis     `yaml:"redis"`
 	RSS3Chain   *RSS3Chain `yaml:"rss3_chain"`
+	Settler     *Settler   `yaml:"settler"`
 	Gateway     *Gateway   `yaml:"gateway"`
 	Billing     *Billing   `yaml:"billing"`
-	Settler     *Settler   `yaml:"settler"`
 }
 
 type Database struct {
