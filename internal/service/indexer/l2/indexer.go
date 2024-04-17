@@ -229,7 +229,7 @@ func NewServer(ctx context.Context, databaseClient database.Client, controlClien
 	signerFactory, from, err := gicrypto.NewSignerFactory(settlerConfig.PrivateKey, settlerConfig.SignerEndpoint, settlerConfig.WalletAddress)
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create signer")
+		return nil, fmt.Errorf("failed to create signer: %w", err)
 	}
 
 	defaultTxConfig := txmgr.Config{
