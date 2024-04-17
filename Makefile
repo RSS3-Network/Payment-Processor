@@ -42,6 +42,7 @@ genmigration:
 	docker compose -f ./deploy/docker-compose.migration.yml up -d
 	atlas migrate diff $(MIG) --env $(ENV)
 	docker compose -f ./deploy/docker-compose.migration.yml down -v
+	go mod tidy # Clear unwanted deps
 applymigration:
 	#atlas migrate apply --env $(ENV)
 	echo "Please use goose instead"

@@ -20,7 +20,7 @@ type File struct {
 	Database    *Database  `yaml:"database"`
 	Redis       *Redis     `yaml:"redis"`
 	RSS3Chain   *RSS3Chain `yaml:"rss3_chain"`
-	Epoch       *Epoch     `yaml:"epoch"`
+	Settler     *Settler   `yaml:"settler"`
 	Gateway     *Gateway   `yaml:"gateway"`
 	Billing     *Billing   `yaml:"billing"`
 }
@@ -36,12 +36,6 @@ type Redis struct {
 
 type RSS3Chain struct {
 	EndpointL2 string `yaml:"endpoint_l2" validate:"required"`
-}
-
-type Epoch struct {
-	WalletAddress  string `yaml:"wallet_address" validate:"required"`
-	SignerEndpoint string `yaml:"signer_endpoint" validate:"required"`
-	GasLimit       uint64 `yaml:"gas_limit" default:"2500000"`
 }
 
 type Gateway struct {
@@ -66,13 +60,24 @@ type Gateway struct {
 }
 
 type Billing struct {
-	CollectTokenTo    string `yaml:"collect_token_to" validate:"required"`
-	RuPerToken        int64  `yaml:"ru_per_token" default:"1000"`
+	RuPerToken        int64 `yaml:"ru_per_token" default:"1000"`
 	SlackNotification struct {
 		BotToken       string `yaml:"bot_token"`
 		Channel        string `yaml:"channel"`
 		BlockchainScan string `yaml:"blockchain_scan" validate:"required"`
 	} `yaml:"slack_notification"`
+}
+
+type Settler struct {
+	PrivateKey     string `yaml:"private_key"`
+	WalletAddress  string `yaml:"wallet_address"`
+	SignerEndpoint string `yaml:"signer_endpoint"`
+	// EpochIntervalInHours
+	EpochIntervalInHours int    `yaml:"epoch_interval_in_hours" default:"18"`
+	GasLimit             uint64 `yaml:"gas_limit" default:"2500000"`
+	// BatchSize is the number of Nodes to process in each batch.
+	// This is to prevent the contract call from running out of gas.
+	BatchSize int `yaml:"batch_size" default:"200"`
 }
 
 func Setup(configFilePath string) (*File, error) {

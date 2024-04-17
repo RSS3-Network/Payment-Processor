@@ -45,7 +45,7 @@ func (s *server) indexBillingTokensDepositedLog(ctx context.Context, header *typ
 	parsedRu, _ := new(big.Float).Mul(new(big.Float).Quo(
 		new(big.Float).SetInt(billingTokensDepositedEvent.Amount),
 		new(big.Float).SetInt(big.NewInt(ethereum.BillingTokenDecimals)),
-	), big.NewFloat(float64(s.ruPerToken))).Int64()
+	), big.NewFloat(float64(s.billingConfig.RuPerToken))).Int64()
 
 	isResumed, err := databaseTransaction.GatewayDeposit(ctx, billingTokensDepositedEvent.User, parsedRu)
 
@@ -74,7 +74,6 @@ func (s *server) indexBillingTokensWithdrawnLog(ctx context.Context, header *typ
 
 	billingRecord := schema.BillingRecordWithdrawal{
 		BillingRecordBase: schema.BillingRecordParseBase(s.chainID.Uint64(), header, transaction, receipt, billingTokensWithdrawnEvent.User, billingTokensWithdrawnEvent.Amount),
-		Fee:               billingTokensWithdrawnEvent.Fee,
 	}
 
 	if err := databaseTransaction.SaveBillingRecordWithdrawal(ctx, &billingRecord); err != nil {

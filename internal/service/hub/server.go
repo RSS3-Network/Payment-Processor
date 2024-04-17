@@ -29,7 +29,7 @@ import (
 type Server struct {
 	isDevEnv       bool
 	config         config.Gateway
-	redis          *redis.Client
+	redisClient    *redis.Client
 	databaseClient database.Client
 	controlClient  *control.StateClientWriter
 }
@@ -65,7 +65,7 @@ func (s *Server) Run(ctx context.Context) error {
 		}
 
 		// Prepare SIWE
-		siweClient, err := siwe.New(s.config.API.SIWEDomain, s.redis)
+		siweClient, err := siwe.New(s.config.API.SIWEDomain, s.redisClient)
 		if err != nil {
 			return fmt.Errorf("prepare SIWE: %w", err)
 		}
@@ -74,7 +74,7 @@ func (s *Server) Run(ctx context.Context) error {
 		e := echo.New()
 		handlerApp, err := handlers.NewApp(
 			s.controlClient,
-			s.redis,
+			s.redisClient,
 			s.databaseClient.Raw(),
 			jwtClient,
 			siweClient,
@@ -105,7 +105,7 @@ func New(isDevEnv bool, databaseClient database.Client, redis *redis.Client, con
 	instance := Server{
 		isDevEnv:       isDevEnv,
 		config:         config,
-		redis:          redis,
+		redisClient:    redis,
 		databaseClient: databaseClient,
 		controlClient:  controlClient,
 	}
