@@ -86,6 +86,10 @@ func (s *server) closeEpoch(ctx context.Context, header *types.Header, epoch *bi
 	// Defer release mutex lock
 	defer s.redisClient.Del(ctx, constants.EpochMutexLockKey)
 
+	return s.closeEpochExec(ctx, epoch)
+}
+
+func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	// 2.2-3. billing
 	totalCollected, err := s.billingFlow(ctx)
 
