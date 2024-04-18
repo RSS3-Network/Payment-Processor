@@ -36,7 +36,15 @@ func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.I
 
 func (c *client) SaveNodeRequestCount(ctx context.Context, record *schema.NodeRequestRecord) error {
 	var value table.NodeRequestRecord
-	if err := value.Import(*record); err != nil {
+
+	// Record count means it doesn't include RequestReward data.
+	// So to ensure this, let's have an additional check
+	processedRecord := *record
+	if processedRecord.RequestReward == nil {
+		processedRecord.RequestReward = big.NewInt(0)
+	}
+
+	if err := value.Import(processedRecord); err != nil {
 		return fmt.Errorf("import node request rewards: %w", err)
 	}
 
