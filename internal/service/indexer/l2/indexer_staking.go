@@ -93,6 +93,11 @@ func (s *server) closeEpoch(ctx context.Context, header *types.Header, epoch *bi
 		return fmt.Errorf("failed to execute billing flow: %w", err)
 	}
 
+	if totalCollected.Cmp(big.NewInt(0)) == 0 {
+		// No request fees collect in this epoch, skip
+		return nil
+	}
+
 	// 2.4. calc request percentage
 	allNodes, err := s.databaseClient.FindNodeRequestRewardsByEpoch(ctx, epoch)
 
@@ -105,6 +110,11 @@ func (s *server) closeEpoch(ctx context.Context, header *types.Header, epoch *bi
 
 	for _, node := range allNodes {
 		totalRequestCount.Add(totalRequestCount, node.RequestCount)
+	}
+
+	if totalRequestCount.Cmp(big.NewInt(0)) == 0 {
+		// No requests happened in this epoch, skip
+		return nil
 	}
 
 	// Calculate reward per request
