@@ -50,7 +50,7 @@ func KeyCreate(ctx context.Context, accountAddress common.Address, keyName strin
 	return &Key{k, databaseClient, controlClient}, nil
 }
 
-func KeyGetByID(ctx context.Context, KeyID uint64, activeOnly bool, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*Key, bool, error) {
+func KeyGetByID(ctx context.Context, keyID uint64, activeOnly bool, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*Key, bool, error) {
 	queryBase := databaseClient.WithContext(ctx).Model(&table.GatewayKey{})
 
 	if activeOnly {
@@ -59,7 +59,7 @@ func KeyGetByID(ctx context.Context, KeyID uint64, activeOnly bool, databaseClie
 
 	var k table.GatewayKey
 
-	if err := queryBase.Where("id = ?", KeyID).First(&k).Error; err != nil {
+	if err := queryBase.Where("id = ?", keyID).First(&k).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, false, nil
 		}

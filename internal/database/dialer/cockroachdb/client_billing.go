@@ -71,7 +71,9 @@ func (c *client) PrepareBillingCollectTokens(ctx context.Context, nowTime time.T
 			err = tx.Where("consumption_date = ? AND key_id = ?", nowTime, k.ID).
 				First(&possibleExistLog).
 				Error
+
 			if err != nil {
+				// nolint: gocritic
 				if errors.Is(err, gorm.ErrRecordNotFound) {
 					// Fine, let's create it
 					err = tx.Create(&table.GatewayConsumptionLog{
@@ -81,7 +83,7 @@ func (c *client) PrepareBillingCollectTokens(ctx context.Context, nowTime time.T
 						APICalls:        k.APICallsCurrent,
 					}).Error
 				} else {
-					// Error happens, but we don't know what's this, create a new record for now.
+					// TODO: Error happens, but we don't know what's this, create a new record for now.
 					err = tx.Create(&table.GatewayConsumptionLog{
 						KeyID:           k.ID,
 						ConsumptionDate: nowTime,
