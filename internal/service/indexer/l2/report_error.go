@@ -55,11 +55,12 @@ func (s *server) sendNotificationMessage(txErr error, txHash string, txFunc stri
 	// Send base information
 	var errReason string
 
-	if errors.Is(txErr, errors.New("transaction failed")) {
+	switch {
+	case errors.Is(txErr, errors.New("transaction failed")):
 		errReason = "Failed"
-	} else if errors.Is(txErr, context.DeadlineExceeded) {
+	case errors.Is(txErr, context.DeadlineExceeded):
 		errReason = "Timeout (/!\\ doesn't mean it failed)"
-	} else {
+	default:
 		// Unknown error
 		errReason = txErr.Error()
 	}

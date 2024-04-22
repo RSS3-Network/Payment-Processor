@@ -40,6 +40,44 @@ func (c *client) SaveBillingRecordCollected(ctx context.Context, billingRecord *
 	return c.database.WithContext(ctx).Create(&value).Error
 }
 
+func (c *client) prepareBillingCollectTokensCreateOrUpdateConsumptionLog(nowTime time.Time, k *table.GatewayKey, tx *gorm.DB) error {
+	var possibleExistLog table.GatewayConsumptionLog
+	err := tx.Where("consumption_date = ? AND key_id = ?", nowTime, k.ID).
+		First(&possibleExistLog).
+		Error
+
+	if err != nil {
+		// nolint: gocritic
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// Fine, let's create it
+			err = tx.Create(&table.GatewayConsumptionLog{
+				KeyID:           k.ID,
+				ConsumptionDate: nowTime,
+				RuUsed:          k.RuUsedCurrent,
+				APICalls:        k.APICallsCurrent,
+			}).Error
+		} else {
+			// TODO: Error happens, but we don't know what's this, create a new record for now.
+			err = tx.Create(&table.GatewayConsumptionLog{
+				KeyID:           k.ID,
+				ConsumptionDate: nowTime,
+				RuUsed:          k.RuUsedCurrent,
+				APICalls:        k.APICallsCurrent,
+			}).Error
+		}
+	} else {
+		// Already exists - this shouldn't happen; but when it happens, it happens
+		err = tx.Model(&table.GatewayConsumptionLog{}).
+			Where("id = ?", possibleExistLog.ID).
+			Updates(map[string]interface{}{
+				"ru_used":   gorm.Expr("ru_used + ?", k.RuUsedCurrent),
+				"api_calls": gorm.Expr("api_calls + ?", k.APICallsCurrent),
+			}).Error
+	}
+
+	return err
+}
+
 func (c *client) PrepareBillingCollectTokens(ctx context.Context, nowTime time.Time) (*map[common.Address]schema.BillingCollectDataPerAddress, error) {
 	// Get all keys whose ru_used_current is > 0
 	var activeKeys []table.GatewayKey
@@ -66,38 +104,10 @@ func (c *client) PrepareBillingCollectTokens(ctx context.Context, nowTime time.T
 	for _, k := range activeKeys {
 		// w/ database tx
 		err = c.database.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+			k := k
+
 			// Create or update consumption log
-			var possibleExistLog table.GatewayConsumptionLog
-			err = tx.Where("consumption_date = ? AND key_id = ?", nowTime, k.ID).
-				First(&possibleExistLog).
-				Error
-			if err != nil {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					// Fine, let's create it
-					err = tx.Create(&table.GatewayConsumptionLog{
-						KeyID:           k.ID,
-						ConsumptionDate: nowTime,
-						RuUsed:          k.RuUsedCurrent,
-						APICalls:        k.APICallsCurrent,
-					}).Error
-				} else {
-					// Error happens, but we don't know what's this, create a new record for now.
-					err = tx.Create(&table.GatewayConsumptionLog{
-						KeyID:           k.ID,
-						ConsumptionDate: nowTime,
-						RuUsed:          k.RuUsedCurrent,
-						APICalls:        k.APICallsCurrent,
-					}).Error
-				}
-			} else {
-				// Already exists - this shouldn't happen; but when it happens, it happens
-				err = tx.Model(&table.GatewayConsumptionLog{}).
-					Where("id = ?", possibleExistLog.ID).
-					Updates(map[string]interface{}{
-						"ru_used":   gorm.Expr("ru_used + ?", k.RuUsedCurrent),
-						"api_calls": gorm.Expr("api_calls + ?", k.APICallsCurrent),
-					}).Error
-			}
+			err = c.prepareBillingCollectTokensCreateOrUpdateConsumptionLog(nowTime, &k, tx)
 			if err != nil {
 				zap.L().Error("create or update consumption log", zap.Error(err), zap.Any("key", k))
 				// but no need to stop here - data error can be fixed later, let's focus on billing now

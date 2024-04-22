@@ -15,19 +15,19 @@ import (
 
 type Opts func(*config)
 
-//func SetSwaggerHost(host string) Opts {
+// func SetSwaggerHost(host string) Opts {
 //	return func(o *config) {
 //		o.SwaggerHost = host
 //	}
 //}
 //
-//func SetSwaggerAuthorizer(f func(*http.Request) bool) Opts {
+// func SetSwaggerAuthorizer(f func(*http.Request) bool) Opts {
 //	return func(o *config) {
 //		o.Authorizer = f
 //	}
 //}
 //
-//func SetSwaggerIsHTTPS(b bool) Opts {
+// func SetSwaggerIsHTTPS(b bool) Opts {
 //	return func(o *config) {
 //		o.IsHTTPS = b
 //	}
