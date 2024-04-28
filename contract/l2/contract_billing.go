@@ -31,7 +31,7 @@ var (
 
 // BillingMetaData contains all meta data concerning the Billing contract.
 var BillingMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"constructor\",\"inputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"COLLECTOR_ROLE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"DEFAULT_ADMIN_ROLE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"balanceOf\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"collectTokens\",\"inputs\":[{\"name\":\"users\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"amounts\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[{\"name\":\"totalCollected\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"collectedBalance\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"deposit\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"distributeRewards\",\"inputs\":[{\"name\":\"nodeAddrs\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"rewards\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"getRoleAdmin\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getRoleMember\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getRoleMemberCount\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"grantRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"hasRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"staking\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"collector\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"renounceRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"revokeRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"stakingContract\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"supportsInterface\",\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\",\"internalType\":\"bytes4\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"withdrawTokens\",\"inputs\":[{\"name\":\"users\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"amounts\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RewardsDistributed\",\"inputs\":[{\"name\":\"nodeAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"receiver\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"isPublicGood\",\"type\":\"bool\",\"indexed\":false,\"internalType\":\"bool\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleAdminChanged\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"previousAdminRole\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"newAdminRole\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleGranted\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"sender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleRevoked\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"sender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensCollected\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensDeposited\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensWithdrawn\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"ErrInvalidArrayLength\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"ErrTransferFailed\",\"inputs\":[]}]",
+	ABI: "[{\"type\":\"constructor\",\"inputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"COLLECTOR_ROLE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"DEFAULT_ADMIN_ROLE\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"EPOCH_DURATION\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"balanceOf\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"collectTokens\",\"inputs\":[{\"name\":\"epoch\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"users\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"amounts\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[{\"name\":\"totalCollected\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"collectedBalance\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"currentEpoch\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"deposit\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"distributeRewards\",\"inputs\":[{\"name\":\"nodeAddrs\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"rewards\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"getRoleAdmin\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getRoleMember\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getRoleMemberCount\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getSnapshot\",\"inputs\":[{\"name\":\"epoch\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"totalCollected\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"totalDistributed\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"grantRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"hasRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"staking\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"collector\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"startTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"startEpoch\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"renounceRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"revokeRole\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"stakingContract\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"supportsInterface\",\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\",\"internalType\":\"bytes4\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"withdrawTokens\",\"inputs\":[{\"name\":\"users\",\"type\":\"address[]\",\"internalType\":\"address[]\"},{\"name\":\"amounts\",\"type\":\"uint256[]\",\"internalType\":\"uint256[]\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RewardsDistributed\",\"inputs\":[{\"name\":\"nodeAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"receiver\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"isPublicGood\",\"type\":\"bool\",\"indexed\":false,\"internalType\":\"bool\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleAdminChanged\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"previousAdminRole\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"newAdminRole\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleGranted\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"sender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"RoleRevoked\",\"inputs\":[{\"name\":\"role\",\"type\":\"bytes32\",\"indexed\":true,\"internalType\":\"bytes32\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"sender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensCollected\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensDeposited\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"TokensWithdrawn\",\"inputs\":[{\"name\":\"user\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"amount\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AddressAlreadyCollected\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"AddressAlreadyDistributed\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ErrInvalidArrayLength\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"ErrTransferFailed\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"InvalidEpochNumber\",\"inputs\":[{\"name\":\"currentEpoch\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"epoch\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"SubmissionIntervalNotElapsed\",\"inputs\":[]}]",
 }
 
 // BillingABI is the input ABI used to generate the binding from.
@@ -242,6 +242,37 @@ func (_Billing *BillingCallerSession) DEFAULTADMINROLE() ([32]byte, error) {
 	return _Billing.Contract.DEFAULTADMINROLE(&_Billing.CallOpts)
 }
 
+// EPOCHDURATION is a free data retrieval call binding the contract method 0xa70b9f0c.
+//
+// Solidity: function EPOCH_DURATION() view returns(uint256)
+func (_Billing *BillingCaller) EPOCHDURATION(opts *bind.CallOpts) (*big.Int, error) {
+	var out []interface{}
+	err := _Billing.contract.Call(opts, &out, "EPOCH_DURATION")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// EPOCHDURATION is a free data retrieval call binding the contract method 0xa70b9f0c.
+//
+// Solidity: function EPOCH_DURATION() view returns(uint256)
+func (_Billing *BillingSession) EPOCHDURATION() (*big.Int, error) {
+	return _Billing.Contract.EPOCHDURATION(&_Billing.CallOpts)
+}
+
+// EPOCHDURATION is a free data retrieval call binding the contract method 0xa70b9f0c.
+//
+// Solidity: function EPOCH_DURATION() view returns(uint256)
+func (_Billing *BillingCallerSession) EPOCHDURATION() (*big.Int, error) {
+	return _Billing.Contract.EPOCHDURATION(&_Billing.CallOpts)
+}
+
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
 // Solidity: function balanceOf(address user) view returns(uint256)
@@ -302,6 +333,37 @@ func (_Billing *BillingSession) CollectedBalance() (*big.Int, error) {
 // Solidity: function collectedBalance() view returns(uint256)
 func (_Billing *BillingCallerSession) CollectedBalance() (*big.Int, error) {
 	return _Billing.Contract.CollectedBalance(&_Billing.CallOpts)
+}
+
+// CurrentEpoch is a free data retrieval call binding the contract method 0x76671808.
+//
+// Solidity: function currentEpoch() view returns(uint256)
+func (_Billing *BillingCaller) CurrentEpoch(opts *bind.CallOpts) (*big.Int, error) {
+	var out []interface{}
+	err := _Billing.contract.Call(opts, &out, "currentEpoch")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// CurrentEpoch is a free data retrieval call binding the contract method 0x76671808.
+//
+// Solidity: function currentEpoch() view returns(uint256)
+func (_Billing *BillingSession) CurrentEpoch() (*big.Int, error) {
+	return _Billing.Contract.CurrentEpoch(&_Billing.CallOpts)
+}
+
+// CurrentEpoch is a free data retrieval call binding the contract method 0x76671808.
+//
+// Solidity: function currentEpoch() view returns(uint256)
+func (_Billing *BillingCallerSession) CurrentEpoch() (*big.Int, error) {
+	return _Billing.Contract.CurrentEpoch(&_Billing.CallOpts)
 }
 
 // GetRoleAdmin is a free data retrieval call binding the contract method 0x248a9ca3.
@@ -397,6 +459,51 @@ func (_Billing *BillingCallerSession) GetRoleMemberCount(role [32]byte) (*big.In
 	return _Billing.Contract.GetRoleMemberCount(&_Billing.CallOpts, role)
 }
 
+// GetSnapshot is a free data retrieval call binding the contract method 0x76f10ad0.
+//
+// Solidity: function getSnapshot(uint256 epoch) view returns(uint256 totalCollected, uint256 totalDistributed)
+func (_Billing *BillingCaller) GetSnapshot(opts *bind.CallOpts, epoch *big.Int) (struct {
+	TotalCollected   *big.Int
+	TotalDistributed *big.Int
+}, error) {
+	var out []interface{}
+	err := _Billing.contract.Call(opts, &out, "getSnapshot", epoch)
+
+	outstruct := new(struct {
+		TotalCollected   *big.Int
+		TotalDistributed *big.Int
+	})
+	if err != nil {
+		return *outstruct, err
+	}
+
+	outstruct.TotalCollected = *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+	outstruct.TotalDistributed = *abi.ConvertType(out[1], new(*big.Int)).(**big.Int)
+
+	return *outstruct, err
+
+}
+
+// GetSnapshot is a free data retrieval call binding the contract method 0x76f10ad0.
+//
+// Solidity: function getSnapshot(uint256 epoch) view returns(uint256 totalCollected, uint256 totalDistributed)
+func (_Billing *BillingSession) GetSnapshot(epoch *big.Int) (struct {
+	TotalCollected   *big.Int
+	TotalDistributed *big.Int
+}, error) {
+	return _Billing.Contract.GetSnapshot(&_Billing.CallOpts, epoch)
+}
+
+// GetSnapshot is a free data retrieval call binding the contract method 0x76f10ad0.
+//
+// Solidity: function getSnapshot(uint256 epoch) view returns(uint256 totalCollected, uint256 totalDistributed)
+func (_Billing *BillingCallerSession) GetSnapshot(epoch *big.Int) (struct {
+	TotalCollected   *big.Int
+	TotalDistributed *big.Int
+}, error) {
+	return _Billing.Contract.GetSnapshot(&_Billing.CallOpts, epoch)
+}
+
 // HasRole is a free data retrieval call binding the contract method 0x91d14854.
 //
 // Solidity: function hasRole(bytes32 role, address account) view returns(bool)
@@ -490,25 +597,25 @@ func (_Billing *BillingCallerSession) SupportsInterface(interfaceId [4]byte) (bo
 	return _Billing.Contract.SupportsInterface(&_Billing.CallOpts, interfaceId)
 }
 
-// CollectTokens is a paid mutator transaction binding the contract method 0xf0dc4171.
+// CollectTokens is a paid mutator transaction binding the contract method 0xc929f03d.
 //
-// Solidity: function collectTokens(address[] users, uint256[] amounts) returns(uint256 totalCollected)
-func (_Billing *BillingTransactor) CollectTokens(opts *bind.TransactOpts, users []common.Address, amounts []*big.Int) (*types.Transaction, error) {
-	return _Billing.contract.Transact(opts, "collectTokens", users, amounts)
+// Solidity: function collectTokens(uint256 epoch, address[] users, uint256[] amounts) returns(uint256 totalCollected)
+func (_Billing *BillingTransactor) CollectTokens(opts *bind.TransactOpts, epoch *big.Int, users []common.Address, amounts []*big.Int) (*types.Transaction, error) {
+	return _Billing.contract.Transact(opts, "collectTokens", epoch, users, amounts)
 }
 
-// CollectTokens is a paid mutator transaction binding the contract method 0xf0dc4171.
+// CollectTokens is a paid mutator transaction binding the contract method 0xc929f03d.
 //
-// Solidity: function collectTokens(address[] users, uint256[] amounts) returns(uint256 totalCollected)
-func (_Billing *BillingSession) CollectTokens(users []common.Address, amounts []*big.Int) (*types.Transaction, error) {
-	return _Billing.Contract.CollectTokens(&_Billing.TransactOpts, users, amounts)
+// Solidity: function collectTokens(uint256 epoch, address[] users, uint256[] amounts) returns(uint256 totalCollected)
+func (_Billing *BillingSession) CollectTokens(epoch *big.Int, users []common.Address, amounts []*big.Int) (*types.Transaction, error) {
+	return _Billing.Contract.CollectTokens(&_Billing.TransactOpts, epoch, users, amounts)
 }
 
-// CollectTokens is a paid mutator transaction binding the contract method 0xf0dc4171.
+// CollectTokens is a paid mutator transaction binding the contract method 0xc929f03d.
 //
-// Solidity: function collectTokens(address[] users, uint256[] amounts) returns(uint256 totalCollected)
-func (_Billing *BillingTransactorSession) CollectTokens(users []common.Address, amounts []*big.Int) (*types.Transaction, error) {
-	return _Billing.Contract.CollectTokens(&_Billing.TransactOpts, users, amounts)
+// Solidity: function collectTokens(uint256 epoch, address[] users, uint256[] amounts) returns(uint256 totalCollected)
+func (_Billing *BillingTransactorSession) CollectTokens(epoch *big.Int, users []common.Address, amounts []*big.Int) (*types.Transaction, error) {
+	return _Billing.Contract.CollectTokens(&_Billing.TransactOpts, epoch, users, amounts)
 }
 
 // Deposit is a paid mutator transaction binding the contract method 0xd0e30db0.
@@ -574,25 +681,25 @@ func (_Billing *BillingTransactorSession) GrantRole(role [32]byte, account commo
 	return _Billing.Contract.GrantRole(&_Billing.TransactOpts, role, account)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0x485cc955.
+// Initialize is a paid mutator transaction binding the contract method 0xeb990c59.
 //
-// Solidity: function initialize(address staking, address collector) returns()
-func (_Billing *BillingTransactor) Initialize(opts *bind.TransactOpts, staking common.Address, collector common.Address) (*types.Transaction, error) {
-	return _Billing.contract.Transact(opts, "initialize", staking, collector)
+// Solidity: function initialize(address staking, address collector, uint256 startTime, uint256 startEpoch) returns()
+func (_Billing *BillingTransactor) Initialize(opts *bind.TransactOpts, staking common.Address, collector common.Address, startTime *big.Int, startEpoch *big.Int) (*types.Transaction, error) {
+	return _Billing.contract.Transact(opts, "initialize", staking, collector, startTime, startEpoch)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0x485cc955.
+// Initialize is a paid mutator transaction binding the contract method 0xeb990c59.
 //
-// Solidity: function initialize(address staking, address collector) returns()
-func (_Billing *BillingSession) Initialize(staking common.Address, collector common.Address) (*types.Transaction, error) {
-	return _Billing.Contract.Initialize(&_Billing.TransactOpts, staking, collector)
+// Solidity: function initialize(address staking, address collector, uint256 startTime, uint256 startEpoch) returns()
+func (_Billing *BillingSession) Initialize(staking common.Address, collector common.Address, startTime *big.Int, startEpoch *big.Int) (*types.Transaction, error) {
+	return _Billing.Contract.Initialize(&_Billing.TransactOpts, staking, collector, startTime, startEpoch)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0x485cc955.
+// Initialize is a paid mutator transaction binding the contract method 0xeb990c59.
 //
-// Solidity: function initialize(address staking, address collector) returns()
-func (_Billing *BillingTransactorSession) Initialize(staking common.Address, collector common.Address) (*types.Transaction, error) {
-	return _Billing.Contract.Initialize(&_Billing.TransactOpts, staking, collector)
+// Solidity: function initialize(address staking, address collector, uint256 startTime, uint256 startEpoch) returns()
+func (_Billing *BillingTransactorSession) Initialize(staking common.Address, collector common.Address, startTime *big.Int, startEpoch *big.Int) (*types.Transaction, error) {
+	return _Billing.Contract.Initialize(&_Billing.TransactOpts, staking, collector, startTime, startEpoch)
 }
 
 // RenounceRole is a paid mutator transaction binding the contract method 0x36568abe.

@@ -32,6 +32,19 @@
 	},
 	{
 		"type": "function",
+		"name": "EPOCH_DURATION",
+		"inputs": [],
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256",
+				"internalType": "uint256"
+			}
+		],
+		"stateMutability": "view"
+	},
+	{
+		"type": "function",
 		"name": "balanceOf",
 		"inputs": [
 			{
@@ -53,6 +66,11 @@
 		"type": "function",
 		"name": "collectTokens",
 		"inputs": [
+			{
+				"name": "epoch",
+				"type": "uint256",
+				"internalType": "uint256"
+			},
 			{
 				"name": "users",
 				"type": "address[]",
@@ -76,6 +94,19 @@
 	{
 		"type": "function",
 		"name": "collectedBalance",
+		"inputs": [],
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256",
+				"internalType": "uint256"
+			}
+		],
+		"stateMutability": "view"
+	},
+	{
+		"type": "function",
+		"name": "currentEpoch",
 		"inputs": [],
 		"outputs": [
 			{
@@ -175,6 +206,30 @@
 	},
 	{
 		"type": "function",
+		"name": "getSnapshot",
+		"inputs": [
+			{
+				"name": "epoch",
+				"type": "uint256",
+				"internalType": "uint256"
+			}
+		],
+		"outputs": [
+			{
+				"name": "totalCollected",
+				"type": "uint256",
+				"internalType": "uint256"
+			},
+			{
+				"name": "totalDistributed",
+				"type": "uint256",
+				"internalType": "uint256"
+			}
+		],
+		"stateMutability": "view"
+	},
+	{
+		"type": "function",
 		"name": "grantRole",
 		"inputs": [
 			{
@@ -228,6 +283,16 @@
 				"name": "collector",
 				"type": "address",
 				"internalType": "address"
+			},
+			{
+				"name": "startTime",
+				"type": "uint256",
+				"internalType": "uint256"
+			},
+			{
+				"name": "startEpoch",
+				"type": "uint256",
+				"internalType": "uint256"
 			}
 		],
 		"outputs": [],
@@ -497,12 +562,55 @@
 	},
 	{
 		"type": "error",
+		"name": "AddressAlreadyCollected",
+		"inputs": [
+			{
+				"name": "",
+				"type": "address",
+				"internalType": "address"
+			}
+		]
+	},
+	{
+		"type": "error",
+		"name": "AddressAlreadyDistributed",
+		"inputs": [
+			{
+				"name": "",
+				"type": "address",
+				"internalType": "address"
+			}
+		]
+	},
+	{
+		"type": "error",
 		"name": "ErrInvalidArrayLength",
 		"inputs": []
 	},
 	{
 		"type": "error",
 		"name": "ErrTransferFailed",
+		"inputs": []
+	},
+	{
+		"type": "error",
+		"name": "InvalidEpochNumber",
+		"inputs": [
+			{
+				"name": "currentEpoch",
+				"type": "uint256",
+				"internalType": "uint256"
+			},
+			{
+				"name": "epoch",
+				"type": "uint256",
+				"internalType": "uint256"
+			}
+		]
+	},
+	{
+		"type": "error",
+		"name": "SubmissionIntervalNotElapsed",
 		"inputs": []
 	}
 ]

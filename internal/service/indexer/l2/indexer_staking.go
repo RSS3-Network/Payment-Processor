@@ -91,7 +91,7 @@ func (s *server) closeEpoch(ctx context.Context, header *types.Header, epoch *bi
 
 func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	// 2.2-3. billing
-	totalCollected, err := s.billingFlow(ctx)
+	totalCollected, err := s.billingFlow(ctx, epoch)
 
 	if err != nil {
 		return fmt.Errorf("failed to execute billing flow: %w", err)

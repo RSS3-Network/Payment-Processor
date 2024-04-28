@@ -14,12 +14,12 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *server) billingFlow(ctx context.Context) (*big.Int, error) {
+func (s *server) billingFlow(ctx context.Context, epoch *big.Int) (*big.Int, error) {
 	// billing
 	var usersRequireRuLimitRefresh []common.Address
 
 	// Step 1: Collect
-	succeededUsers, totalCollected, err := s.billingCollect(ctx)
+	succeededUsers, totalCollected, err := s.billingCollect(ctx, epoch)
 
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (s *server) billingFlow(ctx context.Context) (*big.Int, error) {
 	return totalCollected, nil
 }
 
-func (s *server) billingCollect(ctx context.Context) ([]common.Address, *big.Int, error) {
+func (s *server) billingCollect(ctx context.Context, epoch *big.Int) ([]common.Address, *big.Int, error) {
 	// billing collect tokens
 	nowTime := time.Now() // Epoch round identifier for billing
 
@@ -79,7 +79,7 @@ func (s *server) billingCollect(ctx context.Context) ([]common.Address, *big.Int
 			limit = s.settlerConfig.BatchSize
 		}
 
-		err = s.triggerBillingCollectTokens(ctx, users[:limit], amounts[:limit])
+		err = s.triggerBillingCollectTokens(ctx, epoch, users[:limit], amounts[:limit])
 
 		if err == nil {
 			succeededUsers = append(succeededUsers, users[:limit]...)
@@ -236,9 +236,9 @@ func (s *server) buildBillingWithdrawTokens(ctx context.Context) ([]common.Addre
 	return users, amounts, nil
 }
 
-func (s *server) triggerBillingCollectTokens(ctx context.Context, users []common.Address, amounts []*big.Int) error {
+func (s *server) triggerBillingCollectTokens(ctx context.Context, epoch *big.Int, users []common.Address, amounts []*big.Int) error {
 	// Trigger collectTokens contract.
-	input, err := txmgr.EncodeInput(l2.BillingMetaData.ABI, l2.MethodCollectTokens, users, amounts)
+	input, err := txmgr.EncodeInput(l2.BillingMetaData.ABI, l2.MethodCollectTokens, epoch, users, amounts)
 
 	if err != nil {
 		return fmt.Errorf("encode input: %w", err)
