@@ -183,8 +183,8 @@ func (c *client) PrepareBillingWithdrawTokens(ctx context.Context) (*map[common.
 
 	// Delete
 	err = c.database.WithContext(ctx).
-		Delete(&billingWithdrawRequests).
 		Where("account_address IS NOT NULL").
+		Delete(&billingWithdrawRequests).
 		Error
 
 	if err != nil {
