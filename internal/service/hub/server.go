@@ -14,13 +14,13 @@ import (
 	"github.com/rss3-network/payment-processor/internal/config"
 	"github.com/rss3-network/payment-processor/internal/database"
 	"github.com/rss3-network/payment-processor/internal/service"
+	"github.com/rss3-network/payment-processor/internal/service/hub/apidocs"
 	"github.com/rss3-network/payment-processor/internal/service/hub/gen/oapi"
 	"github.com/rss3-network/payment-processor/internal/service/hub/handlers"
 	"github.com/rss3-network/payment-processor/internal/service/hub/jwt"
 	"github.com/rss3-network/payment-processor/internal/service/hub/middlewares"
 	"github.com/rss3-network/payment-processor/internal/service/hub/processors"
 	"github.com/rss3-network/payment-processor/internal/service/hub/siwe"
-	"github.com/rss3-network/payment-processor/internal/service/hub/swagger"
 	"github.com/sourcegraph/conc/pool"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -132,7 +132,7 @@ func configureMiddlewares(isDevEnv bool, e *echo.Echo, app *handlers.App, jwtCli
 			zap.L().Error("marshal swagger doc", zap.Error(err))
 		}
 
-		e.Pre(swagger.Doc("/", swgJSON))
+		e.Pre(apidocs.Doc("/", swgJSON))
 	}
 
 	// Check user authentication

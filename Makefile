@@ -26,7 +26,7 @@ run:
 	ENVIRONMENT=development go run ./cmd
 
 .PHONY: genoapi
-OAPI_SPEC ?= docs/gateway.yml
+OAPI_SPEC ?= docs/payment-processor.yml
 OAPI_TARGET ?= internal/service/hub/gen/oapi/
 OAPI_TARGET_FILENAME ?= oapi.go
 genoapi:

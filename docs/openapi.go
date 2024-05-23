@@ -2,5 +2,5 @@ package docs
 
 import "embed"
 
-//go:embed gateway.yml
+//go:embed payment-processor.yml
 var EmbedFS embed.FS
