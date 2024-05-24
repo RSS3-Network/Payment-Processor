@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"moul.io/zapgorm2"
 )
 
 var _ database.Client = (*client)(nil)
@@ -112,14 +111,7 @@ func (c *client) Raw() *gorm.DB {
 
 // Dial dials a database.
 func Dial(_ context.Context, dataSourceName string) (database.Client, error) {
-	logger := zapgorm2.New(zap.L())
-	logger.SetAsDefault()
-
-	config := gorm.Config{
-		Logger: logger,
-	}
-
-	databaseClient, err := gorm.Open(postgres.Open(dataSourceName), &config)
+	databaseClient, err := gorm.Open(postgres.Open(dataSourceName))
 	if err != nil {
 		return nil, fmt.Errorf("dial database: %w", err)
 	}
