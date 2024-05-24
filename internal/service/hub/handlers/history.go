@@ -21,7 +21,9 @@ func (app *App) GetDepositHistory(ctx echo.Context, params oapi.GetDepositHistor
 	// Query from database
 	query := app.databaseClient.WithContext(ctx.Request().Context()).
 		Model(&table.BillingRecordDeposited{}).
-		Where("user = ?", user.Address.Hex())
+		Where(&table.BillingRecordDeposited{
+			User: user.Address,
+		})
 
 	var totalCount int64
 	err := query.Count(&totalCount).Error
@@ -71,7 +73,9 @@ func (app *App) GetWithdrawalHistory(ctx echo.Context, params oapi.GetWithdrawal
 	// Query from database
 	query := app.databaseClient.WithContext(ctx.Request().Context()).
 		Model(&table.BillingRecordWithdrawal{}).
-		Where("user = ?", user.Address.Hex())
+		Where(&table.BillingRecordWithdrawal{
+			User: user.Address,
+		})
 
 	var totalCount int64
 	err := query.Count(&totalCount).Error
@@ -123,7 +127,9 @@ func (app *App) GetCollectionHistory(ctx echo.Context, params oapi.GetCollection
 	// Query from database
 	query := app.databaseClient.WithContext(ctx.Request().Context()).
 		Model(&table.BillingRecordCollected{}).
-		Where("user = ?", user.Address.Hex())
+		Where(&table.BillingRecordCollected{
+			User: user.Address,
+		})
 
 	var totalCount int64
 	err := query.Count(&totalCount).Error
