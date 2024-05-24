@@ -9,6 +9,7 @@ import (
 	"github.com/rss3-network/payment-processor/internal/service/hub/gen/oapi"
 	"github.com/rss3-network/payment-processor/internal/service/hub/model"
 	"github.com/rss3-network/payment-processor/internal/service/hub/utils"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -34,6 +35,7 @@ func (app *App) GetPendingRequestWithdraw(ctx echo.Context) error {
 	}
 
 	if err != nil {
+		zap.L().Error("GetPendingRequestWithdraw", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -85,6 +87,7 @@ func (app *App) SetPendingRequestWithdraw(ctx echo.Context, params oapi.SetPendi
 	}
 
 	if err != nil {
+		zap.L().Error("SetPendingRequestWithdraw", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 

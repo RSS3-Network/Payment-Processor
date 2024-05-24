@@ -61,6 +61,7 @@ func (app *App) SIWEVerify(ctx echo.Context) error {
 	acc, err := model.AccountGetOrCreate(ctx.Request().Context(), *address, app.databaseClient, app.controlClient)
 
 	if err != nil {
+		zap.L().Error("SIWEVerify AccountGetOrCreate", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -73,6 +74,7 @@ func (app *App) SIWEVerify(ctx echo.Context) error {
 	})
 
 	if err != nil {
+		zap.L().Error("SIWEVerify JWT SignToken", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -10,12 +9,13 @@ import (
 	"github.com/rss3-network/payment-processor/internal/service/hub/model"
 	"github.com/rss3-network/payment-processor/internal/service/hub/utils"
 	"github.com/samber/lo"
+	"go.uber.org/zap"
 )
 
 func (app *App) DeleteKey(ctx echo.Context, keyID string) error {
 	k, exist, err := app.getKey(ctx, keyID)
 	if err != nil {
-		log.Print(err)
+		zap.L().Error("DeleteKey getKey", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	} else if !exist {
 		return utils.SendJSONError(ctx, http.StatusNotFound)
@@ -23,7 +23,7 @@ func (app *App) DeleteKey(ctx echo.Context, keyID string) error {
 
 	err = k.Delete(ctx.Request().Context())
 	if err != nil {
-		log.Print(err)
+		zap.L().Error("DeleteKey Delete", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -40,7 +40,7 @@ func (app *App) GenerateKey(ctx echo.Context) error {
 
 	k, err := model.KeyCreate(ctx.Request().Context(), user.Address, *req.Name, app.databaseClient, app.controlClient)
 	if err != nil {
-		log.Print(err)
+		zap.L().Error("GenerateKey", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -50,7 +50,7 @@ func (app *App) GenerateKey(ctx echo.Context) error {
 func (app *App) GetKey(ctx echo.Context, keyID string) error {
 	k, exist, err := app.getKey(ctx, keyID)
 	if err != nil {
-		log.Print(err)
+		zap.L().Error("GetKey", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	} else if !exist {
 		return utils.SendJSONError(ctx, http.StatusNotFound)
@@ -64,7 +64,7 @@ func (app *App) GetKeys(ctx echo.Context) error {
 
 	keys, err := user.ListKeys(ctx.Request().Context())
 	if err != nil {
-		log.Print(err)
+		zap.L().Error("GetKeys", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -84,7 +84,7 @@ func (app *App) UpdateKeyInfo(ctx echo.Context, keyID string) error {
 
 	k, exist, err := app.getKey(ctx, keyID)
 	if err != nil {
-		log.Print(err)
+		zap.L().Error("UpdateKeyInfo getKey", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	} else if !exist {
 		return utils.SendJSONError(ctx, http.StatusNotFound)
@@ -92,6 +92,7 @@ func (app *App) UpdateKeyInfo(ctx echo.Context, keyID string) error {
 
 	err = k.UpdateInfo(ctx.Request().Context(), *req.Name)
 	if err != nil {
+		zap.L().Error("UpdateKeyInfo UpdateInfo", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -101,7 +102,7 @@ func (app *App) UpdateKeyInfo(ctx echo.Context, keyID string) error {
 func (app *App) RotateKey(ctx echo.Context, keyID string) error {
 	k, exist, err := app.getKey(ctx, keyID)
 	if err != nil {
-		log.Print(err)
+		zap.L().Error("RotateKey getKey", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	} else if !exist {
 		return utils.SendJSONError(ctx, http.StatusNotFound)
@@ -109,7 +110,7 @@ func (app *App) RotateKey(ctx echo.Context, keyID string) error {
 
 	err = k.Rotate(ctx.Request().Context())
 	if err != nil {
-		log.Print(err)
+		zap.L().Error("RotateKey Rotate", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 

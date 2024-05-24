@@ -7,6 +7,7 @@ import (
 	"github.com/rss3-network/payment-processor/internal/service/hub/gen/oapi"
 	"github.com/rss3-network/payment-processor/internal/service/hub/model"
 	"github.com/rss3-network/payment-processor/internal/service/hub/utils"
+	"go.uber.org/zap"
 )
 
 func (app *App) GetRUStatus(ctx echo.Context) error {
@@ -14,6 +15,7 @@ func (app *App) GetRUStatus(ctx echo.Context) error {
 
 	ruUsedTotal, ruUsedCurrent, apiCallsTotal, apiCallsCurrent, err := user.GetUsage(ctx.Request().Context())
 	if err != nil {
+		zap.L().Error("GetRUStatus", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 

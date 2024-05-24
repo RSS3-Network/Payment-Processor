@@ -10,6 +10,7 @@ import (
 	"github.com/rss3-network/payment-processor/internal/service/hub/model"
 	"github.com/rss3-network/payment-processor/internal/service/hub/utils"
 	"github.com/samber/lo"
+	"go.uber.org/zap"
 )
 
 func (app *App) GetDepositHistory(ctx echo.Context, params oapi.GetDepositHistoryParams) error {
@@ -29,6 +30,7 @@ func (app *App) GetDepositHistory(ctx echo.Context, params oapi.GetDepositHistor
 	err := query.Count(&totalCount).Error
 
 	if err != nil {
+		zap.L().Error("GetDepositHistory count", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -36,6 +38,7 @@ func (app *App) GetDepositHistory(ctx echo.Context, params oapi.GetDepositHistor
 	err = query.Order("block_timestamp DESC").Offset(limit * (page - 1)).Limit(limit).Find(&records).Error
 
 	if err != nil {
+		zap.L().Error("GetDepositHistory query", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -81,6 +84,7 @@ func (app *App) GetWithdrawalHistory(ctx echo.Context, params oapi.GetWithdrawal
 	err := query.Count(&totalCount).Error
 
 	if err != nil {
+		zap.L().Error("GetWithdrawalHistory count", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -88,6 +92,7 @@ func (app *App) GetWithdrawalHistory(ctx echo.Context, params oapi.GetWithdrawal
 	err = query.Order("block_timestamp DESC").Offset(limit * (page - 1)).Limit(limit).Find(&records).Error
 
 	if err != nil {
+		zap.L().Error("GetWithdrawalHistory query", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -135,6 +140,7 @@ func (app *App) GetCollectionHistory(ctx echo.Context, params oapi.GetCollection
 	err := query.Count(&totalCount).Error
 
 	if err != nil {
+		zap.L().Error("GetCollectionHistory count", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -142,6 +148,7 @@ func (app *App) GetCollectionHistory(ctx echo.Context, params oapi.GetCollection
 	err = query.Order("block_timestamp DESC").Offset(limit * (page - 1)).Limit(limit).Find(&records).Error
 
 	if err != nil {
+		zap.L().Error("GetCollectionHistory query", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -176,6 +183,7 @@ func (app *App) GetConsumptionHistoryByKey(ctx echo.Context, keyID string, param
 	// Query from database
 	k, exist, err := app.getKey(ctx, keyID)
 	if err != nil {
+		zap.L().Error("GetConsumptionHistoryByKey getKey", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	} else if !exist {
 		return utils.SendJSONError(ctx, http.StatusNotFound)
@@ -190,6 +198,7 @@ func (app *App) GetConsumptionHistoryByKey(ctx echo.Context, keyID string, param
 		Error
 
 	if err != nil {
+		zap.L().Error("GetConsumptionHistoryByKey query", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
@@ -241,6 +250,7 @@ func (app *App) GetConsumptionHistoryByAccount(ctx echo.Context, params oapi.Get
 	logs, err := user.GetUsageByDate(ctx.Request().Context(), since, until)
 
 	if err != nil {
+		zap.L().Error("GetUsageByDate", zap.Error(err))
 		return utils.SendJSONError(ctx, http.StatusInternalServerError)
 	}
 
