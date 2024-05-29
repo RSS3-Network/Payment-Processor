@@ -20,7 +20,7 @@ var ContractMap = map[uint64]*struct {
 
 var (
 	EventHashBillingTokensDeposited = crypto.Keccak256Hash([]byte("TokensDeposited(address,uint256)"))
-	EventHashBillingTokensWithdrawn = crypto.Keccak256Hash([]byte("TokensWithdrawn(address,uint256,uint256)"))
+	EventHashBillingTokensWithdrawn = crypto.Keccak256Hash([]byte("TokensWithdrawn(address,uint256)"))
 	EventHashBillingTokensCollected = crypto.Keccak256Hash([]byte("TokensCollected(address,uint256)"))
 
 	EventHashStakingRewardDistributed = crypto.Keccak256Hash([]byte("RewardDistributed(uint256,uint256,uint256,address[],uint256[],uint256[],uint256[],uint256[])"))
