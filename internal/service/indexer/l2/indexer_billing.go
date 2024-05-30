@@ -74,6 +74,7 @@ func (s *server) indexBillingTokensWithdrawnLog(ctx context.Context, header *typ
 
 	billingRecord := schema.BillingRecordWithdrawal{
 		BillingRecordBase: schema.BillingRecordParseBase(s.chainID.Uint64(), header, transaction, receipt, billingTokensWithdrawnEvent.User, billingTokensWithdrawnEvent.Amount),
+		Fee:               big.NewInt(0),
 	}
 
 	if err := databaseTransaction.SaveBillingRecordWithdrawal(ctx, &billingRecord); err != nil {
