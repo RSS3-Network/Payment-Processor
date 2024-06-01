@@ -279,10 +279,8 @@ func (app *App) GetConsumptionHistoryByAccount(ctx echo.Context, params oapi.Get
 		})
 	} else {
 		for _, log := range *logs {
-			consumptionDate := log.ConsumptionDate.UnixMilli()
 			*resp.History = append(*resp.History, oapi.ConsumptionLogByKey{
-				KeyName:         lo.ToPtr(log.Key.Name),
-				ConsumptionDate: lo.ToPtr(consumptionDate),
+				ConsumptionDate: lo.ToPtr(log.ConsumptionTimestamp),
 				ApiCalls:        lo.ToPtr(log.APICalls),
 				RuUsed:          lo.ToPtr(log.RuUsed),
 			})

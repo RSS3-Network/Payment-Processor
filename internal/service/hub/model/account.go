@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rss3-network/gateway-common/control"
 	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/payment-processor/schema"
 	"gorm.io/gorm"
 )
 
@@ -105,16 +106,16 @@ func (acc *Account) GetUsage(ctx context.Context) (int64, int64, int64, int64, e
 	return status.RuUsedTotal, status.RuUsedCurrent, status.APICallsTotal, status.APICallsCurrent, err
 }
 
-func (acc *Account) GetUsageByDate(ctx context.Context, since time.Time, until time.Time) (*[]table.GatewayConsumptionLog, error) {
-	var logs []table.GatewayConsumptionLog
+func (acc *Account) GetUsageByDate(ctx context.Context, since time.Time, until time.Time) (*[]schema.UsageByDate, error) {
+	var logs []schema.UsageByDate
 
 	err := acc.databaseClient.WithContext(ctx).
-		Model(&table.GatewayConsumptionLog{}).
+		Model(&schema.UsageByDate{}).
 		Joins("LEFT JOIN key ON consumption_log.key_id = key.id").
 		Where("account_address = ? AND consumption_date BETWEEN ? AND ?", acc.Address, since, until).
-		Select("SUM(ru_used) AS ru_used, SUM(api_calls) AS api_calls, (EXTRACT(EPOCH FROM consumption_date)*1000)::BIGINT AS consumption_date").
-		Group("consumption_date").
-		Order("consumption_date DESC").
+		Select("SUM(ru_used) AS ru_used, SUM(api_calls) AS api_calls, (EXTRACT(EPOCH FROM consumption_date)*1000)::BIGINT AS consumption_timestamp").
+		Group("consumption_timestamp").
+		Order("consumption_timestamp DESC").
 		Find(&logs).
 		Error
 
