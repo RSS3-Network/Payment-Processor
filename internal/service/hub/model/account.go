@@ -116,7 +116,7 @@ func (acc *Account) GetUsageByDate(ctx context.Context, since time.Time, until t
 		Select("SUM(ru_used) AS ru_used, SUM(api_calls) AS api_calls, (EXTRACT(EPOCH FROM consumption_date)*1000)::BIGINT AS consumption_timestamp").
 		Group("consumption_timestamp").
 		Order("consumption_timestamp DESC").
-		Find(&logs).
+		Scan(&logs).
 		Error
 
 	if err != nil {
