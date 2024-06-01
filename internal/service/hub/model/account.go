@@ -21,7 +21,8 @@ type Account struct {
 
 func AccountCreate(ctx context.Context, address common.Address, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*Account, error) {
 	acc := table.GatewayAccount{
-		Address: address,
+		Address:     address,
+		BillingRate: 1,
 	}
 	err := databaseClient.WithContext(ctx).
 		Save(&acc).
