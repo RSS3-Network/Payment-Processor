@@ -255,7 +255,7 @@ func (s *server) triggerBillingCollectTokens(ctx context.Context, epoch *big.Int
 	receipt, err := s.sendTransaction(ctx, input)
 
 	if err != nil {
-		s.ReportFailedTransactionToSlack(err, "", l2.MethodCollectTokens, users, amounts)
+		s.ReportFailedTransactionToSlack(err, receipt, l2.MethodCollectTokens, users, amounts)
 		return fmt.Errorf("send transaction receipt: %w", err)
 	}
 
@@ -275,7 +275,7 @@ func (s *server) triggerBillingWithdrawTokens(ctx context.Context, users []commo
 	receipt, err := s.sendTransaction(ctx, input)
 
 	if err != nil {
-		s.ReportFailedTransactionToSlack(err, "", l2.MethodWithdrawTokens, users, amounts)
+		s.ReportFailedTransactionToSlack(err, receipt, l2.MethodWithdrawTokens, users, amounts)
 		return fmt.Errorf("send transaction receipt: %w", err)
 	}
 

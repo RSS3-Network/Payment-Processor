@@ -12,6 +12,7 @@ import (
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 type SlackMessageElement struct {
@@ -31,7 +32,12 @@ type SlackMessageStructure struct {
 	Blocks  []SlackMessageBlock `json:"blocks"`
 }
 
-func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFunc string, users []common.Address, amount []*big.Int) {
+func (s *server) ReportFailedTransactionToSlack(txErr error, receipt *types.Receipt, txFunc string, users []common.Address, amount []*big.Int) {
+	txHash := "Unknown"
+	if receipt != nil {
+		txHash = receipt.TxHash.Hex()
+	}
+
 	log.Println("===================== Transaction Error =====================")
 	log.Printf("%s transaction error! Please check information below:", txFunc)
 	log.Printf("Transaction Hash: %s", txHash)
@@ -49,6 +55,11 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, txHash string, txFu
 
 	s.sendNotificationMessage(txErr, txHash, txFunc)
 	s.uploadUsersList(txHash, users, amount)
+
+	// select {} purposely block the process as it is a critical error and meaningless to continue
+	// if panic() is called, the process will be restarted by the supervisor
+	// we do not want that as it will be stuck in the same state
+	select {}
 }
 
 func (s *server) sendNotificationMessage(txErr error, txHash string, txFunc string) {

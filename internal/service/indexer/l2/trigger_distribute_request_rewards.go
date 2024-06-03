@@ -37,7 +37,7 @@ func (s *server) triggerDistributeRequestRewards(ctx context.Context, nodeAddres
 
 	receipt, err := s.sendTransaction(ctx, input)
 	if err != nil {
-		s.ReportFailedTransactionToSlack(err, "", l2.MethodDistributeRewards, nodeAddress, amounts)
+		s.ReportFailedTransactionToSlack(err, receipt, l2.MethodDistributeRewards, nodeAddress, amounts)
 		return fmt.Errorf("send transaction receipt: %w", err)
 	}
 

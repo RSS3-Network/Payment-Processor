@@ -32,7 +32,8 @@ func (s *server) sendTransaction(ctx context.Context, input []byte) (*types.Rece
 		// select {} purposely block the process as it is a critical error and meaningless to continue
 		// if panic() is called, the process will be restarted by the supervisor
 		// we do not want that as it will be stuck in the same state
-		select {}
+		// select {} // Move this process blocker after message report to notification system
+		return receipt, fmt.Errorf("received an invalid transaction receipt")
 	}
 
 	// return the receipt if the transaction is successful
