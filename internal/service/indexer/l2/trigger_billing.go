@@ -153,6 +153,8 @@ func (s *server) billingUpdateRuLimit(ctx context.Context, usersRequireRuLimitRe
 }
 
 func (s *server) buildBillingCollectTokens(ctx context.Context, nowTime time.Time) ([]common.Address, []*big.Int, error) {
+	zap.L().Debug("Build billing collect tokens")
+
 	collectTokensData, err := s.databaseClient.PrepareBillingCollectTokens(ctx, nowTime)
 
 	if err != nil {
@@ -183,18 +185,24 @@ func (s *server) buildBillingCollectTokens(ctx context.Context, nowTime time.Tim
 			big.NewFloat(ruC.BillingRate),
 		).Int(nil)
 
+		zap.L().Debug("calculate consumed token (real)", zap.String("addr", addr.Hex()), zap.String("token (raw)", consumedToken.String()))
+
 		// Check address balance, prevent from exceeding
 		balance, err := s.contractBilling.BalanceOf(&bind.CallOpts{
 			Context: ctx,
 		}, addr)
 
-		if err == nil && consumedToken.Cmp(balance) == 1 {
+		if err != nil {
+			zap.L().Error("check balance of address", zap.String("addr", addr.Hex()), zap.Error(err))
+		} else if consumedToken.Cmp(balance) == 1 {
 			// Balance not enough, only get balance to prevent calculation exceeds
 			consumedToken = balance
 		}
 
+		zap.L().Debug("calculate consumed token (collect)", zap.String("addr", addr.Hex()), zap.String("token (raw)", consumedToken.String()))
+
 		if consumedToken.Cmp(big.NewInt(0)) == 1 {
-			// consumedTokenDecimal > 0
+			// consumedToken > 0
 			users = append(users, addr)
 			amounts = append(amounts, consumedToken)
 		}
