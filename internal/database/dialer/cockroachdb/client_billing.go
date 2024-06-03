@@ -85,6 +85,7 @@ func (c *client) PrepareBillingCollectTokens(ctx context.Context, nowTime time.T
 	err := c.database.WithContext(ctx).
 		Model(&table.GatewayKey{}).
 		Where("ru_used_current > ?", 0).
+		Preload("Account").
 		Find(&activeKeys).
 		Error
 
@@ -136,6 +137,7 @@ func (c *client) PrepareBillingCollectTokens(ctx context.Context, nowTime time.T
 
 		if err != nil {
 			// Something wrong in database transaction, skip this key
+			zap.L().Error("process consumption log", zap.Error(err), zap.Any("key", k))
 			continue
 		}
 
