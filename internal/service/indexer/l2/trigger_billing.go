@@ -22,7 +22,7 @@ func (s *server) billingFlow(ctx context.Context, epoch *big.Int) (*big.Int, err
 	succeededUsers, totalCollected, err := s.billingCollect(ctx, epoch)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("billing collect failed with %w", err)
 	}
 
 	if succeededUsers != nil {
@@ -33,7 +33,7 @@ func (s *server) billingFlow(ctx context.Context, epoch *big.Int) (*big.Int, err
 	succeededUsers, err = s.billingWithdraw(ctx)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("billing withdraw failed with %w", err)
 	}
 
 	if succeededUsers != nil {
@@ -44,7 +44,7 @@ func (s *server) billingFlow(ctx context.Context, epoch *big.Int) (*big.Int, err
 	err = s.billingUpdateRuLimit(ctx, usersRequireRuLimitRefresh)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("billing update ru limit failed with %w", err)
 	}
 
 	return totalCollected, nil
@@ -81,7 +81,9 @@ func (s *server) billingCollect(ctx context.Context, epoch *big.Int) ([]common.A
 
 		err = s.triggerBillingCollectTokens(ctx, epoch, users[:limit], amounts[:limit])
 
-		if err == nil {
+		if err != nil {
+			zap.L().Error("trigger billing collect tokens", zap.Error(err), zap.Int64("epoch", epoch.Int64()), zap.Any("users", users[:limit]), zap.Any("amounts", amounts[:limit]))
+		} else {
 			succeededUsers = append(succeededUsers, users[:limit]...)
 
 			for _, amount := range amounts[limit:] {

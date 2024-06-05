@@ -97,8 +97,11 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 		return fmt.Errorf("failed to execute billing flow: %w", err)
 	}
 
+	zap.L().Debug("billing flow total collect", zap.String("token", totalCollected.String()))
+
 	if totalCollected.Cmp(big.NewInt(0)) == 0 {
 		// No request fees collect in this epoch, skip
+		zap.L().Info("no request fees collect in this epoch, skip")
 		return nil
 	}
 
@@ -118,6 +121,7 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 
 	if totalRequestCount.Cmp(big.NewInt(0)) == 0 {
 		// No requests happened in this epoch, skip
+		zap.L().Info("no requests happened in this epoch, skip")
 		return nil
 	}
 
