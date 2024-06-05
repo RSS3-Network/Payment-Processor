@@ -62,7 +62,15 @@ func (s *server) billingCollect(ctx context.Context, epoch *big.Int) ([]common.A
 	}
 
 	if users == nil || amounts == nil {
-		// Nothing to do
+		// Push an empty epoch
+		zap.L().Debug("pushing an empty epoch", zap.Int64("epoch", epoch.Int64()))
+
+		err = s.triggerBillingCollectTokens(ctx, epoch, []common.Address{}, []*big.Int{})
+
+		if err != nil {
+			return nil, nil, fmt.Errorf("trigger billing collect tokens: %w", err)
+		}
+
 		return nil, big.NewInt(0), nil
 	}
 
