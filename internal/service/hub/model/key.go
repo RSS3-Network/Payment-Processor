@@ -51,7 +51,10 @@ func KeyCreate(ctx context.Context, accountAddress common.Address, keyName strin
 }
 
 func KeyGetByID(ctx context.Context, keyID uint64, activeOnly bool, databaseClient *gorm.DB, controlClient *control.StateClientWriter) (*Key, bool, error) {
-	queryBase := databaseClient.WithContext(ctx).Model(&table.GatewayKey{})
+	queryBase := databaseClient.
+		WithContext(ctx).
+		Model(&table.GatewayKey{}).
+		Preload("Account")
 
 	if activeOnly {
 		queryBase = queryBase.Unscoped()
