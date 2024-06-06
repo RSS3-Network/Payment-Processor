@@ -19,7 +19,7 @@ type BillingRecordCollected struct {
 	UpdatedAt time.Time
 
 	TxHash         common.Hash `gorm:"primaryKey;type:bytea;column:tx_hash"`
-	Index          uint        `gorm:"column:index"`
+	Index          uint        `gorm:"primaryKey;column:index"`
 	ChainID        uint64      `gorm:"index;column:chain_id"`
 	BlockTimestamp time.Time   `gorm:"index;column:block_timestamp"`
 	BlockNumber    uint64      `gorm:"index;column:block_number"`
