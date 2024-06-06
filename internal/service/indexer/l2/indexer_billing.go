@@ -26,7 +26,7 @@ func (s *server) indexBillingLog(ctx context.Context, header *types.Header, tran
 	}
 }
 
-func (s *server) indexBillingTokensDepositedLog(ctx context.Context, header *types.Header, transaction *types.Transaction, receipt *types.Receipt, log *types.Log, _ int, databaseTransaction database.Client) error {
+func (s *server) indexBillingTokensDepositedLog(ctx context.Context, header *types.Header, transaction *types.Transaction, _ *types.Receipt, log *types.Log, _ int, databaseTransaction database.Client) error {
 	billingTokensDepositedEvent, err := s.contractBilling.ParseTokensDeposited(*log)
 	if err != nil {
 		return fmt.Errorf("parse TokensDeposited event: %w", err)
@@ -35,7 +35,7 @@ func (s *server) indexBillingTokensDepositedLog(ctx context.Context, header *typ
 	zap.L().Debug("indexing TokensDeposited event for Billing", zap.Stringer("transaction.hash", transaction.Hash()), zap.Any("event", billingTokensDepositedEvent))
 
 	billingRecord := schema.BillingRecordDeposited{
-		BillingRecordBase: schema.BillingRecordParseBase(s.chainID.Uint64(), header, transaction, receipt, billingTokensDepositedEvent.User, billingTokensDepositedEvent.Amount),
+		BillingRecordBase: schema.BillingRecordParseBase(s.chainID.Uint64(), header, transaction, log.Index, billingTokensDepositedEvent.User, billingTokensDepositedEvent.Amount),
 	}
 
 	if err := databaseTransaction.SaveBillingRecordDeposited(ctx, &billingRecord); err != nil {
@@ -64,7 +64,7 @@ func (s *server) indexBillingTokensDepositedLog(ctx context.Context, header *typ
 	return nil
 }
 
-func (s *server) indexBillingTokensWithdrawnLog(ctx context.Context, header *types.Header, transaction *types.Transaction, receipt *types.Receipt, log *types.Log, _ int, databaseTransaction database.Client) error {
+func (s *server) indexBillingTokensWithdrawnLog(ctx context.Context, header *types.Header, transaction *types.Transaction, _ *types.Receipt, log *types.Log, _ int, databaseTransaction database.Client) error {
 	billingTokensWithdrawnEvent, err := s.contractBilling.ParseTokensWithdrawn(*log)
 	if err != nil {
 		return fmt.Errorf("parse TokensWithdrawn event: %w", err)
@@ -73,7 +73,7 @@ func (s *server) indexBillingTokensWithdrawnLog(ctx context.Context, header *typ
 	zap.L().Debug("indexing TokensWithdrawn event for Billing", zap.Stringer("transaction.hash", transaction.Hash()), zap.Any("event", billingTokensWithdrawnEvent))
 
 	billingRecord := schema.BillingRecordWithdrawal{
-		BillingRecordBase: schema.BillingRecordParseBase(s.chainID.Uint64(), header, transaction, receipt, billingTokensWithdrawnEvent.User, billingTokensWithdrawnEvent.Amount),
+		BillingRecordBase: schema.BillingRecordParseBase(s.chainID.Uint64(), header, transaction, log.Index, billingTokensWithdrawnEvent.User, billingTokensWithdrawnEvent.Amount),
 		Fee:               big.NewInt(0),
 	}
 
@@ -84,7 +84,7 @@ func (s *server) indexBillingTokensWithdrawnLog(ctx context.Context, header *typ
 	return nil
 }
 
-func (s *server) indexBillingTokensCollectedLog(ctx context.Context, header *types.Header, transaction *types.Transaction, receipt *types.Receipt, log *types.Log, _ int, databaseTransaction database.Client) error {
+func (s *server) indexBillingTokensCollectedLog(ctx context.Context, header *types.Header, transaction *types.Transaction, _ *types.Receipt, log *types.Log, _ int, databaseTransaction database.Client) error {
 	billingTokensCollected, err := s.contractBilling.ParseTokensCollected(*log)
 	if err != nil {
 		return fmt.Errorf("parse TokensCollected event: %w", err)
@@ -93,7 +93,7 @@ func (s *server) indexBillingTokensCollectedLog(ctx context.Context, header *typ
 	zap.L().Debug("indexing TokensCollected event for Billing", zap.Stringer("transaction.hash", transaction.Hash()), zap.Any("event", billingTokensCollected))
 
 	billingRecord := schema.BillingRecordCollected{
-		BillingRecordBase: schema.BillingRecordParseBase(s.chainID.Uint64(), header, transaction, receipt, billingTokensCollected.User, billingTokensCollected.Amount),
+		BillingRecordBase: schema.BillingRecordParseBase(s.chainID.Uint64(), header, transaction, log.Index, billingTokensCollected.User, billingTokensCollected.Amount),
 	}
 
 	if err := databaseTransaction.SaveBillingRecordCollected(ctx, &billingRecord); err != nil {
