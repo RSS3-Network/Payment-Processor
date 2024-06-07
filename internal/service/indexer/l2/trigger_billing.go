@@ -61,6 +61,8 @@ func (s *server) billingCollect(ctx context.Context, epoch *big.Int) ([]common.A
 		return nil, nil, fmt.Errorf("build billing collect tokens: %w", err)
 	}
 
+	zap.L().Debug("billing collect tokens", zap.Int64("epoch", epoch.Int64()), zap.Any("users", users), zap.Any("amounts", amounts))
+
 	if users == nil || amounts == nil {
 		// Push an empty epoch
 		zap.L().Debug("pushing an empty epoch", zap.Int64("epoch", epoch.Int64()))
@@ -174,10 +176,13 @@ func (s *server) buildBillingCollectTokens(ctx context.Context, nowTime time.Tim
 
 	if collectTokensData == nil {
 		// Nothing to do
+		zap.L().Debug("nothing to collect")
 		return nil, nil, nil
 	}
 
 	// Prepare result storage arrays
+	zap.L().Debug("prepare billing collect tokens result storage arrays", zap.Any("collectTokens", collectTokensData))
+
 	var (
 		users   []common.Address
 		amounts []*big.Int
