@@ -96,7 +96,7 @@ func (s *server) billingCollect(ctx context.Context, epoch *big.Int) ([]common.A
 		} else {
 			succeededUsers = append(succeededUsers, users[:limit]...)
 
-			for _, amount := range amounts[limit:] {
+			for _, amount := range amounts[:limit] {
 				totalCollected.Add(totalCollected, amount)
 			}
 		}
