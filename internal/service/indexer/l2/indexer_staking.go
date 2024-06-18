@@ -136,21 +136,27 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	)
 
 	// Calculate reward for nodes
-	rewardNodesAddress := make([]common.Address, len(allNodes))
-	rewardNodesAmount := make([]*big.Int, len(allNodes))
+	var rewardNodesAddress []common.Address
+	var rewardNodesAmount []*big.Int
 
-	for i, node := range allNodes {
+	for _, node := range allNodes {
 		// Calculate reward per node
-		rewardNodesAddress[i] = node.NodeAddress
-		rewardNodesAmount[i] = new(big.Int).Mul(rewardPerRequest, node.RequestCount)
+		if node.RequestCount.Cmp(big.NewInt(0)) == 0 {
+			// No contribution in this epoch, skip
+			continue
+		}
+
+		reward := new(big.Int).Mul(rewardPerRequest, node.RequestCount)
 
 		// Save into database
-		err = s.databaseClient.SetNodeRequestRewards(ctx, epoch, rewardNodesAddress[i], rewardNodesAmount[i])
-
+		err = s.databaseClient.SetNodeRequestRewards(ctx, epoch, node.NodeAddress, reward)
 		if err != nil {
 			// Error, but no need to abort
-			zap.L().Error("update node request rewards", zap.String("address", rewardNodesAddress[i].String()), zap.String("amount", rewardNodesAmount[i].String()), zap.Any("node", node), zap.Error(err))
+			zap.L().Error("update node request rewards", zap.String("address", node.NodeAddress.String()), zap.String("amount", reward.String()), zap.Any("node", node), zap.Error(err))
 		}
+
+		rewardNodesAddress = append(rewardNodesAddress, node.NodeAddress)
+		rewardNodesAmount = append(rewardNodesAmount, reward)
 	}
 
 	// 2.5. billing: distribute request rewards
