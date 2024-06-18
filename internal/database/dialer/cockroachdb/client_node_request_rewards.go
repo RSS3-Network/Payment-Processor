@@ -53,12 +53,12 @@ func (c *client) SaveNodeRequestCount(ctx context.Context, record *schema.NodeRe
 
 func (c *client) SetNodeRequestRewards(ctx context.Context, epoch *big.Int, nodeAddr common.Address, reward *big.Int) error {
 	return c.database.WithContext(ctx).
-		Updates(table.NodeRequestRecord{
-			RequestReward: decimal.NewFromBigInt(reward, 0),
-		}).
 		Where(table.NodeRequestRecord{
 			Epoch:       epoch.Uint64(),
 			NodeAddress: nodeAddr,
+		}).
+		Updates(table.NodeRequestRecord{
+			RequestReward: decimal.NewFromBigInt(reward, 0),
 		}).
 		Error
 }
