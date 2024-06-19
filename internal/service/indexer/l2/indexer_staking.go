@@ -140,8 +140,8 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	)
 
 	// Calculate reward for nodes
-	var rewardNodesAddress []common.Address
-	var rewardNodesAmount []*big.Int
+	rewardNodesAddress := []common.Address{}
+	rewardNodesAmount := []*big.Int{}
 
 	for _, node := range allNodes {
 		// Calculate reward per node
