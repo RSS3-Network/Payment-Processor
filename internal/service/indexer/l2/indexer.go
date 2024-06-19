@@ -88,7 +88,7 @@ func (s *server) run(ctx context.Context) (err error) {
 
 		// Waiting for a new block to be minted.
 		if s.checkpoint.BlockNumber >= s.blockNumberLatest {
-			blockConfirmationTime := time.Second // TODO Redefine it.
+			blockConfirmationTime := 30 * time.Second
 
 			zap.L().Info(
 				"waiting for a new block to be minted",
