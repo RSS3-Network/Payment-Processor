@@ -91,6 +91,8 @@ func (s *server) closeEpoch(ctx context.Context, header *types.Header, epoch *bi
 
 func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	// 2.2-3. billing
+	zap.L().Debug("closeEpochExec: 2.2-3. billing")
+
 	totalCollected, err := s.billingFlow(ctx, epoch)
 
 	if err != nil {
@@ -106,6 +108,8 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	}
 
 	// 2.4. calc request percentage
+	zap.L().Debug("closeEpochExec: 2.4. calc request percentage")
+
 	allNodes, err := s.databaseClient.FindNodeRequestRewardsByEpoch(ctx, epoch)
 
 	if err != nil {
@@ -160,6 +164,8 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	}
 
 	// 2.5. billing: distribute request rewards
+	zap.L().Debug("closeEpochExec: 2.5. billing: distribute request rewards")
+
 	s.distributeRequestRewards(ctx, rewardNodesAddress, rewardNodesAmount)
 
 	return nil
