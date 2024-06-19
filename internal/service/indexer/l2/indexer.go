@@ -69,9 +69,16 @@ func (s *server) Run(ctx context.Context) (err error) {
 func (s *server) run(ctx context.Context) (err error) {
 	for {
 		// Refresh the latest block number.
-		if s.blockNumberLatest, err = s.ethereumClient.BlockNumber(ctx); err != nil {
+		var safeBlockHead *types.Header
+		if err = s.ethereumClient.Client().CallContext(
+			ctx, &safeBlockHead,
+			"eth_getBlockByNumber",
+			"safe", false,
+		); err != nil || safeBlockHead == nil {
 			return fmt.Errorf("get latest block number: %w", err)
 		}
+
+		s.blockNumberLatest = safeBlockHead.Number.Uint64()
 
 		zap.L().Info(
 			"refreshed the latest block number",
