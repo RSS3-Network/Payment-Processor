@@ -54,12 +54,10 @@ func (s *server) ReportFailedTransactionToSlack(txErr error, receipt *types.Rece
 	defer log.Println("============================================================")
 
 	s.sendNotificationMessage(txErr, txHash, txFunc)
-	s.uploadUsersList(txHash, users, amount)
 
-	// select {} purposely block the process as it is a critical error and meaningless to continue
-	// if panic() is called, the process will be restarted by the supervisor
-	// we do not want that as it will be stuck in the same state
-	select {}
+	if len(users) > 0 || len(amount) > 0 {
+		s.uploadUsersList(txHash, users, amount)
+	}
 }
 
 func (s *server) sendNotificationMessage(txErr error, txHash string, txFunc string) {
@@ -136,7 +134,7 @@ func (s *server) sendNotificationMessage(txErr error, txHash string, txFunc stri
 	log.Printf("Notification message sent, preparing users list...")
 }
 
-func (s *server) uploadUsersList(txHash string, users []common.Address, amount []*big.Int) {
+func (s *server) uploadUsersList(txHash string, users []common.Address, amounts []*big.Int) {
 	// Upload failed users list as csv file
 	bodyBuffer := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuffer)
@@ -171,10 +169,22 @@ func (s *server) uploadUsersList(txHash string, users []common.Address, amount [
 		return
 	}
 
-	for i, user := range users {
-		_, err = fileWriter.Write([]byte(fmt.Sprintf("%s,%s\n", user.Hex(), amount[i].String())))
+	maxlen := max(len(users), len(amounts))
+	for i := 0; i < maxlen; i++ {
+		user := ""
+		amount := ""
+
+		if len(users) > i {
+			user = users[i].Hex()
+		}
+
+		if len(amounts) > i {
+			amount = amounts[i].String()
+		}
+
+		_, err = fileWriter.Write([]byte(fmt.Sprintf("%s,%s\n", user, amount)))
 		if err != nil {
-			log.Printf("Failed to write user line (%s,%s) into file with error: %v", user.Hex(), amount[i].String(), err)
+			log.Printf("Failed to write user line (%s,%s) into file with error: %v", user, amount, err)
 		}
 	}
 

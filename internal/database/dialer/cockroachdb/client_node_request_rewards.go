@@ -9,10 +9,13 @@ import (
 	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
 	"github.com/rss3-network/payment-processor/schema"
 	"github.com/shopspring/decimal"
+	"go.uber.org/zap"
 )
 
 func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.Int) ([]*schema.NodeRequestRecord, error) {
 	var rewardsRecord []table.NodeRequestRecord
+
+	zap.L().Debug("FindNodeRequestRewardsByEpoch: before query")
 
 	if err := c.database.
 		WithContext(ctx).
@@ -20,9 +23,13 @@ func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.I
 		return nil, err
 	}
 
+	zap.L().Debug("FindNodeRequestRewardsByEpoch: after query")
+
 	rewardsSchema := make([]*schema.NodeRequestRecord, len(rewardsRecord))
 
 	var err error
+
+	zap.L().Debug("FindNodeRequestRewardsByEpoch: before export")
 
 	for i, reward := range rewardsRecord {
 		rewardsSchema[i], err = reward.Export()
@@ -30,6 +37,8 @@ func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.I
 			return nil, err
 		}
 	}
+
+	zap.L().Debug("FindNodeRequestRewardsByEpoch: after export")
 
 	return rewardsSchema, nil
 }

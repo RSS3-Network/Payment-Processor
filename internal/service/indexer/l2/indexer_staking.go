@@ -86,17 +86,21 @@ func (s *server) closeEpoch(ctx context.Context, header *types.Header, epoch *bi
 	// Defer release mutex lock
 	defer s.redisClient.Del(ctx, constants.EpochMutexLockKey)
 
-	return s.closeEpochExec(ctx, epoch)
+	s.closeEpochExec(ctx, epoch) // This cannot retry when error happens, so just report errors to slack rather than retry it
+
+	return nil
 }
 
-func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
+func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) {
 	// 2.2-3. billing
 	zap.L().Debug("closeEpochExec: 2.2-3. billing")
 
 	totalCollected, err := s.billingFlow(ctx, epoch)
-
 	if err != nil {
-		return fmt.Errorf("failed to execute billing flow: %w", err)
+		zap.L().Error("failed to execute closeEpochExec: 2.2-3. billing", zap.Error(err))
+		s.ReportFailedTransactionToSlack(err, nil, "closeEpochExec: 2.2-3. billing", nil, nil)
+
+		return
 	}
 
 	zap.L().Debug("billing flow total collect", zap.String("token", totalCollected.String()))
@@ -104,17 +108,22 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	if totalCollected.Cmp(big.NewInt(0)) == 0 {
 		// No request fees collect in this epoch, skip
 		zap.L().Info("no request fees collect in this epoch, skip")
-		return nil
+
+		return
 	}
 
 	// 2.4. calc request percentage
 	zap.L().Debug("closeEpochExec: 2.4. calc request percentage")
 
 	allNodes, err := s.databaseClient.FindNodeRequestRewardsByEpoch(ctx, epoch)
-
 	if err != nil {
-		return fmt.Errorf("failed to find node requests record: %w", err)
+		zap.L().Error("failed to execute closeEpochExec: 2.4. calc request percentage", zap.Error(err))
+		s.ReportFailedTransactionToSlack(err, nil, "closeEpochExec: 2.4. calc request percentage", nil, nil)
+
+		return
 	}
+
+	zap.L().Debug("All nodes found, start contribution calc", zap.Uint64("epoch", epoch.Uint64()), zap.Any("nodes", allNodes))
 
 	// Sum all requests count
 	totalRequestCount := big.NewInt(0)
@@ -126,7 +135,8 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	if totalRequestCount.Cmp(big.NewInt(0)) == 0 {
 		// No requests happened in this epoch, skip
 		zap.L().Info("no requests happened in this epoch, skip")
-		return nil
+
+		return
 	}
 
 	// Calculate reward per request
@@ -167,6 +177,4 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) error {
 	zap.L().Debug("closeEpochExec: 2.5. billing: distribute request rewards")
 
 	s.distributeRequestRewards(ctx, rewardNodesAddress, rewardNodesAmount)
-
-	return nil
 }
