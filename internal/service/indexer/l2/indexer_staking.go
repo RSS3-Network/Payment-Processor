@@ -123,6 +123,11 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) {
 		return
 	}
 
+	if len(allNodes) == 0 {
+		zap.L().Debug("No active nodes in current epoch, skip")
+		return
+	}
+
 	zap.L().Debug("All nodes found, start contribution calc", zap.Uint64("epoch", epoch.Uint64()), zap.Any("nodes", allNodes))
 
 	// Sum all requests count

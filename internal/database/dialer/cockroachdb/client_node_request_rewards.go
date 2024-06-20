@@ -2,6 +2,7 @@ package cockroachdb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/rss3-network/payment-processor/schema"
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.Int) ([]*schema.NodeRequestRecord, error) {
@@ -20,6 +22,10 @@ func (c *client) FindNodeRequestRewardsByEpoch(ctx context.Context, epoch *big.I
 	if err := c.database.
 		WithContext(ctx).
 		Find(&rewardsRecord, table.NodeRequestRecord{Epoch: epoch.Uint64()}).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 
