@@ -40,7 +40,12 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	//    5. billing: distribute request rewards
 
 	// Step 1: collect all data
+	bigZero := big.NewInt(0)
 	for i, nodeAddr := range stakingDistributeRewardsEvent.NodeAddrs {
+		if stakingDistributeRewardsEvent.RequestCounts[i].Cmp(bigZero) == 0 {
+			// No contribution in this epoch, skip
+			continue
+		}
 		err = databaseTransaction.SaveNodeRequestCount(ctx, &schema.NodeRequestRecord{
 			NodeAddress:  nodeAddr,
 			Epoch:        stakingDistributeRewardsEvent.Epoch,
@@ -160,11 +165,6 @@ func (s *server) closeEpochExec(ctx context.Context, epoch *big.Int) {
 
 	for _, node := range allNodes {
 		// Calculate reward per node
-		if node.RequestCount.Cmp(big.NewInt(0)) == 0 {
-			// No contribution in this epoch, skip
-			continue
-		}
-
 		reward := new(big.Int).Mul(rewardPerRequest, node.RequestCount)
 
 		// Save into database
