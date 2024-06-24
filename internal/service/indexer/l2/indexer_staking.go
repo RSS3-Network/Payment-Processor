@@ -46,6 +46,7 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 			// No contribution in this epoch, skip
 			continue
 		}
+
 		err = databaseTransaction.SaveNodeRequestCount(ctx, &schema.NodeRequestRecord{
 			NodeAddress:  nodeAddr,
 			Epoch:        stakingDistributeRewardsEvent.Epoch,
