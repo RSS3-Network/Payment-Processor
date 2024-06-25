@@ -31,7 +31,7 @@ type Client interface {
 	SaveBillingRecordWithdrawal(ctx context.Context, billingRecord *schema.BillingRecordWithdrawal) error
 	SaveBillingRecordCollected(ctx context.Context, billingRecord *schema.BillingRecordCollected) error
 
-	PrepareBillingCollectTokens(ctx context.Context, nowTime time.Time) (*map[common.Address]schema.BillingCollectDataPerAddress, error)
+	PrepareBillingCollectTokens(ctx context.Context, nowTime time.Time, epoch *big.Int) (*map[common.Address]schema.BillingCollectDataPerAddress, error)
 	PrepareBillingWithdrawTokens(ctx context.Context) (*map[common.Address]float64, error)
 	UpdateBillingRuLimit(ctx context.Context, succeededUsersWithRu map[common.Address]int64) error
 

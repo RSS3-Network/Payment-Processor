@@ -16,6 +16,7 @@ type GatewayConsumptionLog struct {
 	UpdatedAt time.Time
 
 	ConsumptionDate time.Time `gorm:"index;column:consumption_date"`
+	Epoch           uint64    `gorm:"index;column:epoch"`
 	RuUsed          int64     `gorm:"column:ru_used"`
 	APICalls        int64     `gorm:"column:api_calls"`
 

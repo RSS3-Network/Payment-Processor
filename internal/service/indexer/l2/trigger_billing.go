@@ -54,7 +54,7 @@ func (s *server) billingCollect(ctx context.Context, epoch *big.Int) ([]common.A
 	// billing collect tokens
 	nowTime := time.Now() // Epoch round identifier for billing
 
-	users, amounts, err := s.buildBillingCollectTokens(ctx, nowTime)
+	users, amounts, err := s.buildBillingCollectTokens(ctx, nowTime, epoch)
 
 	if err != nil {
 		zap.L().Error("build billing collect tokens", zap.Error(err))
@@ -164,10 +164,10 @@ func (s *server) billingUpdateRuLimit(ctx context.Context, usersRequireRuLimitRe
 	return nil
 }
 
-func (s *server) buildBillingCollectTokens(ctx context.Context, nowTime time.Time) ([]common.Address, []*big.Int, error) {
+func (s *server) buildBillingCollectTokens(ctx context.Context, nowTime time.Time, epoch *big.Int) ([]common.Address, []*big.Int, error) {
 	zap.L().Debug("Build billing collect tokens")
 
-	collectTokensData, err := s.databaseClient.PrepareBillingCollectTokens(ctx, nowTime)
+	collectTokensData, err := s.databaseClient.PrepareBillingCollectTokens(ctx, nowTime, epoch)
 
 	if err != nil {
 		zap.L().Error("prepare billing data", zap.Error(err))

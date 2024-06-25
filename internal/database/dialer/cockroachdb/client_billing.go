@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -40,7 +41,7 @@ func (c *client) SaveBillingRecordCollected(ctx context.Context, billingRecord *
 	return c.database.WithContext(ctx).Create(&value).Error
 }
 
-func (c *client) prepareBillingCollectTokensCreateOrUpdateConsumptionLog(nowTime time.Time, k *table.GatewayKey, tx *gorm.DB) error {
+func (c *client) prepareBillingCollectTokensCreateOrUpdateConsumptionLog(nowTime time.Time, epoch *big.Int, k *table.GatewayKey, tx *gorm.DB) error {
 	var possibleExistLog table.GatewayConsumptionLog
 	err := tx.Where("consumption_date = ? AND key_id = ?", nowTime, k.ID).
 		First(&possibleExistLog).
@@ -51,6 +52,7 @@ func (c *client) prepareBillingCollectTokensCreateOrUpdateConsumptionLog(nowTime
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Fine, let's create it
 			err = tx.Create(&table.GatewayConsumptionLog{
+				Epoch:           epoch.Uint64(),
 				KeyID:           k.ID,
 				ConsumptionDate: nowTime,
 				RuUsed:          k.RuUsedCurrent,
@@ -59,6 +61,7 @@ func (c *client) prepareBillingCollectTokensCreateOrUpdateConsumptionLog(nowTime
 		} else {
 			// TODO: Error happens, but we don't know what's this, create a new record for now.
 			err = tx.Create(&table.GatewayConsumptionLog{
+				Epoch:           epoch.Uint64(),
 				KeyID:           k.ID,
 				ConsumptionDate: nowTime,
 				RuUsed:          k.RuUsedCurrent,
@@ -78,7 +81,7 @@ func (c *client) prepareBillingCollectTokensCreateOrUpdateConsumptionLog(nowTime
 	return err
 }
 
-func (c *client) PrepareBillingCollectTokens(ctx context.Context, nowTime time.Time) (*map[common.Address]schema.BillingCollectDataPerAddress, error) {
+func (c *client) PrepareBillingCollectTokens(ctx context.Context, nowTime time.Time, epoch *big.Int) (*map[common.Address]schema.BillingCollectDataPerAddress, error) {
 	// Get all keys whose ru_used_current is > 0
 	var activeKeys []table.GatewayKey
 
@@ -108,7 +111,7 @@ func (c *client) PrepareBillingCollectTokens(ctx context.Context, nowTime time.T
 			k := k
 
 			// Create or update consumption log
-			err = c.prepareBillingCollectTokensCreateOrUpdateConsumptionLog(nowTime, &k, tx)
+			err = c.prepareBillingCollectTokensCreateOrUpdateConsumptionLog(nowTime, epoch, &k, tx)
 			if err != nil {
 				zap.L().Error("create or update consumption log", zap.Error(err), zap.Any("key", k))
 				// but no need to stop here - data error can be fixed later, let's focus on billing now
