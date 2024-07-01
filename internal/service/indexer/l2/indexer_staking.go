@@ -68,14 +68,23 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 		}
 	}
 
-	// Step 2: check if is last batch of this epoch
-	return s.closeEpoch(ctx, header, stakingDistributeRewardsEvent.Epoch)
+	// Step 2: check if is last batch of this epoch (use go routine to prevent possible transaction stuck)
+	go func() {
+		zap.L().Debug("close epoch test", zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()))
+
+		err := s.closeEpoch(context.Background(), header.Number, stakingDistributeRewardsEvent.Epoch)
+		if err != nil {
+			zap.L().Error("close epoch failed", zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()), zap.Error(err))
+		}
+	}()
+
+	return nil // No error
 }
 
-func (s *server) closeEpoch(ctx context.Context, header *types.Header, epoch *big.Int) error {
+func (s *server) closeEpoch(ctx context.Context, blockNumber *big.Int, epoch *big.Int) error {
 	isStillProceeding, err := s.contractStaking.IsSettlementPhase(&bind.CallOpts{
 		Context:     ctx,
-		BlockNumber: header.Number,
+		BlockNumber: blockNumber,
 	})
 
 	if err != nil {
