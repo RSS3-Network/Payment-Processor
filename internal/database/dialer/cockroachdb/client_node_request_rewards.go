@@ -63,7 +63,7 @@ func (c *client) SaveNodeRequestCount(ctx context.Context, record *schema.NodeRe
 		return fmt.Errorf("import node request rewards: %w", err)
 	}
 
-	return c.database.WithContext(ctx).Create(&value).Error
+	return c.database.WithContext(ctx).Save(&value).Error
 }
 
 func (c *client) SetNodeRequestRewards(ctx context.Context, epoch *big.Int, nodeAddr common.Address, reward *big.Int) error {

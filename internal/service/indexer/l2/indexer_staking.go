@@ -24,7 +24,7 @@ func (s *server) indexStakingLog(ctx context.Context, header *types.Header, _ *t
 	}
 }
 
-func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *types.Header, log *types.Log, databaseTransaction database.Client) error {
+func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *types.Header, log *types.Log, _ database.Client) error {
 	stakingDistributeRewardsEvent, err := s.contractStaking.ParseRewardDistributed(*log)
 	if err != nil {
 		return fmt.Errorf("parse RewardDistributed event: %w", err)
@@ -52,29 +52,34 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 			continue
 		}
 
-		err = databaseTransaction.SaveNodeRequestCount(ctx, &schema.NodeRequestRecord{
+		// Save all node request count
+		//   Since closeEpoch depends on this,
+		//   here we use databaseClient directly rather than insert transaction
+		err = s.databaseClient.SaveNodeRequestCount(ctx, &schema.NodeRequestRecord{
 			NodeAddress:  nodeAddr,
 			Epoch:        stakingDistributeRewardsEvent.Epoch,
 			RequestCount: stakingDistributeRewardsEvent.RequestCounts[i],
 		})
 		if err != nil {
-			// Error, but no need to abort
+			// Log error and abort
 			zap.L().Error("save node request count",
 				zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()),
 				zap.String("nodeAddr", nodeAddr.Hex()),
 				zap.Int64("requestCount", stakingDistributeRewardsEvent.RequestCounts[i].Int64()),
 				zap.Error(err),
 			)
+
+			return fmt.Errorf("save node %s request count %d: %w", nodeAddr.Hex(), stakingDistributeRewardsEvent.RequestCounts[i].Int64(), err)
 		}
 	}
 
 	// Step 2: check if is last batch of this epoch (use go routine to prevent possible transaction stuck)
 	go func() {
-		zap.L().Debug("close epoch test", zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()))
+		zap.L().Debug("close epoch check start", zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()))
 
 		err := s.closeEpoch(context.Background(), header.Number, stakingDistributeRewardsEvent.Epoch)
 		if err != nil {
-			zap.L().Error("close epoch failed", zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()), zap.Error(err))
+			zap.L().Error("close epoch check failed", zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()), zap.Error(err))
 		}
 	}()
 
