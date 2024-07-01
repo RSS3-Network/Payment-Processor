@@ -42,8 +42,13 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 	// Step 1: collect all data
 	bigZero := big.NewInt(0)
 	for i, nodeAddr := range stakingDistributeRewardsEvent.NodeAddrs {
-		if stakingDistributeRewardsEvent.RequestCounts[i].Cmp(bigZero) == 0 {
+		if stakingDistributeRewardsEvent.RequestCounts[i].Cmp(bigZero) != 1 {
 			// No contribution in this epoch, skip
+			zap.L().Debug("node has no contribution in this epoch, skip",
+				zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()),
+				zap.String("nodeAddr", nodeAddr.String()),
+			)
+
 			continue
 		}
 
@@ -54,7 +59,12 @@ func (s *server) indexStakingDistributeRewardsLog(ctx context.Context, header *t
 		})
 		if err != nil {
 			// Error, but no need to abort
-			zap.L().Error("save node request count", zap.Any("index", i), zap.Any("event", stakingDistributeRewardsEvent), zap.Error(err))
+			zap.L().Error("save node request count",
+				zap.Uint64("epoch", stakingDistributeRewardsEvent.Epoch.Uint64()),
+				zap.String("nodeAddr", nodeAddr.Hex()),
+				zap.Int64("requestCount", stakingDistributeRewardsEvent.RequestCounts[i].Int64()),
+				zap.Error(err),
+			)
 		}
 	}
 
