@@ -155,7 +155,8 @@ func (s *server) processIndex(ctx context.Context, block *types.Block, receipts 
 
 	for _, receipt := range receipts {
 		// Discard all contract creation transactions.
-		if block.Transaction(receipt.TxHash).To() == nil {
+		tx := block.Transaction(receipt.TxHash)
+		if tx == nil || tx.To() == nil {
 			continue
 		}
 
