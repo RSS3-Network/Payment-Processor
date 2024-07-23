@@ -105,7 +105,9 @@ func (s *server) run(ctx context.Context) (err error) {
 		blockNumberCurrent := s.checkpoint.BlockNumber + 1
 
 		// Get current block (header and transactions).
-		block, err := s.ethereumClient.BlockByNumber(ctx, new(big.Int).SetUint64(blockNumberCurrent))
+		blockNumberBigInt := new(big.Int).SetUint64(blockNumberCurrent)
+
+		block, err := s.ethereumClient.BlockByNumber(ctx, blockNumberBigInt)
 		if err != nil {
 			return fmt.Errorf("get block %d: %w", blockNumberCurrent, err)
 		}
@@ -116,23 +118,42 @@ func (s *server) run(ctx context.Context) (err error) {
 			return fmt.Errorf("get receipts for block %d: %w", block.NumberU64(), err)
 		}
 
-		if err := s.index(ctx, block, receipts); err != nil {
+		possibleBillingEpoch, err := s.index(ctx, block, receipts)
+		if err != nil {
 			return fmt.Errorf("index block %d: %w", blockNumberCurrent, err)
 		}
+
+		// Exec pp billing flow
+		go s.execPPBillingFlow(blockNumberBigInt, possibleBillingEpoch)
 	}
 }
 
-func (s *server) index(ctx context.Context, block *types.Block, receipts types.Receipts) error {
+func (s *server) execPPBillingFlow(blockNumber *big.Int, epoch *big.Int) {
+	// Step 2: check if is last batch of this epoch (use go routine to prevent possible transaction stuck)
+	if blockNumber == nil || epoch == nil {
+		// Invalid
+		return
+	}
+
+	zap.L().Debug("close epoch check start", zap.Uint64("epoch", epoch.Uint64()))
+
+	if err := s.closeEpoch(context.Background(), blockNumber, epoch); err != nil {
+		zap.L().Error("close epoch check failed", zap.Uint64("epoch", epoch.Uint64()), zap.Error(err))
+	}
+}
+
+func (s *server) index(ctx context.Context, block *types.Block, receipts types.Receipts) (*big.Int, error) {
 	// Begin a database transaction for the block.
 	databaseTransaction, err := s.databaseClient.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("begin database transaction: %w", err)
+		return nil, fmt.Errorf("begin database transaction: %w", err)
 	}
 
 	defer lo.Try(databaseTransaction.Rollback)
 
-	if err = s.processIndex(ctx, block, receipts, databaseTransaction); err != nil {
-		return fmt.Errorf("process index: %w", err)
+	possibleBillingEpoch, err := s.processIndex(ctx, block, receipts, databaseTransaction)
+	if err != nil {
+		return nil, fmt.Errorf("process index: %w", err)
 	}
 
 	// Update and save checkpoint to memory and database.
@@ -140,18 +161,20 @@ func (s *server) index(ctx context.Context, block *types.Block, receipts types.R
 	s.checkpoint.BlockNumber = block.NumberU64()
 
 	if err := databaseTransaction.SaveCheckpoint(ctx, s.checkpoint); err != nil {
-		return fmt.Errorf("save checkpoint: %w", err)
+		return nil, fmt.Errorf("save checkpoint: %w", err)
 	}
 
 	if databaseTransaction.Commit() != nil {
-		return fmt.Errorf("commit database transaction: %w", err)
+		return nil, fmt.Errorf("commit database transaction: %w", err)
 	}
 
-	return nil
+	return possibleBillingEpoch, nil
 }
 
-func (s *server) processIndex(ctx context.Context, block *types.Block, receipts types.Receipts, databaseTransaction database.Client) error {
+func (s *server) processIndex(ctx context.Context, block *types.Block, receipts types.Receipts, databaseTransaction database.Client) (*big.Int, error) {
 	header := block.Header()
+
+	var possibleBillingEpoch *big.Int // = nil
 
 	for _, receipt := range receipts {
 		// Discard all contract creation transactions.
@@ -176,30 +199,39 @@ func (s *server) processIndex(ctx context.Context, block *types.Block, receipts 
 				continue
 			}
 
-			err := s.processLog(ctx, block, receipt, databaseTransaction, log, header, index) // WHY IS THIS LINTER SO ANNOYING
+			possibleBillingEpochThisLog, err := s.processLog(ctx, block, receipt, databaseTransaction, log, header, index) // WHY IS THIS LINTER SO ANNOYING
 
 			if err != nil {
-				return err
+				return nil, err
+			}
+
+			if possibleBillingEpochThisLog != nil {
+				possibleBillingEpoch = possibleBillingEpochThisLog
 			}
 		}
 	}
 
-	return nil
+	return possibleBillingEpoch, nil
 }
 
-func (s *server) processLog(ctx context.Context, block *types.Block, receipt *types.Receipt, databaseTransaction database.Client, log *types.Log, header *types.Header, index int) error {
+func (s *server) processLog(ctx context.Context, block *types.Block, receipt *types.Receipt, databaseTransaction database.Client, log *types.Log, header *types.Header, index int) (*big.Int, error) {
+	var (
+		possibleBillingEpoch *big.Int // = nil
+		err                  error
+	)
+
 	switch log.Address {
 	case l2.ContractMap[s.chainID.Uint64()].AddressBillingProxy:
-		if err := s.indexBillingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
-			return fmt.Errorf("index billing log %s %d: %w", log.TxHash, log.Index, err)
+		if err = s.indexBillingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
+			return nil, fmt.Errorf("index billing log %s %d: %w", log.TxHash, log.Index, err)
 		}
 	case l2.ContractMap[s.chainID.Uint64()].AddressStakingProxy:
-		if err := s.indexStakingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
-			return fmt.Errorf("index staking log %s %d: %w", log.TxHash, log.Index, err)
+		if possibleBillingEpoch, err = s.indexStakingLog(ctx, header, block.Transaction(log.TxHash), receipt, log, index, databaseTransaction); err != nil {
+			return nil, fmt.Errorf("index staking log %s %d: %w", log.TxHash, log.Index, err)
 		}
 	}
 
-	return nil
+	return possibleBillingEpoch, nil
 }
 
 func NewServer(ctx context.Context, databaseClient database.Client, controlClient *control.StateClientWriter, redisClient *redis.Client, config *Config, billingConfig *config.Billing, settlerConfig *config.Settler) (service.Server, error) {
