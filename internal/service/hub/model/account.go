@@ -7,7 +7,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rss3-network/gateway-common/control"
-	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/postgresql/table"
 	"github.com/rss3-network/payment-processor/schema"
 	"gorm.io/gorm"
 )

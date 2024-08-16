@@ -1,4 +1,4 @@
-package cockroachdb
+package postgresql
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/pressly/goose/v3"
 	"github.com/rss3-network/payment-processor/internal/database"
-	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/postgresql/table"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

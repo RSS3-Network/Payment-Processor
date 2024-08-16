@@ -1,28 +1,13 @@
 version: "3.9"
 name: pp_dev
 services:
-  # CRDB
-  cockroach:
-    image: cockroachdb/cockroach:v23.1.8
+  # Database
+  postgres:
+    image: postgres:16-alpine
     ports:
-      - "26257:26257"
-    command:
-      - start-single-node
-      - --cluster-name=rss3-gateway
-      - --insecure
-    labels:
-      - "traefik.http.routers.crdb-console.rule=Host(`crdb-console.docker.localhost`)"
-      - "traefik.http.services.crdb-console.loadbalancer.server.port=8080"
-
-#  # CRDB for Atlas' temporary migration use
-#  cockroach2:
-#    image: cockroachdb/cockroach:v23.1.8
-#    ports:
-#      - "26258:26257"
-#    command:
-#      - start-single-node
-#      - --cluster-name=rss3-gateway
-#      - --insecure
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: dev
 
   # Redis
   redis:

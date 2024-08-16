@@ -1,12 +1,9 @@
 version: "3.9"
 name: pp_mig
 services:
-  # CRDB for Atlas' temporary migration use
-  cockroach2:
-    image: cockroachdb/cockroach:v23.1.8
+  postgres-mig:
+    image: postgres:16-alpine
     ports:
-      - "26258:26257"
-    command:
-      - start-single-node
-      - --cluster-name=rss3-gateway
-      - --insecure
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: mig
