@@ -1,4 +1,4 @@
-package cockroachdb
+package postgresql
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/postgresql/table"
 	"github.com/rss3-network/payment-processor/schema"
 	"go.uber.org/zap"
 	"gorm.io/gorm"

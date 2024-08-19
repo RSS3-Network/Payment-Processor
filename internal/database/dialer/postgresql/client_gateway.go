@@ -1,10 +1,10 @@
-package cockroachdb
+package postgresql
 
 import (
 	"context"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/postgresql/table"
 	"gorm.io/gorm"
 )
 

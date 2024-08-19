@@ -1,4 +1,4 @@
-// read internal/database/dialer/cockroachdb/README.md for more information
+// read internal/database/dialer/postgresql/README.md for more information
 
 data "external_schema" "gorm" {
   program = [
@@ -7,7 +7,7 @@ data "external_schema" "gorm" {
     "-mod=mod",
     "ariga.io/atlas-provider-gorm",
     "load",
-    "--path", "./internal/database/dialer/cockroachdb/table",
+    "--path", "./internal/database/dialer/postgresql/table",
     "--dialect", "postgres"
   ]
 }
@@ -17,14 +17,13 @@ env "dev" {
   // pointing to gorm models to generate schemas
   src = data.external_schema.gorm.url
   // the database which is holding the actual tables
-  url = "postgres://root:@localhost:26257/defaultdb?sslmode=disable&search_path=public"
-#   url = "postgres://postgres:password@localhost:5432/postgres?sslmode=disable"
+  url = "postgres://postgres:dev@localhost:5432/postgres?sslmode=disable"
   // a temporary database for Atlas to do migrations
-  dev = "postgres://root:@localhost:26258/defaultdb?sslmode=disable&search_path=public"
+  dev = "postgres://postgres:mig@localhost:5433/postgres?sslmode=disable"
 #   dev = "docker://postgres/16"
   // location of migration files
   migration {
-    dir = "file://internal/database/dialer/cockroachdb/migration?format=goose"
+    dir = "file://internal/database/dialer/postgresql/migration?format=goose"
   }
   format {
     migrate {

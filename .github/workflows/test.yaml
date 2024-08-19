@@ -62,15 +62,13 @@ jobs:
               --mode dev-container \
               --default-log-level=debug
 
-      - name: Start CRDB container
+      - name: Start PSQL container
         run: |
-          docker run -d --name crdb \
-            --network ${{ job.container.network }} --network-alias crdb \
-            -p 8080:8080 -p 26257:26257 \
-            cockroachdb/cockroach:v23.1.8 \
-            start-single-node \
-              --cluster-name=node \
-              --insecure
+          docker run -d --name psql \
+            --network ${{ job.container.network }} --network-alias psql \
+            -p 5432:5432 \
+            -e POSTGRES_PASSWORD=dev \
+            postgres:16-alpine
 
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -82,5 +80,5 @@ jobs:
 
       - name: Stop containers
         run: |
-          docker stop redpanda-0 crdb
-          docker rm redpanda-0 crdb
+          docker stop redpanda-0 psql
+          docker rm redpanda-0 psql

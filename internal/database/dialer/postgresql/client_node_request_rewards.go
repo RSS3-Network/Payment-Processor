@@ -1,4 +1,4 @@
-package cockroachdb
+package postgresql
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/postgresql/table"
 	"github.com/rss3-network/payment-processor/schema"
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"

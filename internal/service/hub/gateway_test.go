@@ -29,7 +29,7 @@ import (
 	"github.com/rss3-network/payment-processor/internal/config"
 	"github.com/rss3-network/payment-processor/internal/database"
 	"github.com/rss3-network/payment-processor/internal/database/dialer"
-	"github.com/rss3-network/payment-processor/internal/database/dialer/cockroachdb/table"
+	"github.com/rss3-network/payment-processor/internal/database/dialer/postgresql/table"
 	"github.com/rss3-network/payment-processor/internal/service/hub/handlers"
 	jwtImpl "github.com/rss3-network/payment-processor/internal/service/hub/jwt"
 	"github.com/rss3-network/payment-processor/internal/service/hub/model"
@@ -67,8 +67,8 @@ const (
 func init() {
 	// Prepare databaseClient
 	dbc, err := dialer.Dial(context.Background(), &config.Database{
-		Driver: database.DriverCockroachDB,
-		URI:    "postgres://root@localhost:26257/defaultdb",
+		Driver: database.DriverPostgreSQL,
+		URI:    "postgres://postgres:dev@localhost:5432/postgres",
 	})
 	if err != nil {
 		log.Panic(err)
